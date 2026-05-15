@@ -197,4 +197,4 @@ cargo test -p bokforing-core
 
 ## Licens
 
-Proprietär — all rights reserved.
+MIT — se [LICENSE](LICENSE).
