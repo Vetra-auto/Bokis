@@ -100,34 +100,47 @@ sudo dpkg -i target/release/bundle/deb/Bokis_0.1.0_amd64.deb
 
 ## Installation (nedladdning av senaste release)
 
+Bokis distribueras som .deb-paket och AppImage för Linux x86_64. Välj det alternativ som passar din distribution.
+
 ### .deb (Ubuntu/Debian)
 
 ```bash
 # Ladda ner och installera senaste releasen
-curl -sL https://github.com/vetra/bokis/releases/latest/download/Bokis_0.1.0_amd64.deb -o /tmp/bokis.deb
-sudo dpkg -i /tmp/bokis.deb
+curl -sLO https://github.com/Vetra-auto/Bokis/releases/latest/download/Bokis_0.1.0_amd64.deb
+sudo dpkg -i Bokis_0.1.0_amd64.deb
 sudo apt-get install -f  # installera eventuella beroenden
 ```
 
-### AppImage
+### AppImage (alla Linux-distributioner)
 
 ```bash
 # Ladda ner senaste AppImage
-curl -sL https://github.com/vetra/bokis/releases/latest/download/Bokis_0.1.0_amd64.AppImage -o ~/Bokis.AppImage
-chmod +x ~/Bokis.AppImage
-~/Bokis.AppImage
+curl -sLO https://github.com/Vetra-auto/Bokis/releases/latest/download/Bokis_0.1.0_amd64.AppImage
+chmod +x Bokis_0.1.0_amd64.AppImage
+./Bokis_0.1.0_amd64.AppImage
 ```
 
-### Via GitHub CLI (automatisk senaste version)
+### Via GitHub CLI
 
 ```bash
 # .deb
-gh release download --repo vetra/bokis --pattern '*.deb' --dir /tmp
-sudo dpkg -i /tmp/Bokis_*_amd64.deb
+gh release download --repo Vetra-auto/Bokis --pattern '*.deb'
+sudo dpkg -i Bokis_*_amd64.deb
 
 # AppImage
-gh release download --repo vetra/bokis --pattern '*.AppImage' --dir ~/
-chmod +x ~/Bokis_*.AppImage
+gh release download --repo Vetra-auto/Bokis --pattern '*.AppImage'
+chmod +x Bokis_*.AppImage
+./Bokis_*.AppImage
+```
+
+### Avinstallera
+
+```bash
+# .deb
+sudo apt remove bokis
+
+# AppImage — ta bara bort filen
+rm Bokis_*.AppImage
 ```
 
 ## Datalagring
@@ -135,7 +148,7 @@ chmod +x ~/Bokis_*.AppImage
 All data lagras lokalt i användarens app-datakatalog:
 
 ```
-~/.local/share/se.bokforing.app/
+~/.local/share/se.bokforing.bokis/
 ├── bokforing.db              # SQLite-databas (WAL mode)
 ├── attachments/              # Bilagor (per verifikation)
 ├── exports/                  # Exporterade filer
