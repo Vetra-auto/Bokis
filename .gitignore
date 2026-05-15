@@ -1,0 +1,9 @@
+/target
+crates/bokforing-ui/target/
+*.swp
+*.swo
+.DS_Store
+bokforing.db
+bokforing.db-wal
+bokforing.db-shm
+crates/bokforing-ui/dist/
