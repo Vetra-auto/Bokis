@@ -1,0 +1,67 @@
+<!doctype html>
+<!-- Delningsbilden för GitHub (Settings, Social preview), 1280 x 640. Renderas till PNG med
+     google-chrome --headless=new --hide-scrollbars --window-size=1280,640 \
+       --screenshot=bokis-delningsbild.png bokis-delningsbild.html
+     Typsnittet är C059 (URW, finns i fonts-urw-base35). -->
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<title>Bokis delningsbild</title>
+<style>
+  :root {
+    --natt: #14213D; --papper: #F1F3F6; --parm: #2D4B7A; --linje: #AFC0D6;
+    --stampel: #6C47C2; --ring: #E9E3F8; --dov: #8496B5;
+  }
+  html, body { margin: 0; padding: 0; }
+  body {
+    width: 1280px; height: 640px; overflow: hidden; position: relative;
+    background: var(--natt); color: var(--papper);
+    font-family: "C059", "Century Schoolbook", serif;
+  }
+  .text { position: absolute; left: 88px; top: 74px; width: 640px; }
+  .ordmarke { margin: 0; font-size: 44px; font-weight: 700; }
+  h1 { margin: 40px 0 0; font-size: 80px; line-height: 1.02; font-weight: 700; color: #fff; }
+  .under { margin: 32px 0 0; font-size: 31px; line-height: 1.4; color: var(--linje); }
+  .adress { position: absolute; left: 88px; bottom: 50px; margin: 0; font-size: 22px; color: var(--dov); }
+  .verifikation {
+    position: absolute; left: 792px; top: 72px; width: 410px; height: 468px;
+    background: var(--papper); color: var(--natt); border-radius: 18px; overflow: hidden;
+    transform: rotate(-6deg); box-shadow: 0 30px 56px rgba(4, 9, 22, 0.5);
+  }
+  .huvud { height: 76px; background: var(--parm); display: flex; align-items: center; gap: 11px; padding: 0 26px; }
+  .hal { width: 13px; height: 13px; border-radius: 50%; background: var(--papper); }
+  .titel { margin-left: 16px; font-size: 25px; font-weight: 700; color: var(--papper); }
+  .rader { padding: 14px 28px 0; }
+  .rad {
+    display: grid; grid-template-columns: 70px 1fr auto; align-items: baseline;
+    padding: 17px 0 13px; border-bottom: 3px solid var(--linje); font-size: 24px;
+  }
+  .konto { font-weight: 700; color: var(--parm); }
+  .belopp { font-variant-numeric: tabular-nums; }
+  .not { margin: 0; padding: 18px 28px 0; font-size: 19px; font-style: italic; color: #56667F; }
+  .stampel { position: absolute; left: 1022px; top: 388px; width: 180px; height: 180px; transform: rotate(-12deg); }
+</style>
+</head>
+<body>
+  <div class="text">
+    <p class="ordmarke">Bokis</p>
+    <h1>SaaS-döden<br>för bokföring.</h1>
+    <p class="under">Gratis och AI-first.<br>Agenten föreslår, du signerar.</p>
+  </div>
+  <p class="adress">github.com/Vetra-auto/Bokis</p>
+  <div class="verifikation">
+    <div class="huvud"><span class="hal"></span><span class="hal"></span><span class="hal"></span><span class="titel">Verifikation A 17</span></div>
+    <div class="rader">
+      <div class="rad"><span class="konto">5410</span><span>Inventarier</span><span class="belopp">1 196,00</span></div>
+      <div class="rad"><span class="konto">2641</span><span>Ingående moms</span><span class="belopp">299,00</span></div>
+      <div class="rad"><span class="konto">1930</span><span>Bank</span><span class="belopp">−1 495,00</span></div>
+    </div>
+    <p class="not">Förslag från agenten, kvittot bifogat</p>
+  </div>
+  <svg class="stampel" viewBox="0 0 120 120" aria-hidden="true">
+    <circle cx="60" cy="60" r="56" fill="#6C47C2"/>
+    <circle cx="60" cy="60" r="45.5" fill="none" stroke="#E9E3F8" stroke-width="4.7" stroke-dasharray="8.2 7"/>
+    <path d="M35.5 61.2 l16.3 16.3 l33.8 -37.3" fill="none" stroke="#FFFFFF" stroke-width="12.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</body>
+</html>
