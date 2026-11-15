@@ -1,0 +1,14 @@
+{
+  "regel": "Levnadskostnader, det vill säga privata kostnader, får inte dras av och ger inget momsavdrag. Exempel: körkort med behörighet A eller B och synundersökningar. Föreslå aldrig en privat kostnad som bolagets kostnad och föreslå inget momsavdrag för den. Fråga granskaren vem som betalade. Betalade personen själv är underlaget inte bolagets räkenskapsinformation. Betalade bolaget avgör granskaren hur det hanteras, till exempel att personen betalar tillbaka eller att det blir en skattepliktig förmån.",
+  "lagrum": [
+    "Inkomstskattelagen (1999:1229) 9 kap. 2 §",
+    "Mervärdesskattelagen (2023:200) 13 kap. 6 §"
+  ],
+  "kallor": [
+    "https://www.riksdagen.se/sv/dokument-och-lagar/dokument/svensk-forfattningssamling/inkomstskattelag-19991229_sfs-1999-1229/",
+    "https://www.skatteverket.se/foretag/moms/kopavarorochtjanster/kopavarorellertjanstertillforetaget.4.7459477810df5bccdd480005156.html",
+    "https://www.skatteverket.se/foretag/skatterochavdrag/avdragforforetag/avdragslexikonforetag.4.3684199413c956649b550c8.html",
+    "https://www.skatteverket.se/privat/skatter/arbeteochinkomst/formaner/utbildning.4.7459477810df5bccdd4800015174.html"
+  ],
+  "kontrollerad": "2026-11-15"
+}

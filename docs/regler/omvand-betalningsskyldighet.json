@@ -1,0 +1,17 @@
+{
+  "regel": "Inköp där köparen ska redovisa momsen och fakturan saknar svensk moms. Beskattningsunderlaget, den utgående momsen och den ingående momsen bokas på var sitt konto. Tjänster från ett annat EU-land enligt huvudregeln: 4535 (ruta 21), utgående moms 2614 (ruta 30), ingående moms 2645 (ruta 48). Varor från ett annat EU-land: 4515 (ruta 20), 2614, 2645. Tjänster från ett land utanför EU: 4531 (ruta 22), 2614, 2645. Varor och tjänster i Sverige där köparen är betalningsskyldig, till exempel byggtjänster: 4415 (ruta 23) respektive 4425 (ruta 24), 2614, ingående moms 2647 (ruta 48). Tjänster som avser en fastighet i Sverige och köps från en säljare i ett annat EU-land: ruta 24. Import av varor: 4545 (ruta 50), utgående moms 2615 (ruta 60), ingående moms 2645 (ruta 48). Vid 12 % och 6 % moms används motsvarande konton, till exempel 2624 och 2634 (rutorna 31 och 32). Saknas kontona i kontoplanen, fråga.",
+  "lagrum": [
+    "Mervärdesskattelagen (2023:200)",
+    "Skatteverkets anvisningar till momsdeklarationens fält 20–24, 30–32, 48, 50 och 60–62"
+  ],
+  "kallor": [
+    "https://www.skatteverket.se/foretag/moms/deklareramoms/fyllaimomsdeklarationen.4.3a2a542410ab40a421c80004214.html",
+    "https://www.skatteverket.se/foretag/moms/kopavarorochtjanster/inkopfranandraeulander/kopatjansterfranandraeulander.4.361dc8c15312eff6fd1d011.html",
+    "https://www.skatteverket.se/foretag/moms/kopavarorochtjanster/inkopfranandraeulander/kopavarorfranandraeulander.4.3a7aab801183dd6bfd380005738.html",
+    "https://www.skatteverket.se/foretag/moms/kopavarorochtjanster/inkopfranlanderutanforeu/kopatjansterfranlanderutanforeu.4.361dc8c15312eff6fd33a46.html",
+    "https://www.skatteverket.se/foretag/moms/sarskildamomsregler/omvandbetalningsskyldighet.4.47eb30f51122b1aaad28000258292.html",
+    "https://www.skatteverket.se/foretag/moms/kopavarorochtjanster/inkopfranlanderutanforeu/kopavarorfranlanderutanforeuimport.4.361dc8c15312eff6fd37208.html",
+    "https://www.bas.se/kontoplaner/"
+  ],
+  "kontrollerad": "2026-11-15"
+}

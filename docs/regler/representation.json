@@ -1,0 +1,14 @@
+{
+  "regel": "Måltider och annan förtäring vid extern eller intern representation. Moms: avdrag på ett underlag på högst 300 kr exklusive moms per person och tillfälle, alltså högst 36 kr per person vid 12 % moms på mat och alkoholfri dryck. Ingår alkohol och är kostnaden högre än 300 kr per person, fördela momsen proportionellt eller använd schablonen 46 kr per person och tillfälle, eller 33 kr när maten har 6 % moms. Från 1 april 2026 har livsmedel 6 % moms, medan restaurangtjänster har kvar 12 %. Inkomstskatt: måltider som frukost, lunch och middag får inte dras av (konto 6072, Representation, ej avdragsgill). Enklare förtäring och förfriskningar får dras av med högst 60 kr exklusive moms per person (6071, Representation, avdragsgill); är kostnaden högre än 60 kr per person får inget avdrag göras alls. Alkohol får aldrig dras av. Moms som inte får dras av bokas på kostnadskontot. Teater, golf och liknande: moms på ett underlag på högst 180 kr per person. Personalfest: moms på ett underlag på högst 300 kr per person för mat och 180 kr för övrigt, till exempel lokal och musik. Momsavdrag förutsätter momspliktig verksamhet. Anteckna vilka som deltog och syftet; står det inte på underlaget, fråga.",
+  "lagrum": [
+    "Mervärdesskattelagen (2023:200) 13 kap. 24 och 25 §§",
+    "Inkomstskattelagen (1999:1229) 16 kap. 2 §"
+  ],
+  "kallor": [
+    "https://www.skatteverket.se/foretag/moms/kopavarorochtjanster/avdragformomsvidrepresentation.4.15532c7b1442f256baec84b.html",
+    "https://www.skatteverket.se/foretag/skatterochavdrag/avdragforforetag/avdragslexikonforetag.4.3684199413c956649b550c8.html",
+    "https://www.skatteverket.se/privat/skatter/beloppochprocent/2026.4.1522bf3f19aea8075ba89.html",
+    "https://www.skatteverket.se/foretag/moms/saljavarorochtjanster/momssatserochundantagfranmoms.4.58d555751259e4d66168000409.html"
+  ],
+  "kontrollerad": "2026-11-15"
+}

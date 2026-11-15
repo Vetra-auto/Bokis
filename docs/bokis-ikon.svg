@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="titel">
+  <title id="titel">Bokis</title>
+  <rect width="256" height="256" rx="56" fill="#14213D"/>
+  <g transform="rotate(-7 124 124)">
+    <rect x="56" y="40" width="136" height="172" rx="12" fill="#F1F3F6"/>
+    <path d="M56 52 a12 12 0 0 1 12 -12 h112 a12 12 0 0 1 12 12 v22 h-136 z" fill="#2D4B7A"/>
+    <g fill="#F1F3F6">
+      <circle cx="76" cy="57" r="5"/>
+      <circle cx="92" cy="57" r="5"/>
+      <circle cx="108" cy="57" r="5"/>
+    </g>
+    <g stroke="#AFC0D6" stroke-width="4" stroke-linecap="round">
+      <path d="M70 98 H178 M70 122 H178 M70 146 H178 M70 170 H178 M70 194 H140"/>
+      <path d="M146 86 V198"/>
+    </g>
+  </g>
+  <g transform="rotate(-12 178 180)">
+    <circle cx="178" cy="180" r="48" fill="#6C47C2"/>
+    <circle cx="178" cy="180" r="39" fill="none" stroke="#E9E3F8" stroke-width="4" stroke-dasharray="7 6"/>
+    <path d="M157 181 l14 14 l29 -32" fill="none" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

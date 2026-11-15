@@ -1,0 +1,12 @@
+{
+  "regel": "En verifikation ska visa när affärshändelsen inträffade, vad den avser, vilket belopp den gäller och vilken motpart den berör, och hänvisa till underlaget den bygger på. Bokis sätter själv sammanställningsdatum och verifikationsnummer. Beskrivningen ska göra det möjligt att identifiera affärshändelsen och förstå vad den innebär. Motparten ska gå att identifiera, till exempel med namn och organisationsnummer eller momsregistreringsnummer; är företagaren själv motpart räcker namnet. Motpart får utelämnas bara när det är förenat med svårighet, i praktiken vid betalning direkt vid leverans från en i huvudsak anonym kundkrets.",
+  "lagrum": [
+    "Bokföringslagen (1999:1078) 5 kap. 6–8 §§",
+    "BFNAR 2013:2 punkt 5.5–5.7"
+  ],
+  "kallor": [
+    "https://www.riksdagen.se/sv/dokument-och-lagar/dokument/svensk-forfattningssamling/bokforingslag-19991078_sfs-1999-1078/",
+    "https://www.bfn.se/wp-content/uploads/vl13-2-bokforing.pdf"
+  ],
+  "kontrollerad": "2026-11-15"
+}

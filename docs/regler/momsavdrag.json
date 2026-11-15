@@ -1,0 +1,13 @@
+{
+  "regel": "Ingående moms får dras av bara i den mån inköpet används i den momspliktiga verksamheten, och avdraget ska styrkas med en faktura eller ett kvitto där momsen står. Räkna aldrig fram en moms som inte står på underlaget. En fullständig faktura ska visa säljarens momsregistreringsnummer. En förenklad faktura, till exempel ett kvitto, räcker när totalbeloppet är högst 4 000 kr inklusive moms; den ska visa datum, säljarens momsregistreringsnummer, personnummer eller organisationsnummer, vad som sålts och momsen eller uppgifter som gör det möjligt att räkna ut den. Över 4 000 kr ger en förenklad faktura normalt ingen avdragsrätt; undantag finns, till exempel bensin i automat och tåg- eller bussbiljetter. Saknas uppgifter som behövs för avdraget, flagga underlaget som behover_komplettering eller fråga. Används inköpet delvis privat eller i momsfri verksamhet, får bara den momspliktiga verksamhetens andel dras av.",
+  "lagrum": [
+    "Mervärdesskattelagen (2023:200) 13 kap. 6, 29, 31 och 32 §§",
+    "Mervärdesskattelagen (2023:200) 17 kap. 24, 26 och 28 §§"
+  ],
+  "kallor": [
+    "https://www.riksdagen.se/sv/dokument-och-lagar/dokument/svensk-forfattningssamling/mervardesskattelag-2023200_sfs-2023-200/",
+    "https://www.skatteverket.se/foretag/moms/saljavarorochtjanster/momslagensregleromfakturering.4.58d555751259e4d66168000403.html",
+    "https://www.skatteverket.se/foretag/moms/kopavarorochtjanster/kopavarorellertjanstertillforetaget.4.7459477810df5bccdd480005156.html"
+  ],
+  "kontrollerad": "2026-11-15"
+}
