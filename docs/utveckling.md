@@ -1,0 +1,52 @@
+# Utveckling
+
+## Bygga
+
+```bash
+cargo build --release -p bok-cli -p bok-mcp -p bok-review -p bok-fjarr
+cargo test -p bok-store                  # och så vidare, en crate i taget
+```
+
+## Crates
+
+| Crate | Vad den gör |
+| --- | --- |
+| `bok-core` | Domänen: belopp i öre, verifikationer, signaturer och säkerhetsnivåer |
+| `bok-store` | SQLite-lagret: spärrarna i schemat, den hashkedjade historiken, rapporter och moms |
+| `bok-cli` | `bok`, kommandoraden för den som granskar och bokför |
+| `bok-archive` | Underlagsarkivet: en fil per SHA-256 i `underlag/<ab>/<hash>`, skrivskyddad, kontrolleras vid varje läsning. Filtyp avgörs av innehållet |
+| `bok-intake` | Läser en bevakad mapp: väntar tills filen är färdigskriven, hoppar över dolda och halvt nedladdade filer |
+| `bok-backup` | Kopia med `VACUUM INTO`, delad underlagspool på målet, manifest med SHA-256, läs-in bara till tom katalog |
+| `bok-bank` | camt.053 (.02 och .08) och CSV till bankrader i öre med stabila id och saldokontroll |
+| `bok-mcp` | MCP-servern. Agentens verktyg: lista och hämta underlag, kontoplan, regler, tidigare kontering, föreslå. Förslaget sparas med härkomst och argumentens SHA-256 som idempotensnyckel |
+| `bok-review` | Granskningsvyn: engångsnyckel i inloggningslänken, CSRF-skydd, CSP, underlag visas aldrig som aktivt innehåll |
+| `bok-eval` | Mäter agentens konteringar mot facit i Accounted Bench genom MCP-servern |
+| `bok-insyn` | Insynen för revisor och Skatteverket: bokföringen som läsbara sidor, live på 127.0.0.1 eller som fristående export |
+| `bok-fjarr` | Bokis på distans: agenten ansluter över HTTPS med OAuth och kopplingskod, och telefonen skickar kvittofoton med en personlig länk |
+
+## Hela flödet
+
+`scripts/e2e-ai-first.sh <ny katalog>` kör hela flödet med en engångsnyckel: inkorg, agentens
+förslag och fråga via `bok-mcp`, godkännande i `bok-review`, svar på frågan, kontoutdrag och
+agentens betalningsförslag, avstämning, stängd period, verifiering, kopia och läs-in-övning.
+
+## Schema
+
+Schemaversion 2 (`schema_v2.sql`) lägger till `bankrader`, `bankmatchningar`,
+`matchningsforslag`, `arenden` och `arendesvar`, som alla bara kan växa. En databas med version 1
+uppgraderas när den öppnas.
+
+Schemaversion 3 (`schema_v3.sql`) lägger till `sakerhetsniva`, besluten om säkerhetsnivå.
+
+## Granskningar
+
+En fristående granskning av nattens kod hittade sex brister, som alla är åtgärdade och har
+tester: en avstämning kunde ersättas med `INSERT OR REPLACE`, ett underlag som dömts ut som
+dubblett kunde ändå bokföras, bankrader i annan valuta och på 0 kr kunde stämmas av fel, agentens
+text kunde innehålla styrtecken som ändrar vad terminalen visar, momskoder föll bort vid ny
+inläsning av kontoplanen, och granskningsvyns inloggningslänk gick att återanvända.
+
+En kontroll i en riktig webbläsare hittade ytterligare ett fel: med `Referrer-Policy: no-referrer`
+skickar webbläsare `Origin: null` på formulär, så Origin-kontrollen nekade varje POST, även
+godkännandet. Testerna och e2e-skriptet skickade Origin själva och märkte inget. Nu är policyn
+`same-origin`, och ett test låser det.
