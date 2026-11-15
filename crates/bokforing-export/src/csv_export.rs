@@ -4,6 +4,12 @@ pub struct CsvExporter {
     delimiter: u8,
 }
 
+impl Default for CsvExporter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CsvExporter {
     pub fn new() -> Self {
         Self { delimiter: b';' }
@@ -119,13 +125,10 @@ pub struct AccountRow {
     pub is_active: bool,
 }
 
+/// Belopp med decimalkomma, tomt för noll. Tecknet bärs separat så att
+/// belopp mellan -0,99 och -0,01 kr behåller sitt minus.
 fn format_amount(ore: i64) -> String {
-    if ore == 0 {
-        return String::new();
-    }
-    let kronor = ore / 100;
-    let rest = (ore % 100).abs();
-    format!("{},{:02}", kronor, rest)
+    crate::amount::format_decimal_comma(ore)
 }
 
 #[cfg(test)]
@@ -162,5 +165,12 @@ mod tests {
         assert!(csv_str.contains("Datum;Serie;Nummer"));
         assert!(csv_str.contains("5410;100,00;"));
         assert!(csv_str.contains("2440;;100,00"));
+    }
+
+    #[test]
+    fn small_negative_amounts_keep_their_sign() {
+        assert_eq!(format_amount(-1), "-0,01");
+        assert_eq!(format_amount(-99), "-0,99");
+        assert_eq!(format_amount(-100), "-1,00");
     }
 }

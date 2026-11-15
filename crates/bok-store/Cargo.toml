@@ -1,0 +1,20 @@
+[package]
+name = "bok-store"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Bokis AI-first: SQLite-schema med triggers; varje skrivning i en transaktion med en hashkedjad händelse"
+
+[dependencies]
+bok-core = { path = "../bok-core" }
+chrono = { workspace = true }
+# 0.32 för att dela libsqlite3-sys 0.30 med sqlx i de gamla crates:en i samma
+# workspace (två versioner med `links = "sqlite3"` går inte att lösa ihop).
+# Kan uppgraderas när bokforing-db och bokforing-tauri tas bort.
+rusqlite = { version = "0.32.1", features = ["bundled"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3"

@@ -1,0 +1,18 @@
+[package]
+name = "bok-core"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Bokis AI-first: domänregler utan I/O (belopp, balans, perioder, numrering, rättelser, kanonisk form, hashkedja, signaturer)"
+
+[dependencies]
+chrono = { workspace = true }
+serde = { workspace = true }
+sha2 = { workspace = true }
+thiserror = { workspace = true }
+ssh-key = { version = "0.6.7", default-features = false, features = ["std", "ed25519"] }
+# För SimulatedHardwareSigner, som efterliknar en FIDO-nyckel i tester.
+ed25519-dalek = { version = "2", default-features = false }
+
+[dev-dependencies]
+serde_json = { workspace = true }

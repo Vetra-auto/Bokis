@@ -1,0 +1,23 @@
+[package]
+name = "bok-eval"
+description = "Mäter agentens konteringsförslag mot facit: kör MCP-servern med testuppgifter som underlag och poängsätter konto och momsbehandling."
+edition = "2021"
+license = "MIT"
+version = "0.1.0"
+
+[[bin]]
+name = "bok-eval"
+path = "src/main.rs"
+
+[dependencies]
+bok-mcp = { path = "../bok-mcp", default-features = false }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+chrono.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,30 @@
+[package]
+name = "bok-fjarr"
+description = "Bokis på distans: agenten ansluter över HTTPS med OAuth, och telefonen skickar kvittofoton."
+edition = "2021"
+license = "MIT"
+version = "0.1.0"
+
+[[bin]]
+name = "bok-fjarr"
+path = "src/main.rs"
+
+[dependencies]
+bok-archive = { path = "../bok-archive" }
+bok-mcp = { path = "../bok-mcp" }
+bok-store = { path = "../bok-store" }
+base64.workspace = true
+chrono.workspace = true
+clap = { version = "4", features = ["derive", "env"] }
+getrandom = "0.2"
+hex.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+
+[dev-dependencies]
+image = { version = "0.25", default-features = false, features = ["jpeg"] }
+tempfile.workspace = true
+
+[lints]
+workspace = true

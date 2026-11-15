@@ -1,6 +1,18 @@
 [workspace]
 resolver = "2"
 members = [
+    "crates/bok-core",
+    "crates/bok-store",
+    "crates/bok-cli",
+    "crates/bok-archive",
+    "crates/bok-bank",
+    "crates/bok-backup",
+    "crates/bok-intake",
+    "crates/bok-mcp",
+    "crates/bok-review",
+    "crates/bok-eval",
+    "crates/bok-fjarr",
+    "crates/bok-insyn",
     "crates/bokforing-core",
     "crates/bokforing-db",
     "crates/bokforing-export",
@@ -21,3 +33,20 @@ tracing = "0.1"
 sqlx = { version = "0.8", features = ["sqlite", "uuid", "chrono", "migrate", "runtime-tokio"] }
 argon2 = "0.5"
 tokio = { version = "1", features = ["full"] }
+# Delarna för steg 2 och 3 (bok-archive, bok-bank, bok-backup, bok-intake,
+# bok-mcp, bok-review, bok-eval).
+hex = "0.4"
+quick-xml = "0.37"
+encoding_rs = "0.8"
+base64 = "0.22"
+# 0.32 av samma skäl som i bok-store: de gamla sqlx-crates delar libsqlite3-sys.
+rusqlite = { version = "0.32.1", features = ["bundled"] }
+tempfile = "3"
+
+# Gäller crates som skriver `[lints] workspace = true`.
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+unwrap_used = "warn"
+expect_used = "warn"

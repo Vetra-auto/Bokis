@@ -1,0 +1,23 @@
+[package]
+name = "bok-insyn"
+description = "Insyn i Bokis för revisor och Skatteverket: bokföringen som läsbara sidor, live på 127.0.0.1 eller som fristående export."
+edition = "2021"
+license = "MIT"
+version = "0.1.0"
+
+[dependencies]
+bok-archive = { path = "../bok-archive" }
+# Bara operationsregistret, för systemdokumentationen.
+bok-mcp = { path = "../bok-mcp", default-features = false }
+# Bara HTTP-lagret (bind, read_request, Request och Response), inte granskningens koppling till lagret.
+bok-review = { path = "../bok-review", default-features = false }
+bok-store = { path = "../bok-store" }
+chrono.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

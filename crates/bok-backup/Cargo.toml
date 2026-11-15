@@ -1,0 +1,21 @@
+[package]
+name = "bok-backup"
+description = "Säkerhetskopior för Bokis: konsistent databaskopia, underlag och SHA-256-manifest till en extern plats, och återläsning bara till en tom katalog."
+edition = "2021"
+license = "MIT"
+version = "0.1.0"
+
+[dependencies]
+bok-archive = { path = "../bok-archive" }
+rusqlite.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+hex.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

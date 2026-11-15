@@ -1,0 +1,16 @@
+[package]
+name = "bok-intake"
+description = "Läser in underlag från en bevakad mapp till underlagsarkivet och bestämmer filtyp utifrån innehållet."
+edition = "2021"
+license = "MIT"
+version = "0.1.0"
+
+[dependencies]
+bok-archive = { path = "../bok-archive" }
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

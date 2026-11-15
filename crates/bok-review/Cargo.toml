@@ -1,0 +1,32 @@
+[package]
+name = "bok-review"
+description = "Granskningsvy för Bokis: en lokal webbsida där människan ser förslaget bredvid underlaget och godkänner eller avvisar."
+edition = "2021"
+license = "MIT"
+version = "0.1.0"
+
+[[bin]]
+name = "bok-review"
+path = "src/main.rs"
+
+[features]
+# Kopplingen till Bokis databas och signering med ssh-keygen. Utan den finns
+# bara demoläget.
+default = ["store"]
+store = ["dep:bok-store", "dep:bok-archive", "dep:serde_json", "dep:tempfile"]
+
+[dependencies]
+getrandom = "0.2"
+hex.workspace = true
+thiserror.workspace = true
+bok-store = { path = "../bok-store", optional = true }
+bok-archive = { path = "../bok-archive", optional = true }
+serde_json = { workspace = true, optional = true }
+tempfile = { workspace = true, optional = true }
+
+[dev-dependencies]
+chrono.workspace = true
+tempfile.workspace = true
+
+[lints]
+workspace = true

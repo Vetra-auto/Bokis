@@ -208,11 +208,23 @@ pub struct TrialBalanceRow {
     pub balance_ore: i64,
 }
 
+/// Belopp med decimalkomma, tomt för noll. Tecknet bärs separat så att
+/// belopp mellan -0,99 och -0,01 kr behåller sitt minus.
 fn format_amount(ore: i64) -> String {
-    if ore == 0 {
-        return String::new();
+    crate::amount::format_decimal_comma(ore)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::format_amount;
+
+    #[test]
+    fn small_negative_amounts_keep_their_sign() {
+        assert_eq!(format_amount(-1), "-0,01");
+        assert_eq!(format_amount(-50), "-0,50");
+        assert_eq!(format_amount(-99), "-0,99");
+        assert_eq!(format_amount(-12345), "-123,45");
+        assert_eq!(format_amount(12345), "123,45");
+        assert_eq!(format_amount(0), "");
     }
-    let kronor = ore / 100;
-    let rest = (ore % 100).abs();
-    format!("{},{:02}", kronor, rest)
 }

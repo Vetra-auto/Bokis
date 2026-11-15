@@ -1,0 +1,99 @@
+// Momskoder för vanliga BAS-konton: KONTO;RUTA, där RUTA är rutan i
+// momsdeklarationen (SKV 4700). Läses in med
+//
+//     bok konto momskoder docs/momskoder-bas.txt
+//
+// Granskad 2026-11-15. Kontona och deras namn finns i BAS 2026 (v 1.1,
+// bas.se/kontoplaner). Varken BAS eller Skatteverket anger någon koppling
+// mellan konto och ruta, så kopplingen bygger på kontots namn och
+// Skatteverkets beskrivning av fälten ("Fylla i momsdeklarationen" på
+// skatteverket.se). Stäm ändå av mot din kontoplan: ett konto som används
+// till något annat än namnet säger hamnar i fel ruta. Konton som saknas i
+// kontoplanen hoppas över. Bara kontonummer finns här; kontonamnen kommer från
+// din kontoplan.
+//
+// Saknas här: vinstmarginalbeskattning (ruta 07) och trepartshandel (rutorna
+// 37–38). De kräver egna konton och beräkningar enligt Skatteverkets
+// anvisningar.
+//
+// Momskod 49 (2650) markerar momsavräkningen: verifikationer med en rad på
+// ett sådant konto räknas inte med i momsrapporten.
+
+// Momspliktig försäljning (ruta 05), uttag (06), frivillig uthyrning (08)
+// och försäljning utan svensk moms (35–42)
+3001;05
+3002;05
+3003;05
+3914;05
+3401;06
+3402;06
+3403;06
+3913;08
+3004;42
+3105;36
+3108;35
+3231;41
+3305;40
+// 3308 bara vid försäljning till beskattningsbar person med momsregistrerings-
+// nummer i ett annat EU-land. Till privatpersoner där är försäljningen
+// momspliktig i Sverige (ruta 05), om den inte redovisas genom OSS.
+3308;39
+
+// Utgående moms på försäljning (rutorna 10–12)
+2610;10
+2611;10
+2612;10
+2613;10
+2616;10
+2620;11
+2621;11
+2622;11
+2623;11
+2626;11
+2630;12
+2631;12
+2632;12
+2633;12
+2636;12
+
+// Inköp med omvänd betalningsskyldighet, beskattningsunderlag (rutorna 20–24)
+4515;20
+4516;20
+4517;20
+4535;21
+4536;21
+4537;21
+4531;22
+4532;22
+4533;22
+4415;23
+4416;23
+4417;23
+4425;24
+4426;24
+4427;24
+
+// Utgående moms på inköp med omvänd betalningsskyldighet (rutorna 30–32)
+2614;30
+2624;31
+2634;32
+
+// Import (ruta 50) och utgående moms på import (rutorna 60–62)
+4545;50
+4546;50
+4547;50
+2615;60
+2625;61
+2635;62
+
+// Ingående moms (ruta 48)
+2640;48
+2641;48
+2642;48
+2645;48
+2646;48
+2647;48
+2649;48
+
+// Momsavräkning
+2650;49

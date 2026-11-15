@@ -1,0 +1,34 @@
+[package]
+name = "bok-cli"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Bokis AI-first: kommandoradsverktyget bok för den som granskar och bokför"
+
+[[bin]]
+name = "bok"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+bok-core = { path = "../bok-core" }
+bok-archive = { path = "../bok-archive" }
+bok-backup = { path = "../bok-backup" }
+bok-bank = { path = "../bok-bank" }
+bok-insyn = { path = "../bok-insyn" }
+bok-intake = { path = "../bok-intake" }
+# Bara operationsregistret, för systemdokumentationen; inte kopplingen till lagret.
+bok-mcp = { path = "../bok-mcp", default-features = false }
+bok-store = { path = "../bok-store" }
+# Den gamla exportcrate:n (blir bok-export) och dess beloppstyp.
+bokforing-core = { path = "../bokforing-core" }
+bokforing-export = { path = "../bokforing-export" }
+chrono = { workspace = true }
+clap = { version = "4", features = ["derive", "env"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sie-parser = "0.2"
+tempfile = "3"
+
+[dev-dependencies]
+sie-parser = "0.2"

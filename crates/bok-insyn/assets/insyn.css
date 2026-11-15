@@ -1,0 +1,244 @@
+/* Bokis insyn: bokföringen som den ser ut i pärmen.
+   Kolumnpapper med gröna linjer, blåsvart bläck, rödpenna för summor och
+   rättelser, och en violett kontrollstämpel. Inga webbtypsnitt: sidan ska
+   fungera från ett USB-minne utan nät. */
+
+:root {
+  --papper: #FBFCF8;
+  --flik: #EEF5F0;
+  --linje: #B9D3C1;
+  --linje-svag: #DCEADF;
+  --blck: #1F2A44;
+  --rod: #B3261E;
+  --stampel: #5B3FA6;
+  --grafit: #5E6672;
+  --serif: Charter, "Bitstream Charter", "Sitka Text", "Iowan Old Style", Cambria, Georgia, serif;
+  --mono: "DejaVu Sans Mono", Menlo, Consolas, monospace;
+}
+
+html {
+  background: var(--papper);
+  color: var(--blck);
+  font: 16px/1.55 var(--serif);
+  font-variant-numeric: lining-nums tabular-nums;
+  -webkit-text-size-adjust: 100%;
+}
+
+body { margin: 0; }
+
+a { color: var(--blck); text-decoration-color: var(--linje); text-underline-offset: .18em; text-decoration-thickness: 1px; }
+a:hover { text-decoration-color: var(--blck); }
+a:focus-visible { outline: 2px solid var(--stampel); outline-offset: 2px; border-radius: 2px; }
+
+/* Pärmen: flikar till vänster, bladet till höger. */
+.parm {
+  display: grid;
+  grid-template-columns: 12rem minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.flikar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1.25rem 0 2rem;
+  /* Linjen mellan flikarna och bladet. Den aktiva fliken täcker den, så att
+     fliken och bladet hänger ihop som i en pärm. */
+  box-shadow: inset -1px 0 0 var(--linje);
+  box-sizing: border-box;
+}
+
+.flikar .marke {
+  display: block;
+  margin: 0;
+  padding: 0 1.25rem 1.25rem;
+  font-size: .95rem;
+  color: var(--grafit);
+}
+
+.flikar .marke strong { display: block; color: var(--blck); font-size: 1.15rem; }
+
+.flikar a {
+  display: block;
+  margin: 0 1px .3rem .9rem;
+  padding: .4rem .9rem;
+  background: var(--flik);
+  border: 1px solid var(--linje);
+  border-right: none;
+  border-radius: 7px 0 0 7px;
+  text-decoration: none;
+  font-size: .95rem;
+}
+
+.flikar a[aria-current="page"] {
+  margin-right: 0;
+  background: var(--papper);
+  font-weight: 600;
+}
+
+.flikar .aret {
+  margin: 1.1rem 1.25rem .4rem;
+  font-size: .85rem;
+  color: var(--grafit);
+}
+
+.blad {
+  padding: 2rem clamp(1rem, 4vw, 3.5rem) 4rem;
+  max-width: 72rem;
+}
+
+/* Sidhuvud: vem bokföringen gäller och vilket år. */
+.huvud { margin-bottom: 1.5rem; }
+.huvud:empty { display: none; }
+/* Företaget står på pärmens rygg; i mobilen och på papper står det här. */
+.huvud .foretag { display: none; color: var(--grafit); margin: 0 0 .25rem; }
+.huvud .ar { margin: 0; color: var(--grafit); }
+.huvud .ar a { margin-right: .75rem; }
+.huvud .ar a[aria-current="page"] { font-weight: 600; text-decoration: none; }
+
+h1 { font-size: 2.1rem; line-height: 1.15; font-weight: 600; margin: 0 0 .5rem; letter-spacing: -.01em; }
+h2 { font-size: 1.4rem; line-height: 1.25; font-weight: 600; margin: 2.5rem 0 .75rem; }
+h3 { font-size: 1.1rem; line-height: 1.3; font-weight: 600; margin: 1.75rem 0 .5rem; }
+p, li { max-width: 68ch; }
+.ingress { font-size: 1.1rem; color: var(--grafit); margin-top: 0; }
+.tyst { color: var(--grafit); }
+
+/* Kontrollstämpeln: verifieringens resultat. */
+.stampel {
+  display: inline-block;
+  border: 2px solid var(--stampel);
+  border-radius: 5px;
+  color: var(--stampel);
+  padding: 1rem 1.4rem 1.1rem;
+  margin: .5rem 0 1.5rem;
+  max-width: 40rem;
+}
+.stampel .utfall { font-size: 1.75rem; font-weight: 600; line-height: 1.2; margin: 0; }
+.stampel .nar { margin: .3rem 0 0; font-size: .95rem; }
+.stampel.fel { border-color: var(--rod); color: var(--rod); }
+.stampel ul { margin: .8rem 0 0; padding: 0; list-style: none; color: var(--blck); font-size: .95rem; }
+.stampel li { display: flex; justify-content: space-between; gap: 1.5rem; padding: .1rem 0 .1rem 1.5rem; position: relative; max-width: none; }
+.stampel li::before { content: "✓"; position: absolute; left: 0; color: var(--stampel); font-weight: 600; }
+.stampel .tal { color: var(--grafit); }
+.stampel li.problem::before { content: "✗"; color: var(--rod); }
+.stampel li.problem { color: var(--rod); }
+.stampel li.vantar::before { content: "–"; color: var(--grafit); }
+.stampel li.vantar { color: var(--grafit); }
+/* Ett år som inte är stängt är inget fel, bara inte klart. */
+.stampel.oppen { border-color: var(--grafit); color: var(--grafit); }
+.stampel.oppen .utfall { color: var(--blck); }
+
+/* Fakta i par: rubrik och värde. */
+dl.fakta { display: grid; grid-template-columns: max-content 1fr; gap: .35rem 1.5rem; margin: 0 0 1.5rem; }
+dl.fakta dt { color: var(--grafit); }
+dl.fakta dd { margin: 0; }
+
+/* Kolumnpapper: tabeller med gröna kolumnlinjer och dubbel röd summalinje. */
+.rull { overflow-x: auto; margin: 0 0 1.25rem; }
+table.bok { border-collapse: collapse; width: 100%; font-size: .95rem; }
+table.bok caption { text-align: left; color: var(--grafit); padding-bottom: .4rem; }
+table.bok th { text-align: left; font-weight: 600; padding: .35rem .65rem; border-bottom: 2px solid var(--linje); vertical-align: bottom; }
+table.bok td { padding: .3rem .65rem; border-bottom: 1px solid var(--linje-svag); vertical-align: top; }
+table.bok td + td, table.bok th + th { border-left: 1px solid var(--linje-svag); }
+table.bok .num { text-align: right; white-space: nowrap; }
+table.bok tr.summa td { border-top: 3px double var(--rod); font-weight: 600; }
+table.bok tr.del td { font-weight: 600; background: var(--flik); }
+table.bok tr.rad td { color: var(--grafit); font-size: .9rem; }
+table.bok tr.rad td:first-child { padding-left: 1.6rem; }
+table.bok tr.ver td { border-top: 1px solid var(--linje); padding-top: .55rem; }
+table.bok td.konto, table.bok td.dag { white-space: nowrap; }
+
+.rattad, .avvikelse { color: var(--rod); }
+.signerad { color: var(--stampel); }
+.hash { font-family: var(--mono); font-size: .8rem; color: var(--grafit); word-break: break-all; }
+
+/* Verifikationen som blankett. */
+.blankett { border: 1px solid var(--linje); border-radius: 4px; padding: 1.25rem 1.4rem; margin: 0 0 2rem; background: var(--papper); }
+.blankett h1 { margin-bottom: .75rem; }
+.blankett dl.fakta { margin-bottom: 1rem; }
+
+/* Underlag bredvid konteringen. */
+.underlag { margin: 1rem 0; }
+.underlag figure { margin: 0 0 1.25rem; }
+.underlag img { max-width: 100%; max-height: 44rem; border: 1px solid var(--linje); background: #fff; }
+.underlag pre { white-space: pre-wrap; border: 1px solid var(--linje); padding: .8rem 1rem; background: #fff; font-size: .85rem; max-height: 30rem; overflow: auto; }
+.underlag figcaption { color: var(--grafit); font-size: .9rem; margin-top: .35rem; }
+
+.notis { border-left: 3px solid var(--linje); padding: .35rem 0 .35rem 1rem; color: var(--grafit); max-width: 68ch; }
+.notis.varning { border-left-color: var(--rod); color: var(--rod); }
+
+ul.lankar { padding-left: 1.1rem; }
+ul.lankar li { margin: .25rem 0; }
+
+/* Huvudbokens kontoregister och kontoblad. */
+ul.konton { list-style: none; padding: 0; margin: 0 0 1.5rem; display: flex; flex-wrap: wrap; gap: .2rem 1rem; }
+.kontoblad { margin-top: 2.25rem; }
+.kontoblad h2 { font-size: 1.15rem; margin: 0 0 .5rem; }
+
+table.bok caption { caption-side: top; }
+table.uppstallning { margin-bottom: .5rem; }
+table.uppstallning tr.summa td:first-child, table.uppstallning tr.post td:first-child { white-space: nowrap; }
+
+pre { font-family: var(--mono); font-size: .85rem; }
+details { margin: .4rem 0; }
+details summary { cursor: pointer; color: var(--grafit); }
+details pre { white-space: pre-wrap; word-break: break-word; background: #fff; border: 1px solid var(--linje-svag); padding: .6rem .8rem; max-height: 28rem; overflow: auto; }
+table.bok details pre { max-width: 40rem; font-size: .78rem; }
+dl.kommandon pre { margin: .1rem 0 .3rem; background: #fff; border: 1px solid var(--linje-svag); padding: .4rem .65rem; overflow-x: auto; }
+dl.kommandon dd { margin-bottom: .5rem; }
+
+.fot { margin-top: 4rem; padding-top: .8rem; border-top: 1px solid var(--linje); color: var(--grafit); font-size: .85rem; }
+.fot p { margin: 0; }
+
+.dokument h1 { font-size: 1.8rem; }
+.dokument table { border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+.dokument th, .dokument td { border: 1px solid var(--linje-svag); padding: .3rem .55rem; text-align: left; vertical-align: top; }
+.dokument code { font-family: var(--mono); font-size: .85em; }
+.dokument td:first-child code { white-space: nowrap; }
+
+@media (max-width: 760px) {
+  .parm { display: block; }
+  .flikar {
+    position: static;
+    height: auto;
+    display: flex;
+    gap: .3rem;
+    overflow-x: auto;
+    padding: .75rem .75rem 0;
+    box-shadow: inset 0 -1px 0 var(--linje);
+  }
+  .flikar .marke, .flikar .aret { display: none; }
+  .flikar a { flex: none; margin: 0 0 1px; border: 1px solid var(--linje); border-bottom: none; border-radius: 7px 7px 0 0; white-space: nowrap; }
+  .flikar a[aria-current="page"] { margin-bottom: 0; }
+  .huvud .foretag { display: block; }
+  .blad { padding-top: 1.25rem; }
+  h1 { font-size: 1.65rem; }
+  .stampel .utfall { font-size: 1.4rem; }
+  dl.fakta { grid-template-columns: 1fr; gap: 0; }
+  dl.fakta dd { margin-bottom: .45rem; }
+  .blankett { padding: .9rem .8rem; }
+  table.bok th, table.bok td { padding: .3rem .45rem; }
+  table.bok td.konto { white-space: normal; }
+  /* Registreringstiden står på varje verifikation; i mobilen behövs platsen till texten. */
+  table.bok .reg { display: none; }
+}
+
+@media print {
+  html { background: #fff; font-size: 10.5pt; }
+  .flikar, .utskrift-dold { display: none; }
+  .huvud .foretag { display: block; }
+  details pre { max-height: none; }
+  .parm { display: block; }
+  .blad { padding: 0; max-width: none; }
+  a { text-decoration: none; }
+  table.bok tr { break-inside: avoid; }
+  h2, h3 { break-after: avoid; }
+  .stampel, .blankett { break-inside: avoid; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto; }
+}
