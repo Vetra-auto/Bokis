@@ -3,8 +3,9 @@
 //! Bokföringen visas som den står i databasen, utan möjlighet att ändra
 //! något: översikt med kontrollens resultat, grundbok, verifikationer med
 //! underlag, signatur och historik, huvudbok, saldobalans, årsbokslut med
-//! resultat- och balansräkning, moms, bankavstämning, underlag,
-//! behandlingshistorik och systemdokumentation.
+//! resultat- och balansräkning, moms, bankavstämning, inventarieregistret,
+//! utkastet till inkomstdeklaration 2, underlag, behandlingshistorik och
+//! systemdokumentation.
 //!
 //! Samma sidor används på två sätt:
 //! - live på 127.0.0.1 med en engångslänk ([`server`]), och
@@ -24,6 +25,8 @@ use bok_archive::Archive;
 use bok_store::bok_core::VoucherRef;
 use bok_store::{AttachmentRow, Company, EventRow, FiscalYear, Store, VerifyReport};
 
+mod assets_page;
+mod declaration_page;
 pub mod html;
 pub mod links;
 mod markdown;
@@ -467,6 +470,8 @@ impl<'a> Insyn<'a> {
                     "arsbokslut.html" => File::html(pages::annual_accounts(self, year)?),
                     "moms.html" => File::html(pages::vat(self, year)?),
                     "bank.html" => File::html(pages::bank(self, year)?),
+                    "inventarier.html" => File::html(assets_page::assets(self, year)?),
+                    "deklaration.html" => File::html(declaration_page::declaration(self, year)?),
                     other => {
                         let Some(reference) = other
                             .strip_prefix("v-")
@@ -558,6 +563,8 @@ impl<'a> Insyn<'a> {
                 "arsbokslut.html",
                 "moms.html",
                 "bank.html",
+                "inventarier.html",
+                "deklaration.html",
             ] {
                 out.push(format!("{dir}/{page}"));
             }

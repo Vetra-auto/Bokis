@@ -331,10 +331,13 @@ dependencies = [
  "bok-archive",
  "bok-backup",
  "bok-bank",
+ "bok-bokslut",
  "bok-core",
+ "bok-deklaration",
  "bok-insyn",
  "bok-intake",
  "bok-mcp",
+ "bok-sru",
  "bok-store",
  "bokforing-core",
  "bokforing-export",
@@ -405,6 +408,8 @@ name = "bok-insyn"
 version = "0.1.0"
 dependencies = [
  "bok-archive",
+ "bok-bokslut",
+ "bok-deklaration",
  "bok-mcp",
  "bok-review",
  "bok-store",
@@ -439,6 +444,7 @@ version = "0.1.0"
 dependencies = [
  "base64 0.22.1",
  "bok-archive",
+ "bok-bokslut",
  "bok-store",
  "chrono",
  "hex",

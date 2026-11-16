@@ -113,6 +113,8 @@ fn action_label(action: &str) -> &str {
         "bankrad.avstamd" => "Bankrad avstämd",
         "bankrad.forklarad" => "Bankrad förklarad",
         "konto.avstamt" => "Konto avstämt",
+        "inventarie.registrerad" => "Inventarium registrerat",
+        "inventarie.avgang" => "Inventarium avregistrerat",
         "arende.oppnat" => "Ärende öppnat",
         "arende.besvarat" => "Ärende besvarat",
         "regel.andrad" => "Regel ändrad",

@@ -7,6 +7,8 @@ version = "0.1.0"
 
 [dependencies]
 bok-archive = { path = "../bok-archive" }
+bok-bokslut = { path = "../bok-bokslut" }
+bok-deklaration = { path = "../bok-deklaration" }
 # Bara operationsregistret, för systemdokumentationen.
 bok-mcp = { path = "../bok-mcp", default-features = false }
 # Bara HTTP-lagret (bind, read_request, Request och Response), inte granskningens koppling till lagret.

@@ -169,6 +169,29 @@ pub fn all() -> Vec<Operation> {
             }),
         },
         Operation {
+            name: "lista_inventarier",
+            description: "Listar inventarieregistret med anskaffningsvärde, nyttjandeperiod, konton och bokfört värde enligt plan vid räkenskapsårets slut. \
+                          Ett inventarium registreras av granskaren; föreslå anskaffningen som verifikation och fråga om registreringen.",
+            role: Role::Agent,
+            risk: Risk::Read,
+            schema: json!({"type": "object", "properties": {}}),
+        },
+        Operation {
+            name: "foresla_avskrivningar",
+            description: "Föreslår årets avskrivningar enligt plan ur inventarieregistret, som ett bokslutsförslag i serie B daterat årets sista dag. \
+                          Bokis räknar beloppen; granskaren bokför. Samma förslag läggs inte två gånger.",
+            role: Role::Agent,
+            risk: Risk::Propose,
+            schema: json!({
+                "type": "object",
+                "required": ["harkomst"],
+                "properties": {
+                    "ar": {"type": "string", "description": "Räkenskapsåret, till exempel 2026. Utan: året som omfattar i dag."},
+                    "harkomst": provenance_schema()
+                }
+            }),
+        },
+        Operation {
             name: "stall_fraga",
             description: "Ställer en fråga till granskaren när underlaget inte räcker, till exempel om syfte eller deltagare.",
             role: Role::Agent,

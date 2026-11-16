@@ -1,5 +1,7 @@
-//! `bok bokslut`: förslag om årets resultat och ingående balans. Förslagen
-//! granskas och bokförs som alla andra, med `bok godkann` och nyckeln.
+//! `bok bokslut`: förslag om årets resultat, ingående balans, årets
+//! avskrivningar, periodiseringar och bolagsskatt. Förslagen granskas och
+//! bokförs som alla andra, med `bok godkann` och nyckeln. Avskrivningar,
+//! periodiseringar och skatt hanteras i [`crate::year_end_cmd`].
 
 use anyhow::Result;
 use clap::Subcommand;
@@ -31,9 +33,30 @@ pub enum ClosingCmd {
         #[arg(long)]
         year: Option<String>,
     },
+    /// Föreslår årets avskrivningar enligt plan ur inventarieregistret (serie B).
+    #[command(visible_alias = "avskrivningar")]
+    Depreciation {
+        /// Räkenskapsåret [standard: året som omfattar i dag].
+        #[arg(long)]
+        year: Option<String>,
+    },
+    /// Föreslår en periodisering av en förutbetald eller upplupen kostnad eller intäkt (serie B).
+    #[command(visible_alias = "periodisera")]
+    Accrual(crate::year_end_cmd::AccrualArgs),
+    /// Räknar bolagsskatten ur deklarationens överskott och föreslår den (serie B).
+    #[command(visible_alias = "skatt")]
+    Tax(crate::year_end_cmd::TaxArgs),
 }
 
 pub fn closing(ctx: &Ctx, cmd: ClosingCmd) -> Result<()> {
+    let cmd = match cmd {
+        ClosingCmd::Depreciation { year } => {
+            return crate::year_end_cmd::depreciation(ctx, year.as_deref());
+        }
+        ClosingCmd::Accrual(args) => return crate::year_end_cmd::accrual(ctx, args),
+        ClosingCmd::Tax(args) => return crate::year_end_cmd::tax(ctx, args),
+        other => other,
+    };
     let mut store = ctx.open()?;
     let actor = Actor::human(ctx.user.clone());
     let id = match cmd {
@@ -59,6 +82,9 @@ pub fn closing(ctx: &Ctx, cmd: ClosingCmd) -> Result<()> {
         ClosingCmd::OpeningBalance { year } => {
             let y = resolve_year(&store, year.as_deref())?;
             store.propose_opening_balances(&actor, y.id)?
+        }
+        ClosingCmd::Depreciation { .. } | ClosingCmd::Accrual(_) | ClosingCmd::Tax(_) => {
+            unreachable!("hanteras ovan")
         }
     };
     render::proposal(&store, &store.proposal(id)?)?;

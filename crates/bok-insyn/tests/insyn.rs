@@ -782,3 +782,26 @@ fn a_pdf_receipt_is_shown_on_the_voucher_page() {
         .unwrap()
         .contains("object-src 'self'"));
 }
+
+#[test]
+fn the_declaration_draft_and_the_asset_register_have_pages() {
+    let f = fixture();
+    let i = insyn(&f, Mode::Export);
+    let draft =
+        String::from_utf8(i.get("ar-2026/deklaration.html").unwrap().unwrap().body).unwrap();
+    assert!(draft.contains("INK2R-2026P4"), "{draft}");
+    assert!(draft.contains("Balansräkningen balanserar"), "{draft}");
+    assert!(draft.contains("Bolagsskatt"), "{draft}");
+    assert!(!draft.contains("<strong>Fel:</strong>"), "{draft}");
+    // Bolagsnamnet med < och & går genom esc även här.
+    assert!(!draft.contains("<AB>"));
+    let assets =
+        String::from_utf8(i.get("ar-2026/inventarier.html").unwrap().unwrap().body).unwrap();
+    assert!(
+        assets.contains("Registret har inga inventarier"),
+        "{assets}"
+    );
+    assert!(
+        assets.contains("href=\"deklaration.html\"") || assets.contains("ar-2026/deklaration.html")
+    );
+}

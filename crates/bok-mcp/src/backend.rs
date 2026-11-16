@@ -180,6 +180,33 @@ pub struct Receipt {
     pub warnings: Vec<String>,
 }
 
+/// Ett inventarium i registret, som agenten ser det.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AssetInfo {
+    #[serde(rename = "nummer")]
+    pub id: i64,
+    #[serde(rename = "beskrivning")]
+    pub description: String,
+    #[serde(rename = "anskaffad")]
+    pub acquired: String,
+    #[serde(rename = "anskaffningsvarde_ore")]
+    pub cost_ore: i64,
+    #[serde(rename = "nyttjandeperiod_manader")]
+    pub life_months: u32,
+    #[serde(rename = "avskrivning_fran")]
+    pub depreciation_start: String,
+    /// Tillgång, ackumulerade avskrivningar och kostnad.
+    #[serde(rename = "konton")]
+    pub accounts: [u16; 3],
+    /// Ackumulerad avskrivning enligt plan vid räkenskapsårets slut.
+    #[serde(rename = "ackumulerad_avskrivning_ore")]
+    pub accumulated_ore: i64,
+    #[serde(rename = "bokfort_varde_ore")]
+    pub book_value_ore: i64,
+    /// "i_bruk", "forsaljning", "utrangering" eller "felregistrering".
+    pub status: String,
+}
+
 /// Det MCP-servern får göra mot lagret. Inget här bokför.
 pub trait AgentBackend {
     fn list_documents(
@@ -220,4 +247,20 @@ pub trait AgentBackend {
         comment: &str,
         provenance: Provenance,
     ) -> Result<Receipt, BackendError>;
+    /// Inventarieregistret med värden vid räkenskapsårets slut. Demoläget
+    /// har inget register.
+    fn assets(&self) -> Result<Vec<AssetInfo>, BackendError> {
+        Ok(Vec::new())
+    }
+    /// Föreslår årets avskrivningar enligt plan för räkenskapsåret `year`
+    /// ("2026"), eller året som omfattar i dag.
+    fn propose_depreciation(
+        &mut self,
+        _year: Option<&str>,
+        _provenance: Provenance,
+    ) -> Result<Receipt, BackendError> {
+        Err(BackendError::Invalid(
+            "inventarieregistret finns inte i demoläget".into(),
+        ))
+    }
 }

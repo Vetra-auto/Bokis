@@ -10,14 +10,17 @@
 
 mod archive;
 mod closing;
+mod declaration_cmd;
 mod input;
 mod insyn_cmd;
+mod inventory_cmd;
 mod parts;
 mod render;
 mod rules_cmd;
 mod signer;
 mod sysdoc;
 mod year_archive;
+mod year_end_cmd;
 
 use std::io::Write as _;
 use std::path::{Path, PathBuf};
@@ -107,9 +110,16 @@ enum Command {
     /// Skriver systemdokumentationen, genererad ur bokföringen, till en ny fil.
     #[command(visible_alias = "systemdokumentation")]
     SystemDoc { out: PathBuf },
-    /// Bokslut: förslag om årets resultat (serie B) och ingående balans för nästa år (serie I).
+    /// Bokslut: förslag om avskrivningar, periodiseringar, skatt och årets resultat (serie B)
+    /// och ingående balans för nästa år (serie I).
     #[command(subcommand, visible_alias = "bokslut")]
     Closing(closing::ClosingCmd),
+    /// Inventarieregistret: anskaffningar, avskrivningsplan och avyttringar.
+    #[command(subcommand, visible_alias = "inventarie")]
+    Inventory(inventory_cmd::InventoryCmd),
+    /// Deklarationer ur bokföringen: inkomstdeklaration 2 som SRU-filer.
+    #[command(subcommand, visible_alias = "deklaration")]
+    Declaration(declaration_cmd::DeclarationCmd),
     /// Stämmer av ett konto mot ett externt saldo, till exempel skattekontot 1630 mot Skatteverket.
     #[command(visible_alias = "avstam")]
     Reconcile {
@@ -558,6 +568,8 @@ fn run(cli: Cli) -> Result<ExitCode> {
         Command::Vat { period } => parts::vat_report(&ctx, &period)?,
         Command::SystemDoc { out } => sysdoc::write(&ctx, &out)?,
         Command::Closing(cmd) => closing::closing(&ctx, cmd)?,
+        Command::Inventory(cmd) => inventory_cmd::inventory(&ctx, cmd)?,
+        Command::Declaration(cmd) => declaration_cmd::declaration(&ctx, cmd)?,
         Command::Inspect(args) => insyn_cmd::insyn(&ctx, args)?,
         Command::YearArchive { target, year } => {
             year_archive::write(&ctx, year.as_deref(), &target)?

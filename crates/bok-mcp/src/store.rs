@@ -582,6 +582,98 @@ impl AgentBackend for StoreBackend {
             warnings: vec![],
         })
     }
+
+    /// Registret med värden enligt plan vid slutet av räkenskapsåret som
+    /// omfattar i dag (eller det senaste året).
+    fn assets(&self) -> Result<Vec<AssetInfo>, BackendError> {
+        use bok_store::bok_inventarier::Plan;
+        let years = self.store.fiscal_years().map_err(store_err)?;
+        let today = self.store.today();
+        let end = years
+            .iter()
+            .find(|y| y.contains(today))
+            .or(years.last())
+            .map_or(today, |y| y.end);
+        let assets = self.store.assets().map_err(store_err)?;
+        Ok(assets
+            .into_iter()
+            .map(|a| {
+                let accumulated = if a.is_void() {
+                    0
+                } else {
+                    Plan::of(&a.details).accumulated_through(end).ore()
+                };
+                let acc = a.details.accounts;
+                AssetInfo {
+                    id: a.id,
+                    status: a
+                        .disposal
+                        .as_ref()
+                        .map_or("i_bruk".to_string(), |d| d.kind.as_str().to_string()),
+                    description: a.details.description,
+                    acquired: a.details.acquired.to_string(),
+                    cost_ore: a.details.cost.ore(),
+                    life_months: a.details.life_months,
+                    depreciation_start: a.details.depreciation_start.to_string(),
+                    accounts: [
+                        acc.asset.value(),
+                        acc.accumulated.value(),
+                        acc.expense.value(),
+                    ],
+                    accumulated_ore: accumulated,
+                    book_value_ore: a.details.cost.ore() - accumulated,
+                }
+            })
+            .collect())
+    }
+
+    /// Årets avskrivningar enligt plan som bokslutsförslag. Beloppen räknas
+    /// av Bokis ur registret, inte av agenten.
+    fn propose_depreciation(
+        &mut self,
+        year: Option<&str>,
+        provenance: Provenance,
+    ) -> Result<Receipt, BackendError> {
+        let years = self.store.fiscal_years().map_err(store_err)?;
+        let today = self.store.today();
+        let y = match year.map(str::trim) {
+            Some(label) => years
+                .iter()
+                .find(|y| y.label() == label)
+                .copied()
+                .ok_or_else(|| BackendError::NotFound(format!("räkenskapsåret {label}")))?,
+            None => years
+                .iter()
+                .find(|y| y.contains(today))
+                .or(years.last())
+                .copied()
+                .ok_or_else(|| BackendError::NotFound("något räkenskapsår".into()))?,
+        };
+        let actor = Actor::agent(model_label(&provenance.model));
+        let raw = serde_json::json!({ "ar": y.label(), "harkomst": &provenance }).to_string();
+        let store_provenance = StoreProvenance {
+            confidence: Some((1.0 - provenance.uncertainty).clamp(0.0, 1.0)),
+            model: Some(model_label(&provenance.model)),
+            provider: provenance.provider.clone(),
+            region: provenance.region.clone(),
+            raw_response: Some(raw),
+            ..StoreProvenance::default()
+        };
+        let (proposed, _) = bok_bokslut::depreciation::propose_depreciation(
+            &mut self.store,
+            &actor,
+            &y,
+            store_provenance,
+        )
+        .map_err(|e| match e {
+            bok_bokslut::ClosingError::Store(e) => store_err(e),
+            other => BackendError::Invalid(other.to_string()),
+        })?;
+        Ok(Receipt {
+            id: proposed.id.to_string(),
+            warnings: proposed.notes,
+        })
+    }
 }
 
 #[cfg(test)]
@@ -1066,5 +1158,78 @@ mod tests {
             )
             .unwrap();
         assert!(f.backend.unmatched_bank_rows(10).unwrap().is_empty());
+    }
+
+    #[test]
+    fn assets_are_listed_and_depreciation_is_only_proposed() {
+        use bok_store::bok_inventarier::{AssetAccounts, NewAsset};
+        let mut f = fixture();
+        let human = Actor::human("granskare");
+        let today = f.backend.store.today();
+        let year = chrono::Datelike::year(&today);
+        let chart: Vec<AccountChange> = [
+            (1220, "Inventarier"),
+            (1229, "Ack. avskrivningar"),
+            (7832, "Avskrivningar"),
+        ]
+        .into_iter()
+        .map(|(n, name)| AccountChange {
+            number: AccountNumber::new(n).unwrap(),
+            name: name.into(),
+            active: true,
+            sru: None,
+            vat_code: None,
+        })
+        .collect();
+        f.backend
+            .store
+            .change_chart(&human, d(year - 1, 1, 1), &chart, &f.signer)
+            .unwrap();
+        f.backend
+            .store
+            .register_asset(
+                &human,
+                &NewAsset {
+                    description: "Server".into(),
+                    acquired: d(year, 1, 10),
+                    cost: Money::from_ore(6_000_000),
+                    life_months: 60,
+                    depreciation_start: d(year, 1, 1),
+                    residual: Money::ZERO,
+                    accounts: AssetAccounts {
+                        asset: AccountNumber::new(1220).unwrap(),
+                        accumulated: AccountNumber::new(1229).unwrap(),
+                        expense: AccountNumber::new(7832).unwrap(),
+                    },
+                },
+                None,
+            )
+            .unwrap();
+        let assets = f.backend.assets().unwrap();
+        assert_eq!(assets.len(), 1);
+        assert_eq!(assets[0].accumulated_ore, 1_200_000);
+        assert_eq!(assets[0].status, "i_bruk");
+
+        let receipt = f
+            .backend
+            .propose_depreciation(None, provenance("avskrivning"))
+            .unwrap();
+        let id: i64 = receipt.id.parse().unwrap();
+        let p = f.backend.store.proposal(id).unwrap();
+        assert_eq!(p.series, Series::B);
+        assert_eq!(p.source, "agent");
+        assert!(p.decision.is_none());
+        // Samma förslag igen ger samma id, och agenten kan inte bokföra det.
+        let again = f
+            .backend
+            .propose_depreciation(Some(&year.to_string()), provenance("igen"))
+            .unwrap();
+        assert_eq!(again.id, receipt.id);
+        let agent = Actor::agent("agent");
+        assert!(f.backend.store.approve(&agent, id, &f.signer).is_err());
+        assert!(f
+            .backend
+            .propose_depreciation(Some("1999"), provenance("fel år"))
+            .is_err());
     }
 }

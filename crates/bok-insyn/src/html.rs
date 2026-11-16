@@ -80,19 +80,23 @@ pub(crate) enum Tab {
     Annual,
     Vat,
     Bank,
+    Assets,
+    Declaration,
     Attachments,
     History,
     SystemDoc,
     Export,
 }
 
-const YEAR_TABS: [(Tab, &str, &str); 6] = [
+const YEAR_TABS: [(Tab, &str, &str); 8] = [
     (Tab::Journal, "grundbok.html", "Grundbok"),
     (Tab::Ledger, "huvudbok.html", "Huvudbok"),
     (Tab::TrialBalance, "saldobalans.html", "Saldobalans"),
     (Tab::Annual, "arsbokslut.html", "Årsbokslut"),
     (Tab::Vat, "moms.html", "Moms"),
     (Tab::Bank, "bank.html", "Bank"),
+    (Tab::Assets, "inventarier.html", "Inventarier"),
+    (Tab::Declaration, "deklaration.html", "Deklaration"),
 ];
 
 const COMMON_TABS: [(Tab, &str, &str); 4] = [

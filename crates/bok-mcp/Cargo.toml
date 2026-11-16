@@ -12,11 +12,12 @@ path = "src/main.rs"
 [features]
 # Kopplingen till Bokis databas. Utan den finns bara demoläget.
 default = ["store"]
-store = ["dep:bok-store", "dep:bok-archive"]
+store = ["dep:bok-store", "dep:bok-archive", "dep:bok-bokslut"]
 
 [dependencies]
 bok-store = { path = "../bok-store", optional = true }
 bok-archive = { path = "../bok-archive", optional = true }
+bok-bokslut = { path = "../bok-bokslut", optional = true }
 serde.workspace = true
 serde_json.workspace = true
 base64.workspace = true
