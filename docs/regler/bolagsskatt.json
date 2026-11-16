@@ -1,0 +1,15 @@
+{
+  "regel": "Aktiebolagets skatt är 20,6 % av den beskattningsbara inkomsten, som är överskottet i inkomstdeklaration 2 (INK2S 4.15) avrundat nedåt till helt tiotal kronor. Överskottet är årets resultat med bokförda kostnader som inte får dras av lagda tillbaka (4.3c: till exempel ej avdragsgill representation 6072, böter, skattetillägg och förseningsavgifter, gåvor, ej avdragsgilla föreningsavgifter och kostnadsränta på skattekontot 8423) och skattefria intäkter dragna av (4.5c: till exempel intäktsränta på skattekontot 8314). Bokförd skatt (89xx) läggs också tillbaka (4.3a). Skatten bokförs vid bokslutet som kostnad (BAS 8910) mot skuld (BAS 2512) med `bok bokslut skatt`; agenten räknar aldrig fram skatten själv. Böter och sanktionsavgifter bokförs på ett konto som inte är avdragsgillt, till exempel 6992.",
+  "lagrum": [
+    "Inkomstskattelagen (1999:1229) 65 kap. 10 §",
+    "Inkomstskattelagen (1999:1229) 1 kap. 7 §",
+    "Inkomstskattelagen (1999:1229) 9 kap. 2, 4, 8 och 9 §§",
+    "Inkomstskattelagen (1999:1229) 8 kap. 7 §",
+    "Inkomstskattelagen (1999:1229) 16 kap. 2 §"
+  ],
+  "kallor": [
+    "https://www.riksdagen.se/sv/dokument-och-lagar/dokument/svensk-forfattningssamling/inkomstskattelag-19991229_sfs-1999-1229/",
+    "https://www.skatteverket.se/download/18.6491ed82199c4722daef0c/1761209691103/skatteregler-for-aktie-och-handelsbolag-skv294-utgava24.pdf"
+  ],
+  "kontrollerad": "2026-11-16"
+}

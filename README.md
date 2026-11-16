@@ -60,7 +60,7 @@ telefonens uppladdning. Allt som kräver din nyckel gör du själv med `bok`.
 
 ## Bokis skills
 
-Agenten arbetar genom tio verktyg över MCP. Claude, ChatGPT och lokala modeller kan ansluta.
+Agenten arbetar genom tolv verktyg över MCP. Claude, ChatGPT och lokala modeller kan ansluta.
 
 | Skill | Vad agenten gör |
 |-------|-----------------|
@@ -74,6 +74,8 @@ Agenten arbetar genom tio verktyg över MCP. Claude, ChatGPT och lokala modeller
 | `foresla_matchning` | Föreslår vilken verifikation en bankrad hör till |
 | `stall_fraga` | Frågar dig när underlaget inte räcker |
 | `flagga_underlag` | Flaggar dubbletter, privata kvitton och underlag som saknar uppgifter |
+| `lista_inventarier` | Läser inventarieregistret med bokfört värde enligt plan |
+| `foresla_avskrivningar` | Föreslår årets avskrivningar; Bokis räknar beloppen |
 
 Reglerna som agenten följer signerar du själv in. Grundreglerna, med lagrum och källor, finns i
 [`docs/regler`](docs/regler/).
@@ -92,7 +94,10 @@ Reglerna som agenten följer signerar du själv in. Grundreglerna, med lagrum oc
 | Momsdeklarationens fält | Skatteverkets fält 05–62 | Uppfyllt, utom vinstmarginalbeskattning och trepartshandel |
 | Momsavdrag bara mot faktura eller kvitto | ML 13 kap. 31–32 §§ | Uppfyllt med grundreglerna |
 | Representation, gåvor och privata kostnader | ML 13 kap. 24–25 §§, IL 9 kap. 2 §, 16 kap. 2 § | Uppfyllt med grundreglerna |
-| Årsredovisning | Årsredovisningslagen | Ingår inte |
+| Avskrivning enligt plan och inventarier av mindre värde | ÅRL 4 kap. 4 §, K2 kap. 10, IL 18 kap. 4 § | Uppfyllt: inventarieregistret, förslag om årets avskrivningar |
+| Periodisering, med K2:s gräns 7 000 kr | ÅRL 2 kap. 4 §, K2 p. 2.4 | Uppfyllt: förslag med återföring |
+| Bolagsskatt och inkomstdeklaration 2 | IL 1 kap. 7 §, 65 kap. 10 §, Skatteverkets SRU-format | Uppfyllt: INK2, INK2R och INK2S som SRU-filer |
+| Årsredovisning | Årsredovisningslagen | Ingår inte än |
 
 Hela kartläggningen med källor finns i [`docs/lagkontroll.md`](docs/lagkontroll.md). Bokis är ett
 verktyg: ansvaret för bokföringen ligger kvar hos företaget.
@@ -116,7 +121,8 @@ Vill du hellre signera med en nyckelfil än med en YubiKey väljer du det med
 
 ## Läs mer
 
-- [Använda Bokis](docs/anvandning.md): alla kommandon, säkerhetsnivåer, bank, moms och bokslut
+- [Använda Bokis](docs/anvandning.md): alla kommandon, säkerhetsnivåer, bank, moms, bokslut,
+  inventarier och inkomstdeklarationen (INK2 som SRU-filer)
 - [Bokis på distans](docs/distans.md): agenten i mobilen, kvittofoton och Bokis på en Raspberry Pi
 - [Insyn för revisor och Skatteverket](docs/insyn.md)
 - [Lagkontrollen](docs/lagkontroll.md) och [agentmätningen](docs/agentmatning-2026-11-14.md)

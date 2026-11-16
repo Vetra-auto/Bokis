@@ -190,10 +190,12 @@ pub fn inventory(ctx: &Ctx, cmd: InventoryCmd) -> Result<()> {
             );
             for a in &assets {
                 let plan = Plan::of(&a.details);
-                let acc = if a.is_void() {
-                    Money::ZERO
+                let acc = plan.accumulated_through(y.end);
+                // Ett felregistrerat inventarium har aldrig funnits.
+                let (acc, value) = if a.is_void() {
+                    (Money::ZERO, Money::ZERO)
                 } else {
-                    plan.accumulated_through(y.end)
+                    (acc, Money::from_ore(a.details.cost.ore() - acc.ore()))
                 };
                 println!(
                     "{:>3}  {:<28} {:<10} {:>14} {:>5} {:>14} {:>14}  {}",
@@ -203,7 +205,7 @@ pub fn inventory(ctx: &Ctx, cmd: InventoryCmd) -> Result<()> {
                     render::amount(a.details.cost),
                     a.details.life_months,
                     render::amount(acc),
-                    render::amount(Money::from_ore(a.details.cost.ore() - acc.ore())),
+                    render::amount(value),
                     status(a)
                 );
             }

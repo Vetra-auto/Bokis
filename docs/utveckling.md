@@ -22,6 +22,10 @@ cargo test -p bok-store                  # och så vidare, en crate i taget
 | `bok-review` | Granskningsvyn: engångsnyckel i inloggningslänken, CSRF-skydd, CSP, underlag visas aldrig som aktivt innehåll |
 | `bok-eval` | Mäter agentens konteringar mot facit i Accounted Bench genom MCP-servern |
 | `bok-insyn` | Insynen för revisor och Skatteverket: bokföringen som läsbara sidor, live på 127.0.0.1 eller som fristående export |
+| `bok-inventarier` | Inventarieregistret som ren logik: avskrivning enligt plan per månad, avyttring, halva prisbasbeloppet och treårsregeln |
+| `bok-sru` | SRU-filer för Skatteverkets filöverföring: `INFO.SRU` och `BLANKETTER.SRU` i ISO 8859-1, och en sträng läsare för kontroll |
+| `bok-deklaration` | Inkomstdeklaration 2 (INK2, INK2R, INK2S) ur saldobalansen. Fältförteckningen och kontokopplingen är data, och bolagsskatten räknas här |
+| `bok-bokslut` | Bokslutsposterna som förslag i serie B: avskrivningar, avyttring, periodisering och bolagsskatt, och deklarationens indata ur lagret |
 | `bok-fjarr` | Bokis på distans: agenten ansluter över HTTPS med OAuth och kopplingskod, och telefonen skickar kvittofoton med en personlig länk |
 
 ## Hela flödet
@@ -30,6 +34,10 @@ cargo test -p bok-store                  # och så vidare, en crate i taget
 förslag och fråga via `bok-mcp`, godkännande i `bok-review`, svar på frågan, kontoutdrag och
 agentens betalningsförslag, avstämning, stängd period, verifiering, kopia och läs-in-övning.
 
+`scripts/e2e-bokslut-ink2.sh <ny katalog>` provar bokslutet i en provbokföring: verifikationer,
+inventarieregistret, agentens avskrivningsförslag genom `bok-mcp`, periodisering med återföring,
+bolagsskatt, årets resultat, INK2 som SRU-filer, insynen och en full verifiering.
+
 ## Schema
 
 Schemaversion 2 (`schema_v2.sql`) lägger till `bankrader`, `bankmatchningar`,
@@ -37,6 +45,10 @@ Schemaversion 2 (`schema_v2.sql`) lägger till `bankrader`, `bankmatchningar`,
 uppgraderas när den öppnas.
 
 Schemaversion 3 (`schema_v3.sql`) lägger till `sakerhetsniva`, besluten om säkerhetsnivå.
+
+Schemaversion 4 (`schema_v4.sql`) lägger till inventarieregistret, `inventarier` och
+`inventarieavgangar`, som bara kan växa. En felregistrering rättas med en avgång av typen
+`felregistrering` och en ny registrering.
 
 ## Granskningar
 

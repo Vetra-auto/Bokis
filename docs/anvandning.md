@@ -1,6 +1,7 @@
 # Använda Bokis
 
-Alla kommandon i `bok`, säkerhetsnivåerna och hur bank, moms, bokslut och agenten hänger ihop.
+Alla kommandon i `bok`, säkerhetsnivåerna och hur bank, moms, bokslut, inkomstdeklaration och
+agenten hänger ihop.
 
 ## Bokföra med `bok`
 
@@ -125,7 +126,9 @@ bok avstam 1630 --date 2026-03-31 --balance 12345,00 --note "Skattekontot mars"
 # granskarens operationer, nycklar, perioder, momskoder och en full verifiering. Loggas i historiken.
 bok systemdokumentation systemdokumentation-2026-11.md
 
-# Bokslut: förslag som du granskar och bokför med nyckeln som alla andra
+# Bokslut: förslag som du granskar och bokför med nyckeln som alla andra (se Bokslut nedan)
+bok bokslut avskrivningar --year 2026     # serie B: årets avskrivningar ur inventarieregistret
+bok bokslut skatt --year 2026             # serie B: bolagsskatten ur deklarationens överskott
 bok bokslut resultat --year 2026          # serie B: årets resultat från 8999 till 2099 (--equity-account 2019 för EF)
 bok ar lagg-till 2027
 bok bokslut ib --year 2026                # serie I i 2027: balanskontonas utgående saldon
@@ -165,3 +168,86 @@ Momsrapporten summerar bokförda rader per momskod med blankettens tecken och r�
 inte med. [`momskoder-bas.txt`](momskoder-bas.txt) är granskad mot BAS 2026 och Skatteverkets
 beskrivning av fälten, se [lagkontrollen](lagkontroll.md). Stäm ändå av den mot din egen
 kontoplan.
+
+## Bokslut: inventarier, periodiseringar och skatt
+
+Bokslutsposterna blir förslag i serie B, daterade räkenskapsårets sista dag, som du granskar och
+bokför med `bok godkann` som alla andra. Bokis räknar beloppen; ingenting bokförs utan din
+signatur, och samma förslag läggs inte två gånger. Ordningen nedan är den naturliga: avskrivningar
+och periodiseringar först, sedan skatten och sist årets resultat.
+
+```bash
+# Inventarieregistret. Anskaffningen bokförs som vanligt (till exempel 1220), sedan registreras den.
+bok inventarie lagg-till --name "Bärbar dator" --date 2026-05-12 --amount 36000 --life 36 --voucher A2
+bok inventarie lista --year 2026          # bokfört värde enligt plan och avstämning mot huvudboken
+bok inventarie plan 1                     # avskrivning och bokfört värde år för år
+bok inventarie avyttra 1 --date 2027-03-15 --kind forsaljning --price 20000 --vat 5000
+bok inventarie avyttra 2 --date 2026-05-12 --kind felregistrering --note "Dras av direkt"
+
+# Årets avskrivningar enligt plan (debet 7832, kredit 1229 per inventarium)
+bok bokslut avskrivningar --year 2026
+
+# Periodisering: förutbetald-kostnad, upplupen-kostnad, forutbetald-intakt eller upplupen-intakt.
+# --aterfor lägger också återföringen på nästa års första dag.
+bok bokslut periodisera --year 2026 --kind forutbetald-kostnad --account 6310 --amount 12000 \
+    --from 2026-11-01 --to 2027-10-31 --text "Företagsförsäkring" --aterfor
+
+# Bolagsskatten ur deklarationens överskott (debet 8910, kredit 2512)
+bok bokslut skatt --year 2026             # --falt 4.14a=150000 för underskott från tidigare år
+
+bok bokslut resultat --year 2026          # sist: årets resultat till eget kapital
+```
+
+**Inventarier.** Avskrivningen är linjär enligt plan: lika mycket varje månad från den månad
+inventariet tas i bruk (`--from 2026-06` om det inte är anskaffningsmånaden), som K2 tillåter.
+K2 godtar fem år, 60 månader, som nyttjandeperiod för inventarier, men då utan restvärde
+(`--residual`; K2 punkt 10.25 och 10.27). Ett inventarium vars
+anskaffningsvärde utan moms understiger ett halvt prisbasbelopp (29 600 kr för 2026), eller vars
+livslängd är högst tre år, får kostnadsföras direkt (det är prisbasbeloppet för året då
+beskattningsåret går ut som gäller); `bok inventarie lagg-till` säger till.
+Prisbasbeloppen finns i `crates/bok-inventarier/data/prisbasbelopp.txt` och läggs till varje år.
+Registret kan bara växa: ett inventarium som registrerats fel stryks med en avgång av typen
+`felregistrering` och registreras på nytt. Vid försäljning och utrangering skrivs inventariet av till
+och med månaden före avgången, och förslaget bokför vinsten eller förlusten (3973 eller 7973).
+Momsen på en försäljning anges från fakturan med `--vat`; Bokis räknar aldrig fram den.
+
+**Periodisering.** Andelen räknas per dag. En utgift eller inkomst under 7 000 kr per faktura eller
+avtal behöver inte periodiseras enligt K2 (5 000 kr för räkenskapsår som började före 2026);
+`--anda` periodiserar ändå.
+
+**Skatt.** Överskottet avrundas nedåt till helt tiotal kronor och skatten är 20,6 % av det. Är
+skatten redan bokförd föreslås bara skillnaden.
+
+## Inkomstdeklaration 2 som SRU-filer
+
+`bok deklaration ink2` räknar fram INK2, INK2R och INK2S ur saldobalansen och skriver filerna för
+Skatteverkets filöverföring till en ny katalog:
+
+```bash
+bok deklaration ink2 --year 2026 ~/deklaration-2026 --postnr 12345 --postort Småstad \
+    --kontakt "Kim Exempel" --falt 8041=X --falt 8045=X
+# ger INFO.SRU, BLANKETTER.SRU och ink2-sammanstallning.md
+```
+
+- **Blanketten** följer räkenskapsårets sista dag: ett år som slutar 2026-12-31 blir `INK2-2026P4`,
+  `INK2R-2026P4` och `INK2S-2026P4`. Fältförteckningen är avskriven ur Skatteverkets tabeller
+  (`crates/bok-deklaration/data/ink2-2026p4.txt`); en ny period kräver en ny fil.
+- **INK2R** (balans- och resultaträkning) följer [`ink2r-bas.txt`](ink2r-bas.txt), BAS
+  kopplingstabell, eller kontots egen SRU-kod i kontoplanen (`#SRU` i en SIE-fil). Ett konto med
+  saldo som inte hör till något fält stoppar deklarationen. Årets resultat som inte är bokfört mot
+  eget kapital läggs till fritt eget kapital (2.28).
+- **INK2S** börjar med årets resultat och skatten, och lägger tillbaka kostnader som inte får dras
+  av och drar av skattefria intäkter enligt [`ink2s-bas.txt`](ink2s-bas.txt). Det som inte syns i
+  bokföringen anges med `--falt FÄLT=BELOPP` i hela kronor, till exempel `--falt 4.14a=150000`
+  (outnyttjat underskott) eller `--falt 4.6a=…` (schablonintäkt på periodiseringsfond). Kryssrutorna
+  om revision och redovisningskonsult anges med `--falt 8045=X` och `--falt 8041=X`.
+- **Kontroller**: balansräkningen balanserar, resultaträkningen summerar till årets resultat,
+  resultatet och överskottet förs vidare till rätt fält, varje belopp ryms i fältets datatyp och
+  fält som utesluter varandra är inte ifyllda samtidigt. Filerna skrivs bara när allt går igenom,
+  läses tillbaka och prövas mot fältförteckningen.
+- Filerna skrivs aldrig över och loggas i behandlingshistoriken med SHA-256. Utkastet syns också
+  under fliken Deklaration i insynen, och inventarieregistret under fliken Inventarier.
+
+Granska sammanställningen mot årsredovisningen innan du lämnar in. Bokis gör inte
+årsredovisningen, och fält som kräver bedömning (periodiseringsfond, koncernbidrag, underskott,
+fastigheter) fylls bara i med `--falt`.

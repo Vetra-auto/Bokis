@@ -1,7 +1,8 @@
 # Lagkontroll: vilka lagar och krav Bokis uppfyller
 
 Kontrollerad 2026-11-15 mot lagtexterna på riksdagen.se, BFN:s vägledning Bokföring och
-Skatteverkets sidor. Lagar och belopp ändras: kontrollera igen minst en gång om året och när
+Skatteverkets sidor. Bokslutet och inkomstdeklarationen kontrollerades 2026-11-16 mot
+inkomstskattelagen, årsredovisningslagen, BFN:s vägledning K2 och Skatteverkets SRU-format. Lagar och belopp ändras: kontrollera igen minst en gång om året och när
 Skatteverket eller BFN ändrar något.
 
 Bokis är ett verktyg. Ansvaret för bokföringen ligger kvar hos företaget, som också lämnar
@@ -27,11 +28,20 @@ deklarationer och årsredovisning.
 | Gåvor till affärsförbindelser | IL 9 kap. 2 § och 16 kap. 2 §, ML 13 kap. 24 § | Regeln `gavor`: högst 300 kr exklusive moms per person. | Uppfyllt när regeln är inlagd |
 | Omvänd betalningsskyldighet och import | ML, Skatteverkets fält 20–24, 30–32, 48, 50 och 60–62 | Regeln `omvand-betalningsskyldighet` och momskoderna. | Uppfyllt när regeln är inlagd |
 | Bara en människa bokför | Krävs inte av lag | Agenten kan bara föreslå. Varje bokföring signeras av en människa, med den säkerhetsnivå du valt. | Utöver lagen |
-| Årsbokslut och årsredovisning | BFL 6 kap., årsredovisningslagen | Bokis gör bokslutsposterna (årets resultat och ingående balans). Årsredovisningen ingår inte. | Ingår inte |
+| Anläggningstillgångar skrivs av systematiskt över nyttjandeperioden | ÅRL 4 kap. 4 §, K2 punkt 10.23–10.27 | Inventarieregistret (`bok inventarie`) med avskrivning enligt plan, lika mycket varje månad från månaden inventariet tas i bruk. K2:s fem år godtas som nyttjandeperiod. Årets avskrivningar blir ett förslag (`bok bokslut avskrivningar`), och registret stäms av mot huvudboken. | Uppfyllt |
+| Avyttring och utrangering | K2 punkt 7.13–7.14 | `bok inventarie avyttra`: avskrivning fram till avgången, och vinst eller förlust som övrig rörelseintäkt eller rörelsekostnad (3973, 7973). Momsen anges från fakturan. | Uppfyllt |
+| Inventarier av mindre värde och korttidsinventarier | IL 18 kap. 4 §, IL 2 kap. 27 §, K2 punkt 10.5–10.6 | Anskaffningsvärde utan moms under ett halvt prisbasbelopp (29 600 kr 2026, förordning 2025:872) eller livslängd högst tre år: `bok inventarie lagg-till` säger att inventariet får dras av direkt. Prisbasbeloppet för året då beskattningsåret går ut. Regeln `inventarier` för agenten. | Uppfyllt; samband mellan inventarier bedömer du |
+| Periodisering och beloppsgränsen | ÅRL 2 kap. 4 § första stycket 4, K2 punkt 2.4, 2.4B och 7.9 (BFNAR 2025:2) | `bok bokslut periodisera` räknar andelen per dag och föreslår periodiseringen och återföringen. Under 7 000 kr per faktura eller avtal (5 000 kr för år som började före 2026) föreslås den bara med `--anda`. | Uppfyllt; väsentlighet och återkommande utgifter (7.9) bedömer du |
+| Bolagsskatt | IL 65 kap. 10 §, IL 1 kap. 7 § | 20,6 % av överskottet avrundat nedåt till helt tiotal kronor. `bok bokslut skatt` föreslår skatten (8910 mot 2512), eller skillnaden mot den bokförda. | Uppfyllt |
+| Kostnader som inte får dras av och skattefria intäkter | IL 9 kap. 2, 4, 8 och 9 §§, 16 kap. 2 §, 8 kap. 7 § | Läggs tillbaka i INK2S 4.3a och 4.3c, och skattefri ränta dras av i 4.5c, enligt kontokopplingen [`ink2s-bas.txt`](ink2s-bas.txt). Regeln `bolagsskatt` för agenten. | Uppfyllt för konton i kopplingen |
+| Inkomstdeklaration 2 som fil | Skatteverket, Teknisk information om filöverföring och fältförteckningarna för 2026P4 | `bok deklaration ink2` skriver `INFO.SRU` och `BLANKETTER.SRU` (ISO 8859-1, `INK2-2026P4`, `INK2R-2026P4`, `INK2S-2026P4`) och kontrollerar balans, resultat, fältkoder, datatyper och fält som utesluter varandra. Kontokopplingen följer BAS kopplingstabell ([`ink2r-bas.txt`](ink2r-bas.txt)). | Uppfyllt för 2026P4; uppgifter som inte syns i bokföringen anges för hand |
+| Årsredovisning | BFL 6 kap., årsredovisningslagen | Bokis gör bokslutsposterna och deklarationen. Årsredovisningen (K2-dokumentet och iXBRL till Bolagsverket) ingår inte än. | Ingår inte |
 | Personuppgifter i underlag | Dataskyddsförordningen (GDPR) | Allt lagras hos dig. En AI-agent i molnet ser de underlag den hämtar. | Ditt ansvar |
 
 Förkortningar: BFL = bokföringslagen (1999:1078), BFNAR 2013:2 = BFN:s allmänna råd med
-vägledning Bokföring, ML = mervärdesskattelagen (2023:200), IL = inkomstskattelagen (1999:1229).
+vägledning Bokföring, ML = mervärdesskattelagen (2023:200), IL = inkomstskattelagen (1999:1229),
+ÅRL = årsredovisningslagen (1995:1554), K2 = BFNAR 2016:10 Årsredovisning i mindre företag, i
+lydelsen efter BFNAR 2025:2.
 
 ## Grundregler för agenten
 
@@ -51,6 +61,9 @@ for f in docs/regler/*.json; do bok regel lagg-till "$(basename "$f" .json)" --f
 | `representation` | Momsgränsen 300 kr per person, måltider ej avdragsgilla, enklare förtäring 60 kr, livsmedel 6 % från 1 april 2026 |
 | `gavor` | Högst 300 kr exklusive moms per person, inte vid helger eller högtidsdagar |
 | `omvand-betalningsskyldighet` | Konton och fält för inköp från EU, från länder utanför EU, byggtjänster och import |
+| `inventarier` | Halvt prisbasbelopp och treårsregeln för direktavdrag, annars tillgång och inventarieregistret |
+| `periodisering` | Interimskonton, K2:s gräns 7 000 kr per faktura och återkommande utgifter |
+| `bolagsskatt` | 20,6 %, avrundning till tiotal kronor, och kostnader som läggs tillbaka |
 
 ## Ändrat vid kontrollen 2026-11-15
 
@@ -64,12 +77,26 @@ for f in docs/regler/*.json; do bok regel lagg-till "$(basename "$f" .json)" --f
   att privata kostnader inte hör till verksamheten.
 - Grundreglerna ovan.
 
+## Tillagt vid kontrollen 2026-11-16
+
+- Inventarieregistret, avskrivning enligt plan, avyttring och förslag om årets avskrivningar.
+- Periodisering med K2:s beloppsgräns. Gränsen höjdes från 5 000 till 7 000 kr genom BFNAR 2025:2,
+  för räkenskapsår som börjar efter den 31 december 2025.
+- Bolagsskatten och inkomstdeklaration 2 som SRU-filer, med fältförteckningen för 2026P4.
+- Grundreglerna `inventarier`, `periodisering` och `bolagsskatt`.
+
 ## Kvar
 
 - Systemdokumentationen behöver en beskrivning av arkiveringen (arkivplan).
 - Motpartens adress kan inte sparas. BFN godtar namn och adress som identifiering, och för
   privatpersoner finns ofta inget organisationsnummer.
 - Vinstmarginalbeskattning (fält 07) och trepartshandel (fält 37–38) har inga momskoder.
+- Årsredovisningen (K2-dokumentet) och den digitala inlämningen till Bolagsverket.
+- Fältförteckningen för INK2 finns bara för 2026P4. Ett räkenskapsår som slutar i en annan period
+  kräver Skatteverkets förteckning för den perioden. BAS kopplingstabell anger "Konton i BAS 2023";
+  stäm av konton som är nya i BAS 2026 mot din kontoplan.
+- Lagen säger inget om avrundning av själva skatten; Bokis bokför skatten i öre, och Skatteverkets
+  beslut om slutlig skatt gäller.
 
 ## Källor
 
@@ -94,3 +121,15 @@ for f in docs/regler/*.json; do bok regel lagg-till "$(basename "$f" .json)" --f
 - Skatteverket, Omvänd betalningsskyldighet:
   <https://www.skatteverket.se/foretag/moms/sarskildamomsregler/omvandbetalningsskyldighet.4.47eb30f51122b1aaad28000258292.html>
 - BAS 2026: <https://www.bas.se/kontoplaner/>
+- Årsredovisningslagen (1995:1554):
+  <https://www.riksdagen.se/sv/dokument-och-lagar/dokument/svensk-forfattningssamling/arsredovisningslag-19951554_sfs-1995-1554/>
+- Förordning (2025:872) om prisbasbelopp för 2026: <https://data.riksdagen.se/dokument/sfs-2025-872.text>
+- BFN, vägledning Årsredovisning i mindre företag (K2, BFNAR 2016:10), uppdaterad 2026-10-29:
+  <https://www.bfn.se/wp-content/uploads/vl16-10-k2-kons2026.pdf>
+- Skatteverket, Belopp och procent 2026:
+  <https://skatteverket.se/foretag/skatterochavdrag/beloppochprocent/2026.106.1522bf3f19aea8075ba3294.html>
+- Skatteverket, Skatteregler för aktie- och handelsbolag (SKV 294 utg. 24):
+  <https://www.skatteverket.se/download/18.6491ed82199c4722daef0c/1761209691103/skatteregler-for-aktie-och-handelsbolag-skv294-utgava24.pdf>
+- Skatteverket, Teknisk information om filöverföring (SRU-formatet och fältförteckningarna för 2026P4):
+  <https://skatteverket.se/foretag/inkomstdeklaration/forredovisningsbyraer/tekniskinformationomfiloverforing.4.13948c0e18e810bfa0cca8.html>
+- BAS, kopplingstabell BAS–INK2: <https://www.bas.se/kontoplaner/sru/>

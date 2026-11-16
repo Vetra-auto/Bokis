@@ -1,0 +1,12 @@
+{
+  "regel": "En kostnad eller intäkt som avser tid på båda sidor om räkenskapsårets slut periodiseras vid bokslutet: förutbetalda kostnader och upplupna intäkter som fordran (BAS 1790), upplupna kostnader och förutbetalda intäkter som skuld (BAS 2990). Enligt K2 behöver en inkomst eller utgift som understiger 7 000 kr inte periodiseras (5 000 kr för räkenskapsår som började före 2026); det är beloppet på varje enskild faktura, avtal eller liknande handling som avgör, och fakturor som delats upp räknas ihop. Undantaget får inte användas om det sammantaget påverkar resultatet väsentligt, och ska tillämpas konsekvent mellan åren. Årligen återkommande utgifter av samma slag och ungefär samma storlek (högst 20 % skillnad) behöver inte periodiseras, utom personalkostnader. Periodiseringen föreslås av granskaren med `bok bokslut periodisera`; agenten föreslår den inte som egna belopp men kan påpeka fakturor som avser nästa år.",
+  "lagrum": [
+    "Årsredovisningslagen (1995:1554) 2 kap. 4 § första stycket 4",
+    "BFNAR 2016:10 (K2) punkt 2.4, 2.4A, 2.4B och 7.9, ändrade genom BFNAR 2025:2"
+  ],
+  "kallor": [
+    "https://www.bfn.se/wp-content/uploads/vl16-10-k2-kons2026.pdf",
+    "https://www.riksdagen.se/sv/dokument-och-lagar/dokument/svensk-forfattningssamling/arsredovisningslag-19951554_sfs-1995-1554/"
+  ],
+  "kontrollerad": "2026-11-16"
+}

@@ -1,0 +1,17 @@
+{
+  "regel": "Inventarier (datorer, möbler, maskiner) vars anskaffningsvärde utan avdragsgill moms understiger ett halvt prisbasbelopp – 29 600 kr för beskattningsår som går ut 2026 – får kostnadsföras direkt som förbrukningsinventarier (BAS 5410), liksom inventarier med en ekonomisk livslängd på högst tre år. Det är prisbasbeloppet för kalenderåret då beskattningsåret går ut som gäller, och gränsen är \"understiger\": exakt halva beloppet räcker inte. Inventarier som har ett naturligt samband (till exempel ett kontors möbler) eller köps som en del av ett större inköp bedöms tillsammans. Dyrare inventarier bokförs som tillgång (BAS 1220 Inventarier och verktyg) och skrivs av enligt plan; K2 godtar en nyttjandeperiod på fem år för inventarier. Föreslå anskaffningen som verifikation och fråga granskaren om inventariet ska registreras i inventarieregistret (`bok inventarie lagg-till`). Årets avskrivningar föreslås med foresla_avskrivningar, aldrig som egna belopp. Vid försäljning eller utrangering: fråga granskaren, som registrerar avgången.",
+  "lagrum": [
+    "Inkomstskattelagen (1999:1229) 18 kap. 4 §",
+    "Inkomstskattelagen (1999:1229) 2 kap. 27 §",
+    "Förordning (2025:872) om prisbasbelopp för 2026",
+    "BFNAR 2016:10 (K2) punkt 10.5, 10.6, 10.23 och 10.27",
+    "Årsredovisningslagen (1995:1554) 4 kap. 4 §"
+  ],
+  "kallor": [
+    "https://www.riksdagen.se/sv/dokument-och-lagar/dokument/svensk-forfattningssamling/inkomstskattelag-19991229_sfs-1999-1229/",
+    "https://data.riksdagen.se/dokument/sfs-2025-872.text",
+    "https://www.bfn.se/wp-content/uploads/vl16-10-k2-kons2026.pdf",
+    "https://skatteverket.se/foretag/skatterochavdrag/beloppochprocent/2026.106.1522bf3f19aea8075ba3294.html"
+  ],
+  "kontrollerad": "2026-11-16"
+}

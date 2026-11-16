@@ -16,6 +16,7 @@ use crate::catalog::{Catalog, DataType, Field, FormKind};
 use crate::ink2r::{self, Ink2R};
 use crate::ink2s::{self, Adjustments, ManualAmount, kronor};
 use crate::mapping::AccountMap;
+use crate::summary::{grouped, ore_text};
 use crate::tax::{CorporateTax, corporate_tax};
 
 /// Fält som inte får finnas samtidigt med belopp, enligt reglerna i
@@ -238,9 +239,9 @@ impl Declaration {
             name: "Balansräkningen balanserar (2.1–2.26 mot 2.27–2.50)".into(),
             ok: r.assets_ore == r.equity_and_liabilities_ore,
             detail: format!(
-                "tillgångar {} kr, eget kapital och skulder {} kr i hela kronor{}",
-                assets,
-                claims,
+                "tillgångar {} kr, eget kapital och skulder {} kr{}",
+                grouped(assets),
+                grouped(claims),
                 if assets == claims {
                     String::new()
                 } else {
@@ -256,8 +257,9 @@ impl Declaration {
             name: "Resultaträkningen (3.1–3.25) summerar till årets resultat (3.26/3.27)".into(),
             ok: sum == r.result_ore,
             detail: format!(
-                "fälten ger {} öre, resultatkontona {} öre",
-                sum, r.result_ore
+                "fälten ger {} kr, resultatkontona {} kr",
+                ore_text(sum),
+                ore_text(r.result_ore)
             ),
         });
         let k = |form, code| self.kronor(form, code).unwrap_or(0);
