@@ -63,7 +63,7 @@ mod tests {
         assert!(check_value("#NAMN", "Bolag € AB").is_err());
         assert!(check_value("#NAMN", "Bolag #1 AB").is_err());
         assert!(check_value("#NAMN", "Rad\nbrytning").is_err());
-        assert!(check_value("#NAMN", "Vetra Automation AB").is_ok());
+        assert!(check_value("#NAMN", "Exempelbolaget i Åre AB").is_ok());
     }
 
     #[test]
