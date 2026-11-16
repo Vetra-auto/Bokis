@@ -137,7 +137,9 @@ impl Store {
     }
 
     /// Lägger till ett räkenskapsår med en öppen period per månad och
-    /// nummerserierna A, B, I och R, som alla börjar på 1.
+    /// nummerserierna A, B, I och R, som alla börjar på 1. Det första
+    /// räkenskapsåret får börja vilken dag som helst, till exempel den dag
+    /// bolaget bildades; de följande börjar den första i en månad.
     pub fn add_fiscal_year(
         &mut self,
         actor: &Actor,
@@ -145,7 +147,14 @@ impl Store {
         end: NaiveDate,
     ) -> Result<FiscalYear> {
         require_human(actor, "lägga till räkenskapsår")?;
-        fiscal_year::validate(start, end)?;
+        let earlier: i64 = self
+            .conn()
+            .query_row("SELECT COUNT(*) FROM rakenskapsar", [], |r| r.get(0))?;
+        if earlier == 0 {
+            fiscal_year::validate_first(start, end)?;
+        } else {
+            fiscal_year::validate(start, end)?;
+        }
         self.write(actor, |ctx| {
             ctx.tx.execute(
                 "INSERT INTO rakenskapsar (start, slut, registrerad) VALUES (?1, ?2, ?3)",
