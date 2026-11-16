@@ -1,0 +1,11 @@
+// Prisbasbelopp enligt socialförsäkringsbalken 2 kap. 6–7 §§, ÅR;BELOPP i hela
+// kronor. Halva beloppet är gränsen för inventarier av mindre värde (IL 18 kap.
+// 4 §), och det är beloppet för kalenderåret då beskattningsåret går ut som
+// gäller (IL 2 kap. 27 §). Lägg till nästa år när regeringen har fastställt
+// det, och kontrollera mot Skatteverkets "Belopp och procent".
+//
+// 2025: Skatteverket, Belopp och procent 2025 (halvt prisbasbelopp 29 400 kr).
+// 2026: Förordning (2025:872) 1 §, och Skatteverket, Belopp och procent 2026
+//       (halvt prisbasbelopp 29 600 kr). Kontrollerat 2026-11-16.
+2025;58800
+2026;59200

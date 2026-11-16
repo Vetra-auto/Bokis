@@ -300,7 +300,9 @@ fn a_book_from_before_the_levels_accepts_every_key() {
     } = b;
     drop(store);
     let raw = rusqlite::Connection::open(&path).unwrap();
-    raw.execute_batch("DROP TABLE sakerhetsniva; PRAGMA user_version = 2;")
+    raw.execute_batch(
+        "DROP TABLE inventarieavgangar; DROP TABLE inventarier; DROP TABLE sakerhetsniva; PRAGMA user_version = 2;",
+    )
         .unwrap();
     drop(raw);
 
@@ -309,7 +311,7 @@ fn a_book_from_before_the_levels_accepts_every_key() {
         .unwrap()
         .pragma_query_value(None, "user_version", |r| r.get(0))
         .unwrap();
-    assert_eq!(version, 3);
+    assert_eq!(version, bok_store::SCHEMA_VERSION);
     assert!(store.security_decisions().unwrap().is_empty());
     assert_eq!(store.security_level().unwrap(), SecurityLevel::Software);
     let w = warnings(&store);

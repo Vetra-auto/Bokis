@@ -311,6 +311,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "bok-bokslut"
+version = "0.1.0"
+dependencies = [
+ "bok-core",
+ "bok-deklaration",
+ "bok-inventarier",
+ "bok-store",
+ "chrono",
+ "tempfile",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "bok-cli"
 version = "0.1.0"
 dependencies = [
@@ -343,6 +356,16 @@ dependencies = [
  "serde_json",
  "sha2",
  "ssh-key",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "bok-deklaration"
+version = "0.1.0"
+dependencies = [
+ "bok-core",
+ "bok-sru",
+ "chrono",
  "thiserror 2.0.18",
 ]
 
@@ -401,6 +424,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "bok-inventarier"
+version = "0.1.0"
+dependencies = [
+ "bok-core",
+ "chrono",
+ "serde",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "bok-mcp"
 version = "0.1.0"
 dependencies = [
@@ -432,10 +465,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "bok-sru"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "bok-store"
 version = "0.1.0"
 dependencies = [
  "bok-core",
+ "bok-inventarier",
  "chrono",
  "rusqlite",
  "serde",

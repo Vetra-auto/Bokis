@@ -1,0 +1,15 @@
+[package]
+name = "bok-deklaration"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Bokis: inkomstdeklaration 2 (INK2, INK2R, INK2S) ur saldobalansen – fältförteckning och kontokoppling som data, skatteberäkning och SRU-filer"
+
+[dependencies]
+bok-core = { path = "../bok-core" }
+bok-sru = { path = "../bok-sru" }
+chrono = { workspace = true }
+thiserror = { workspace = true }
+
+[lints]
+workspace = true

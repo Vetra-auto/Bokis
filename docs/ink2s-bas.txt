@@ -1,0 +1,38 @@
+// Skattemässiga justeringar i INK2S som kan läsas ur BAS-konton, som
+// FÄLTKOD;KONTON. Läses av `bok deklaration ink2` och `bok bokslut skatt`.
+//
+// Ett plusfält (+) tar kontonas debetsaldo: bokförda kostnader som inte får
+// dras av och läggs tillbaka. Ett minusfält (-) tar kontonas kreditsaldo:
+// bokförda intäkter som inte ska tas upp. Fält 4.1–4.2 (årets resultat) och
+// 4.3a (skatt på årets resultat, 89xx) räknas fram och finns inte här. Annat,
+// till exempel outnyttjat underskott från förra året (4.14a) eller
+// schablonintäkt på periodiseringsfonder (4.6a), anges för hand med
+// `--falt 4.14a=BELOPP`.
+//
+// Kontona och deras namn är ur BAS 2026 (v 1.1); lagrummen är kontrollerade
+// 2026-11-16 mot inkomstskattelagen (IL) på riksdagen.se och Skatteverkets
+// "Skatteregler för aktie- och handelsbolag" (SKV 294 utg. 24, s. 27: 4.3 c
+// tar "föreningsavgifter, gåvor, böter, skattetillägg och förseningsavgifter"
+// och representation över gränserna). Stäm av mot din kontoplan.
+
+// 4.3c Andra bokförda kostnader som inte ska dras av
+//   5982 Ej avdragsgill sponsring
+//   6072 Representation, ej avdragsgill (IL 16 kap. 2 §)
+//   6342 Lämnade skadestånd, ej avdragsgilla
+//   6392 Övriga riskkostnader, ej avdragsgilla
+//   6982 Föreningsavgifter, ej avdragsgilla (IL 9 kap. 2 §)
+//   6992 Övriga externa kostnader, ej avdragsgilla, till exempel böter,
+//        skattetillägg och förseningsavgifter (IL 9 kap. 9 §)
+//   6993 Lämnade bidrag och gåvor (IL 9 kap. 2 §)
+//   7622 Sjuk- och hälsovård, ej avdragsgill
+//   7623 Sjukvårdsförsäkring, ej avdragsgill
+//   7632 Personalrepresentation, ej avdragsgill
+//   8423 Räntekostnader för skatter och avgifter, kostnadsränta på
+//        skattekontot (IL 9 kap. 8 §)
+7653;5982,6072,6342,6392,6982,6992,6993,7622,7623,7632,8423
+
+// 4.5c Andra bokförda intäkter som inte ska tas upp
+//   8254 Skattefria ränteintäkter, långfristiga tillgångar
+//   8314 Skattefria ränteintäkter, till exempel intäktsränta på
+//        skattekontot (IL 8 kap. 7 §)
+7754;8254,8314

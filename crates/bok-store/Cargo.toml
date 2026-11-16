@@ -7,6 +7,7 @@ description = "Bokis AI-first: SQLite-schema med triggers; varje skrivning i en 
 
 [dependencies]
 bok-core = { path = "../bok-core" }
+bok-inventarier = { path = "../bok-inventarier" }
 chrono = { workspace = true }
 # 0.32 för att dela libsqlite3-sys 0.30 med sqlx i de gamla crates:en i samma
 # workspace (två versioner med `links = "sqlite3"` går inte att lösa ihop).

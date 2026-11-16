@@ -32,16 +32,18 @@ use rusqlite::config::DbConfig;
 use rusqlite::{Connection, OpenFlags};
 
 pub use bok_core;
+pub use bok_inventarier;
 pub use error::StoreError;
 pub use guards::{APPEND_ONLY_TABLES, Guard};
 pub use model::*;
+pub use ops::assets::{ASSET_DISPOSED, ASSET_REGISTERED};
 pub use ops::security::SECURITY_LEVEL_DECIDED;
 pub use vat::{VAT_BOXES, VatBox, VatReport, box_title};
 pub use verify::{Check, VerifyReport};
 pub use write::Actor;
 
 /// Schemaversionen som programmet skriver och förstår.
-pub const SCHEMA_VERSION: i64 = 3;
+pub const SCHEMA_VERSION: i64 = 4;
 
 /// Migreringarna i ordning. En publicerad migrering ändras aldrig; nya
 /// tabeller och kolumner kommer i nästa version.
@@ -51,6 +53,8 @@ const MIGRATIONS: &[(i64, &str)] = &[
     (2, include_str!("schema_v2.sql")),
     // Säkerhetsnivån: vilka signaturer bokföringen godtar.
     (3, include_str!("schema_v3.sql")),
+    // Inventarieregistret: anskaffningar och avgångar.
+    (4, include_str!("schema_v4.sql")),
 ];
 
 /// Klocka som ger tiden i UTC. Kan bytas ut i tester.

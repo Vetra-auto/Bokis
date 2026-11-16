@@ -1,0 +1,15 @@
+[package]
+name = "bok-inventarier"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Bokis: inventarieregistret som domänlogik utan I/O – avskrivning enligt plan (linjär, K2), avyttring och gränsen för förbrukningsinventarier"
+
+[dependencies]
+bok-core = { path = "../bok-core" }
+chrono = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+
+[lints]
+workspace = true

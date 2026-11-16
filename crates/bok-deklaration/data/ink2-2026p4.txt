@@ -1,0 +1,174 @@
+// Fältförteckningen för INK2, INK2R och INK2S, beskattningsperiod 2026P4
+// (räkenskapsår som slutar 2026-09-01–2026-12-31), blankettutgåva
+// SKV 2002-34-01-26-04. Avskriven ur Skatteverkets fältförteckningar
+// (INK2_, INK2R_ och INK2S_SKV2002-34-01-26-04.xls) i zip-filen "Ändringar
+// från och med 2026P4" på sidan "Teknisk information om filöverföring":
+// https://skatteverket.se/foretag/inkomstdeklaration/forredovisningsbyraer/tekniskinformationomfiloverforing.4.13948c0e18e810bfa0cca8.html
+// Kontrollerad 2026-11-16.
+//
+// BLANKETT;FÄLT;KOD;TECKEN;DATATYP;SALDO;TEXT
+//
+// TECKEN är blankettens tecken: + och - för fält som ökar respektive minskar
+// summan, * för fält utan tryckt tecken. SALDO är kontonas normala sida för
+// fält som räknas ur bokföringen: D (debet) för tillgångar och kostnader, K
+// (kredit) för eget kapital, skulder och intäkter, - för övriga.
+
+INK2;;7011;*;Datum_D;-;Räkenskapsårets början
+INK2;;7012;*;Datum_D;-;Räkenskapsårets slut
+INK2;1.1;7104;*;Numeriskt_B;-;Överskott av näringsverksamhet
+INK2;1.2;7114;*;Numeriskt_B;-;Underskott av näringsverksamhet
+INK2;1.3;7131;*;Numeriskt_13;-;Kreditinstituts underlag för riskskatt
+INK2;1.4;7132;*;Numeriskt_B;-;Underlag för särskild löneskatt på pensionskostnader
+INK2;1.5;7133;*;Numeriskt_B;-;Negativt underlag för särskild löneskatt på pensionskostnader
+INK2;1.6a;7153;*;Numeriskt_B;-;Försäkringsföretag m.fl. samt avsatt till pensioner 15 %
+INK2;1.6b;7154;*;Numeriskt_B;-;Utländska pensions- försäkringar 15 %
+INK2;1.7a;7155;*;Numeriskt_B;-;Försäkringsföretag m.fl 30 %
+INK2;1.7b;7156;*;Numeriskt_B;-;Utländska kapitalförsäkringar 30 %
+INK2;1.8;80;*;Numeriskt_B;-;Småhus/ ägarlägenhet
+INK2;1.9;93;*;Numeriskt_B;-;Hyreshus: bostäder
+INK2;1.10;84;*;Numeriskt_B;-;Småhus/ägarlägenhet: tomtmark, byggnad under uppförande
+INK2;1.11;86;*;Numeriskt_B;-;Hyreshus: tomtmark, bostäder under uppförande
+INK2;1.12;95;*;Numeriskt_B;-;Hyreshus: lokaler
+INK2;1.13;96;*;Numeriskt_B;-;Industrienhet och elproduktionsenhet: värme- kraftverk
+INK2;1.14;97;*;Numeriskt_B;-;Elproduktionsenhet, vattenkraftverk
+INK2;1.15;98;*;Numeriskt_B;-;Elproduktionsenhet, vindkraftverk
+INK2;1.16;1581;*;Numeriskt_10;-;Underlag för skattereduktion gåva
+INK2;;90;*;Str_X;-;Övriga upplysningar på bilaga
+
+INK2R;;7011;*;Datum_D;-;Räkenskapsårets början
+INK2R;;7012;*;Datum_D;-;Räkenskapsårets slut
+INK2R;2.1;7201;*;Numeriskt_A;D;Immateriella anläggningstillgångar Koncessioner, patent, licenser, varumärken, hyresrätter, goodwill och liknande rättigheter
+INK2R;2.2;7202;*;Numeriskt_A;D;Pågående förbättringar och förskott avseende immateriella anläggningstillgångar
+INK2R;2.3;7214;*;Numeriskt_A;D;Materiella anläggningstillgångar Byggnader och mark
+INK2R;2.4;7215;*;Numeriskt_A;D;Materiella anläggningstillgångar Maskiner, inventarier och övriga materiella anläggningstillgångar
+INK2R;2.5;7216;*;Numeriskt_A;D;Materiella anläggningstillgångar Förbättringsutgifter på annans fastighet
+INK2R;2.6;7217;*;Numeriskt_A;D;Materiella anläggningstillgångar Pågående nyanläggningar och förskott avseende materiella anläggningstillgångar
+INK2R;2.7;7230;*;Numeriskt_A;D;Finansiella anläggningstillgångar Andelar i koncernföretag
+INK2R;2.8;7231;*;Numeriskt_A;D;Finansiella anläggningstillgångar Andelar i intresseföretag och gemensamt styrda företag
+INK2R;2.9;7233;*;Numeriskt_A;D;Ägarintressen i övriga företag och andra långfristiga värdepappersinnehav
+INK2R;2.10;7232;*;Numeriskt_A;D;Finansiella anläggningstillgångar Fordringar hos koncern-, intresse- och gemensamt styrda företag
+INK2R;2.11;7234;*;Numeriskt_A;D;Finansiella anläggningstillgångar Lån till delägare eller närstående
+INK2R;2.12;7235;*;Numeriskt_A;D;Fordringar hos övriga företag som det finns ett ägarintresse i och andra långfristiga fordringar
+INK2R;2.13;7241;*;Numeriskt_A;D;Varulager m.m. Råvaror och förnödenheter
+INK2R;2.14;7242;*;Numeriskt_A;D;Varulager Varor under tillverkning
+INK2R;2.15;7243;*;Numeriskt_A;D;Varulager Färdiga varor och handelsvaror
+INK2R;2.16;7244;*;Numeriskt_A;D;Varulager Övriga lagertillgångar
+INK2R;2.17;7245;*;Numeriskt_A;D;Varulager Pågående arbeten för annans räkning
+INK2R;2.18;7246;*;Numeriskt_A;D;Varulager Förskott till leverantörer
+INK2R;2.19;7251;*;Numeriskt_A;D;Kortfristiga fordringar Kundfordringar
+INK2R;2.20;7252;*;Numeriskt_A;D;Kortfristiga fordringar Fordringar hos koncern-, intresse- och gemensamt styrda företag
+INK2R;2.21;7261;*;Numeriskt_A;D;Fordringar hos övriga företag som det finns ett ägarintresse i och övriga fordringar
+INK2R;2.22;7262;*;Numeriskt_A;D;Kortfristiga fordringar Upparbetad men ej fakturerad intäkt
+INK2R;2.23;7263;*;Numeriskt_A;D;Kortfristiga fordringar Förutbetalda kostnader och upplupna intäkter
+INK2R;2.24;7270;*;Numeriskt_A;D;Kortfristiga placeringar Andelar i koncernföretag
+INK2R;2.25;7271;*;Numeriskt_A;D;Kortfristiga placeringar Övriga kortfristiga placeringar
+INK2R;2.26;7281;*;Numeriskt_A;D;Kassa och bank Kassa, bank och redovisningsmedel
+INK2R;2.27;7301;*;Numeriskt_A;K;Eget kapital Bundet eget kapital
+INK2R;2.28;7302;*;Numeriskt_A;K;Eget kapital Fritt eget kapital
+INK2R;2.29;7321;*;Numeriskt_A;K;Obeskattade reserver Periodiseringsfonder
+INK2R;2.30;7322;*;Numeriskt_A;K;Obeskattade reserver Ackumulerade överavskrivningar
+INK2R;2.31;7323;*;Numeriskt_A;K;Obeskattade reserver Övriga obeskattade reserver
+INK2R;2.32;7331;*;Numeriskt_A;K;Avsättningar Avsättningar för pensioner och liknande förpliktelser enligt lag (1967:531)...
+INK2R;2.33;7332;*;Numeriskt_A;K;Avsättningar Övriga avsättningar för pensioner och liknande förpliktelser
+INK2R;2.34;7333;*;Numeriskt_A;K;Avsättningar Övriga avsättningar
+INK2R;2.35;7350;*;Numeriskt_A;K;Långfristiga skulder Obligationslån
+INK2R;2.36;7351;*;Numeriskt_A;K;Långfristiga skulder Kontokredit
+INK2R;2.37;7352;*;Numeriskt_A;K;Långfristiga skulder Övriga skulder till kreditinstitut
+INK2R;2.38;7353;*;Numeriskt_A;K;Långfristiga skulder Skulder till koncern-, intresse- och gemensamt styrda företag
+INK2R;2.39;7354;*;Numeriskt_A;K;Skulder till övriga företag som det finns ett ägarintresse i och övriga skulder
+INK2R;2.40;7360;*;Numeriskt_A;K;Kortfristiga skulder Kontokredit
+INK2R;2.41;7361;*;Numeriskt_A;K;Kortfristiga skulder Övriga skulder till kreditinstitut
+INK2R;2.42;7362;*;Numeriskt_A;K;Kortfristiga skulder Förskott från kunder
+INK2R;2.43;7363;*;Numeriskt_A;K;Kortfristiga skulder Pågående arbeten för annans räkning
+INK2R;2.44;7364;*;Numeriskt_A;K;Kortfristiga skulder Fakturerad men ej upparbetad intäkt
+INK2R;2.45;7365;*;Numeriskt_A;K;Kortfristiga skulder Leverantörsskulder
+INK2R;2.46;7366;*;Numeriskt_A;K;Kortfristiga skulder Växelskulder
+INK2R;2.47;7367;*;Numeriskt_A;K;Kortfristiga skulder Skulder till koncern-, intresse- och gemensamt styrda företag
+INK2R;2.48;7369;*;Numeriskt_A;K;Skulder till övriga företag som det finns ett ägarintresse i och övriga skulder
+INK2R;2.49;7368;*;Numeriskt_A;K;Kortfristiga skulder Skattesskulder
+INK2R;2.50;7370;*;Numeriskt_A;K;Kortfristiga skulder Upplupna kostnader och förutbetalda intäkter
+INK2R;3.1;7410;+;Numeriskt_A;K;Nettoomsättning
+INK2R;3.2;7411;+;Numeriskt_A;K;Förändring av lager av produkter i arbete, färdiga varor och pågående arbete för annans räkning. +
+INK2R;3.2;7510;-;Numeriskt_A;D;Förändring av lager av produkter i arbete, färdiga varor och pågående arbete för annans räkning. -
+INK2R;3.3;7412;+;Numeriskt_A;K;Aktiverat arbete för egen räkning
+INK2R;3.4;7413;+;Numeriskt_A;K;Övriga rörelseintäkter
+INK2R;3.5;7511;-;Numeriskt_A;D;Råvaror och förnödenheter
+INK2R;3.6;7512;-;Numeriskt_A;D;Handelsvaror
+INK2R;3.7;7513;-;Numeriskt_A;D;Övriga externa kostnader
+INK2R;3.8;7514;-;Numeriskt_A;D;Personalkostnader
+INK2R;3.9;7515;-;Numeriskt_A;D;Av- och nedskrivningar av materiella och immateriella anläggningstillgångar
+INK2R;3.10;7516;-;Numeriskt_A;D;Nedskrivningar av omsättningstillgångar utöver normala nedskrivningar
+INK2R;3.11;7517;-;Numeriskt_A;D;Övriga rörelsekostnader
+INK2R;3.12;7414;+;Numeriskt_A;K;Resultat från andelar i koncernföretag +
+INK2R;3.12;7518;-;Numeriskt_A;D;Resultat från andelar i koncernföretag -
+INK2R;3.13;7415;+;Numeriskt_A;K;Resultat från andelar i intresseföretag och gemensamt styrda företag +
+INK2R;3.13;7519;-;Numeriskt_A;D;Resultat från andelar i intresseföretag och gemensamt styrda företag -
+INK2R;3.14;7423;+;Numeriskt_A;K;Resultat från övriga företag som det finns ett ägarintresse i +
+INK2R;3.14;7530;-;Numeriskt_A;D;Resultat från övriga företag som det finns ett ägarintresse i -
+INK2R;3.15;7416;+;Numeriskt_A;K;Resultat från övriga finansiella anläggningstillgångar +
+INK2R;3.15;7520;-;Numeriskt_A;D;Resultat från övriga finansiella anläggningstillgångar -
+INK2R;3.16;7417;+;Numeriskt_A;K;Övriga ränteintäkter och liknande resultatposter
+INK2R;3.17;7521;-;Numeriskt_A;D;Nedskrivning av finansiella anläggningstillgångar och kortfristiga placeringar
+INK2R;3.18;7522;-;Numeriskt_A;D;Räntekostnader och liknande resultatposter
+INK2R;3.19;7524;-;Numeriskt_A;D;Lämnade koncernbidrag
+INK2R;3.20;7419;+;Numeriskt_A;K;Mottagna koncernbidrag
+INK2R;3.21;7420;+;Numeriskt_B;K;Återföring av periodiseringsfond
+INK2R;3.22;7525;-;Numeriskt_B;D;Avsättning till periodiseringsfond
+INK2R;3.23;7421;+;Numeriskt_A;K;Förändring av överavskrivningar +
+INK2R;3.23;7526;-;Numeriskt_A;D;Förändring av överavskrivningar -
+INK2R;3.24;7422;+;Numeriskt_A;K;Övriga bokslutsdispositioner +
+INK2R;3.24;7527;-;Numeriskt_A;D;Övriga bokslutsdispositioner -
+INK2R;3.25;7528;-;Numeriskt_A;D;Skatt på årets resultat
+INK2R;3.26;7450;+;Numeriskt_B;K;Årets resultat, vinst (flyttas till p. 4.1)
+INK2R;3.27;7550;-;Numeriskt_B;D;Årets resultat, förlust (flyttas till p. 4.2)
+
+INK2S;;7011;*;Datum_D;-;Räkenskapsårets början
+INK2S;;7012;*;Datum_D;-;Räkenskapsårets slut
+INK2S;4.1;7650;+;Numeriskt_B;-;Årets resultat, vinst
+INK2S;4.2;7750;-;Numeriskt_B;-;Årets resultat, förlust
+INK2S;4.3a;7651;+;Numeriskt_A;-;Bokförda kostnader som inte ska dras av: a. Skatt på årets resultat
+INK2S;4.3b;7652;+;Numeriskt_A;-;Bokförda kostnader som inte ska dras av: b. Nedskrivning av finansiella tillgångar
+INK2S;4.3c;7653;+;Numeriskt_A;-;Bokförda kostnader som inte ska dras av: c. Andra bokförda kostnader
+INK2S;4.4a;7751;-;Numeriskt_A;-;Kostnader som ska dras av men som inte ingår i det redovisade resultatet: a. Lämnade koncernbidrag
+INK2S;4.4b;7764;-;Numeriskt_A;-;Kostnader som ska dras av men som inte ingår i det redovisade resultatet: b. Andra ej bokförda kostnader
+INK2S;4.5a;7752;-;Numeriskt_A;-;Bokförda intäkter som inte ska tas upp: a. Ackordsvinster
+INK2S;4.5b;7753;-;Numeriskt_A;-;Bokförda intäkter som inte ska tas upp: b. Utdelning
+INK2S;4.5c;7754;-;Numeriskt_A;-;Bokförda intäkter som inte ska tas upp: c. Andra bokförda intäkter
+INK2S;4.6a;7654;+;Numeriskt_B;-;Intäkter som ska tas upp men som inte ingår i det redovisade resultatet a. Beräknad schablonintäkt på periodiseringsfonder vid beskattningsårets ingång
+INK2S;4.6b;7668;+;Numeriskt_A;-;Beräknad schablonintäkt på fondandelar ägda vid kalenderårets ingång
+INK2S;4.6c;7655;+;Numeriskt_A;-;Intäkter som ska tas upp men som inte ingår i det redovisade resultatet: c. Mottagna koncernbidrag
+INK2S;4.6d;7673;+;Numeriskt_A;-;Intäkter som ska tas upp men som inte ingår i det redovisade resultatet: d. Uppräknat belopp vid återföring av periodiseringsfond
+INK2S;4.6e;7665;+;Numeriskt_A;-;Intäkter som ska tas upp men som inte ingår i det redovisade resultatet: e. Andra ej bokförda intäkter
+INK2S;4.7a;7755;-;Numeriskt_B;-;Avyttring av delägarrätter: a. Bokförd vinst
+INK2S;4.7b;7656;+;Numeriskt_B;-;Avyttring av delägarrätter: b. Bokförd förlust
+INK2S;4.7c;7756;-;Numeriskt_B;-;Avyttring av delägarrätter: c. Uppskov med kapitalvinst enligt blankett N4
+INK2S;4.7d;7657;+;Numeriskt_B;-;Avyttring av delägarrätter: d. Återfört uppskov med kapitalvinst enligt blankett N4
+INK2S;4.7e;7658;+;Numeriskt_B;-;Avyttring av delägarrätter: e. Kapitalvinst för beskattningsåret
+INK2S;4.7f;7757;-;Numeriskt_B;-;Avyttring av delägarrätter: f. Kapitalförlust som ska dras av
+INK2S;4.8a;7758;-;Numeriskt_B;-;Andel i handelsbolag (inkl. avyttring): a. Bokförd intäkt/vinst
+INK2S;4.8b;7659;+;Numeriskt_B;-;Andel i handelsbolag (inkl. avyttring): b. Skattemässigt överskott enligt N3B
+INK2S;4.8c;7660;+;Numeriskt_B;-;Andel i handelsbolag (inkl. avyttring): c. Bokförd kostnad/förlust
+INK2S;4.8d;7759;-;Numeriskt_B;-;Andel i handelsbolag (inkl. avyttring): d. Skattemässigt underskott enligt N3B
+INK2S;4.9;7666;+;Numeriskt_B;-;Skattemässig justering av bokfört resultat för avskrivningar på byggnader och annan fast egendom samt restvärdesavskrivning på maskiner och inventarier (+)
+INK2S;4.9;7765;-;Numeriskt_B;-;Skattemässig justering av bokfört resultat för avskrivningar på byggnader och annan fast egendom samt restvärdesavskrivning på maskiner och inventarier (-)
+INK2S;4.10;7661;+;Numeriskt_B;-;Skattemässig justering av bokfört resultat vid avyttring av näringsfastighet och näringsbostadsrätt
+INK2S;4.10;7760;-;Numeriskt_B;-;Skattemässig korrigering av bokfört resultat vid avyttring av näringsfastighet och näringsbostadsrätt: -
+INK2S;4.11;7761;-;Numeriskt_B;-;Skogs-/substansminskningsavdrag (specificeras på blankett N8)
+INK2S;4.12;7662;+;Numeriskt_A;-;Återföringar vid avyttring av fastighet t.ex. värdeminskningsavdrag, skogsavdrag och substansminskningsavdrag...
+INK2S;4.13;7663;+;Numeriskt_B;-;Andra skattemässiga justeringar av resultatet: +
+INK2S;4.13;7762;-;Numeriskt_B;-;Andra skattemässiga justeringar av resultatet: -
+INK2S;4.14a;7763;-;Numeriskt_B;-;Underskott: a. Outnyttjat underskott från föregående år
+INK2S;4.14b;7671;+;Numeriskt_A;-;Reduktion av outnyttjat underskott med hänsyn till beloppsspärr, ackord eller konkurs
+INK2S;4.14c;7672;+;Numeriskt_A;-;Reduktion av outnyttjat underskott med hänsyn till koncernbidragsspärr, fusionsspärr m.m. (beloppet ska också tas upp vid p. 1.2. på sid. 1)
+INK2S;4.15;7670;+;Numeriskt_B;-;Överskott (flyttas till p. 1.1 på sid. 1)
+INK2S;4.16;7770;-;Numeriskt_B;-;Underskott (flyttas till p. 1.2 på sid. 1)
+INK2S;4.17;8020;*;Numeriskt_A;-;Årets begärda och tidigare års medgivna värdeminskningsavdrag som finns vid beskattningsårets utgång avseende byggnader.
+INK2S;4.18;8021;*;Numeriskt_A;-;Årets begärda och tidigare års medgivna värdeminskningsavdrag som finns vid beskattningsårets utgång avseende markanläggningar.
+INK2S;4.19;8023;*;Numeriskt_B;-;Vid restvärdesavskrivning: återförda belopp för av- och nedskrivning, försäljning, utrangering
+INK2S;4.20;8026;*;Numeriskt_B;-;Lån från aktieägare (fysisk person) vid räkenskapsårets utgång
+INK2S;4.21;8022;*;Numeriskt_A;-;Pensionskostnader (som ingår i p. 3.8)
+INK2S;4.22;8028;*;Numeriskt_B;-;Koncernbidragsspärrat och fusionsspärrat underskott m.m. (frivillig uppgift)
+INK2S;;8040;*;Str_X;-;Uppdragstagare (t.ex. redovisningskonsult) har biträtt vid upprättandet av årsredovisningen: Ja
+INK2S;;8041;*;Str_X;-;Uppdragstagare (t.ex. redovisningskonsult) har biträtt vid upprättandet av årsredovisningen: Nej
+INK2S;;8044;*;Str_X;-;Årsredovisningen har varit föremål för revision: Ja
+INK2S;;8045;*;Str_X;-;Årsredovisningen har varit föremål för revision: Nej

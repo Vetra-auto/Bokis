@@ -1,5 +1,6 @@
 //! Skrivande operationer och de uppslag de bygger på.
 
+pub(crate) mod assets;
 mod bank;
 mod cases;
 mod closing;

@@ -37,7 +37,7 @@ fn abort_messages(sql: &str) -> Vec<String> {
 /// Tabellerna som bara kan växa: varken ändras eller raderas. (Motpartsregistret
 /// kan ändras men inte raderas; perioder och nummerserier ändras bara på
 /// tillåtna sätt.)
-pub const APPEND_ONLY_TABLES: [&str; 19] = [
+pub const APPEND_ONLY_TABLES: [&str; 21] = [
     "handelser",
     "foretag",
     "nycklar",
@@ -57,6 +57,8 @@ pub const APPEND_ONLY_TABLES: [&str; 19] = [
     "arenden",
     "arendesvar",
     "sakerhetsniva",
+    "inventarier",
+    "inventarieavgangar",
 ];
 
 impl Store {
