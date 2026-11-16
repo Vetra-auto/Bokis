@@ -384,6 +384,17 @@ impl App {
         };
         let entered = state::normalize_code(form_value(&params, "kod").unwrap_or(""));
         let now = self.now();
+        // Formuläret skickat en gång till efter ett godkännande, till exempel
+        // med ett dubbelklick: säg att det redan är klart i stället för att
+        // visa ett fel. Ingen ny kod lämnas ut.
+        let pending = matches!(self.state.read(), Ok(s) if s.pairing.as_ref().is_some_and(|p| p.expires > now));
+        if a.client.approved.is_some() && !pending {
+            return pages::message(
+                200,
+                "Anslutningen är redan godkänd",
+                "Du kan stänga den här fliken och gå tillbaka till appen.",
+            );
+        }
         let client_id = a.client.id.clone();
         let outcome = self.state.update(now, |s| {
             let Some(p) = s.pairing.as_mut() else {

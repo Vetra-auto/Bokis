@@ -77,6 +77,10 @@ fn recent_status(a: &AttachmentRow, pending: &HashSet<i64>) -> (String, bool) {
     }
 }
 
+/// Kakan med länken som webbläsaren nyss löste in, och hur länge den gäller.
+const REDEEMED_COOKIE: &str = "bok_lank";
+const REDEEMED_COOKIE_TTL: i64 = 900;
+
 impl App {
     /// Startsidan: formuläret för koden, och inlösen av den.
     pub(crate) fn start(&mut self, req: &Request) -> Response {
@@ -135,8 +139,23 @@ impl App {
             Redeemed::Link
         });
         match outcome {
-            Ok(Redeemed::Link) => Response::empty(303).with("Location", format!("/in/{secret}")),
-            Ok(Redeemed::Wrong) => pages::start(&self.config.origin, Some(pages::WRONG_LINK_CODE)),
+            // Kakan låter samma webbläsare komma tillbaka till sin nya länk om
+            // formuläret skickas en gång till, till exempel efter ett dubbelklick
+            // eller med bakåtknappen, i stället för att få ett fel. Den bär samma
+            // hemlighet som adressen och gäller bara en kort stund.
+            Ok(Redeemed::Link) => Response::empty(303)
+                .with("Location", format!("/in/{secret}"))
+                .with(
+                    "Set-Cookie",
+                    format!(
+                        "{REDEEMED_COOKIE}={secret}; Path=/; Max-Age={REDEEMED_COOKIE_TTL}; \
+                         HttpOnly; Secure; SameSite=Strict"
+                    ),
+                ),
+            Ok(Redeemed::Wrong) => match self.redeemed_here(req) {
+                Some(secret) => Response::empty(303).with("Location", format!("/in/{secret}")),
+                None => pages::start(&self.config.origin, Some(pages::WRONG_LINK_CODE)),
+            },
             Ok(Redeemed::Taken(name)) => pages::start(
                 &self.config.origin,
                 Some(&format!(
@@ -151,6 +170,18 @@ impl App {
             ),
             Err(e) => pages::message(500, "Fel", &e.to_string()),
         }
+    }
+
+    /// Länken som den här webbläsaren nyss löste in, om den fortfarande gäller.
+    fn redeemed_here(&self, req: &Request) -> Option<String> {
+        let secret = req
+            .header("Cookie")?
+            .split(';')
+            .filter_map(|c| c.trim().split_once('='))
+            .find(|(k, _)| *k == REDEEMED_COOKIE)
+            .map(|(_, v)| v.to_string())?;
+        let s = self.state.read().ok()?;
+        s.link(&secret).is_some().then_some(secret)
     }
 
     pub(crate) fn upload(&mut self, req: &Request) -> Response {

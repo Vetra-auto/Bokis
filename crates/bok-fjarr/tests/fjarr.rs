@@ -326,8 +326,12 @@ fn the_whole_connection_needs_the_pairing_code_and_pkce() {
         "{location}"
     );
     assert!(location.contains("&state=xyz&iss=https%3A%2F%2Fbokis.example"));
-    // Koden fungerar en gång.
-    assert_eq!(f.approve(&client, CALLBACK, "7KQM-X3PD").status, 400);
+    // Koden fungerar en gång. Skickas formuläret igen, till exempel med ett
+    // dubbelklick, får man veta att det redan är klart, men ingen ny kod.
+    let again = f.approve(&client, CALLBACK, "7KQM-X3PD");
+    assert_eq!(again.status, 200);
+    assert!(Fixture::text(&again).contains("redan godkänd"));
+    assert!(again.header("Location").is_none());
 
     // Godkännandet står i behandlingshistoriken.
     let store = Store::open(&f.db, "test").unwrap();
@@ -699,8 +703,39 @@ fn the_phone_fetches_its_link_with_a_code() {
         ("fjarr.lank.skapad", Some("fjarr:telefon"))
     );
 
-    // Koden gäller en gång.
+    // Koden gäller en gång. Bara webbläsaren som löste in den kommer, med
+    // kakan, tillbaka till sin länk om formuläret skickas igen.
+    let cookie = r.header("Set-Cookie").unwrap().to_string();
+    assert!(
+        cookie.contains("HttpOnly")
+            && cookie.contains("Secure")
+            && cookie.contains("SameSite=Strict")
+    );
     assert_eq!(f.redeem("7KQM-X3PD").status, 400);
+    let kaka = cookie.split(';').next().unwrap().to_string();
+    let again = f.send(
+        "POST",
+        "/",
+        &[
+            ("Content-Type", "application/x-www-form-urlencoded"),
+            ("Origin", ORIGIN),
+            ("Cookie", &kaka),
+        ],
+        b"kod=7KQM-X3PD",
+    );
+    assert_eq!(again.status, 303);
+    assert_eq!(again.header("Location"), Some(location.as_str()));
+    let other = f.send(
+        "POST",
+        "/",
+        &[
+            ("Content-Type", "application/x-www-form-urlencoded"),
+            ("Origin", ORIGIN),
+            ("Cookie", "bok_lank=0000"),
+        ],
+        b"kod=7KQM-X3PD",
+    );
+    assert_eq!(other.status, 400);
 
     // Den nya sidan ber telefonen spara den, tills första underlaget är skickat.
     let page = Fixture::text(&f.send("GET", &location, &[], b""));
