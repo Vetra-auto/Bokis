@@ -25,6 +25,7 @@ use bok_store::bok_core::VoucherRef;
 use bok_store::{AttachmentRow, Company, EventRow, FiscalYear, Store, VerifyReport};
 
 pub mod html;
+pub mod links;
 mod markdown;
 mod pages;
 pub mod server;

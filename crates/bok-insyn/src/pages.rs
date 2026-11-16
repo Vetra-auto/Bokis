@@ -776,7 +776,10 @@ pub(crate) fn voucher(i: &Insyn, y: &FiscalYear, v: &VoucherView) -> Result<Stri
                     )?,
                     "pdf" => writeln!(
                         b,
-                        "<p><a href=\"{UP}{path}\">Öppna underlaget</a> (PDF, {})</p>",
+                        "<object class=\"pdf\" data=\"{UP}{path}\" type=\"application/pdf\" \
+                         aria-label=\"Underlaget {}\"></object>\n\
+                         <p><a href=\"{UP}{path}\">Öppna underlaget</a> (PDF, {})</p>",
+                        esc(name),
                         size(data.len())
                     )?,
                     "txt" => {

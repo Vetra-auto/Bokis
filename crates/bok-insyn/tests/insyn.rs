@@ -708,3 +708,77 @@ fn live_view_checks_once_until_asked_again() {
     assert!(after.contains("Kontrollen hittade fel"), "{after}");
     assert!(page(&mut view, "/systemdokumentation.html").contains("FEL"));
 }
+
+#[test]
+fn as_a_service_it_answers_on_its_address_with_links_on_demand() {
+    let f = fixture();
+    let file = bok_insyn::links::file_beside(&f.db);
+    let origin = "https://bokis.example.ts.net:8443";
+    bok_insyn::links::set_origin(&file, origin, Utc::now().timestamp()).unwrap();
+    let mut view = LiveView::new(
+        &f.store,
+        &f.archive,
+        &f.db,
+        "bok test",
+        LOGIN.into(),
+        SESSION.into(),
+        PORT,
+    )
+    .with_remote(origin, file.clone());
+    let remote = |target: &str, cookie: bool| {
+        let mut r = request("GET", target, cookie);
+        r.headers[0].1 = "bokis.example.ts.net:8443".into();
+        r
+    };
+
+    // Startlänken gäller inte för en tjänst, och utan länk syns inget.
+    assert_eq!(
+        view.handle(&remote(&format!("/login?token={LOGIN}"), false))
+            .status,
+        403
+    );
+    let refused = view.handle(&remote("/", false));
+    assert_eq!(refused.status, 403);
+    assert!(String::from_utf8_lossy(&refused.body).contains("bok insyn lank"));
+    // En annan värd släpps inte in.
+    let mut other = remote("/", true);
+    other.headers[0].1 = "evil.example".into();
+    assert_eq!(view.handle(&other).status, 403);
+
+    // En länk från `bok insyn lank` fungerar en gång och ger en säker kaka.
+    let token = "3333333333333333333333333333333333333333333333333333333333333333";
+    bok_insyn::links::issue(&file, token, Utc::now().timestamp()).unwrap();
+    let login = view.handle(&remote(&format!("/login?token={token}"), false));
+    assert_eq!(login.status, 303);
+    let cookie = login.header("Set-Cookie").unwrap();
+    assert!(cookie.contains("Secure") && cookie.contains("HttpOnly"));
+    assert_eq!(
+        view.handle(&remote(&format!("/login?token={token}"), false))
+            .status,
+        403
+    );
+    assert_eq!(view.handle(&remote("/", true)).status, 200);
+    // Samma tjänst svarar fortfarande på 127.0.0.1.
+    assert_eq!(view.handle(&request("GET", "/", true)).status, 200);
+}
+
+#[test]
+fn a_pdf_receipt_is_shown_on_the_voucher_page() {
+    let f = fixture();
+    let mut view = LiveView::new(
+        &f.store,
+        &f.archive,
+        &f.db,
+        "bok test",
+        LOGIN.into(),
+        SESSION.into(),
+        PORT,
+    );
+    let login = view.handle(&request("GET", &format!("/login?token={LOGIN}"), false));
+    assert_eq!(login.status, 303);
+    let csp = view.handle(&request("GET", "/", true));
+    assert!(csp
+        .header("Content-Security-Policy")
+        .unwrap()
+        .contains("object-src 'self'"));
+}

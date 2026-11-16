@@ -1,6 +1,8 @@
 //! `bok insyn`: bokföringen som läsbara sidor för revisor och Skatteverket.
 //!
 //! Utan underkommando startar insynen live på 127.0.0.1 med en engångslänk.
+//! Med `--adress` körs den som tjänst bakom `tailscale serve`, och
+//! inloggningslänkarna tas fram med `bok insyn lank`.
 //! `bok insyn export <katalog>` skriver samma sidor som fristående filer med
 //! underlagen, SIE 4 och CSV per år och `manifest.sha256`, så att kopian kan
 //! lämnas på ett USB-minne och läsas utan Bokis.
@@ -11,7 +13,7 @@ use anyhow::{Context, Result};
 use clap::{Args, Subcommand};
 
 use bok_insyn::server::{LiveView, bind, random_token, serve};
-use bok_insyn::{ExtraFile, Insyn, Mode};
+use bok_insyn::{ExtraFile, Insyn, Mode, links};
 
 use crate::{Ctx, PROGRAM, resolve_year, sie_bytes};
 
@@ -22,10 +24,18 @@ pub struct InsynArgs {
     /// Porten på 127.0.0.1 [standard: en ledig port].
     #[arg(long, default_value_t = 0)]
     port: u16,
+    /// Kör som tjänst som också nås på den här adressen, till exempel
+    /// https://bokis.ditt-tailnet.ts.net:8443 bakom `tailscale serve`. Ingen
+    /// startlänk; ta fram inloggningslänkar med `bok insyn lank`.
+    #[arg(long, visible_alias = "address")]
+    adress: Option<String>,
 }
 
 #[derive(Subcommand)]
 pub enum InsynCmd {
+    /// Ny inloggningslänk till insynen som körs som tjänst. Den fungerar en gång i 15 minuter.
+    #[command(visible_alias = "link")]
+    Lank,
     /// Skriver insynen som fristående sidor i en ny katalog, med underlag, SIE 4, CSV och manifest.
     Export {
         /// Katalogen som skapas, till exempel på ett USB-minne. En befintlig katalog skrivs aldrig över.
@@ -42,12 +52,13 @@ fn now() -> String {
 
 pub fn insyn(ctx: &Ctx, args: InsynArgs) -> Result<()> {
     match args.cmd {
-        None => live(ctx, args.port),
+        None => live(ctx, args.port, args.adress.as_deref()),
+        Some(InsynCmd::Lank) => link(ctx),
         Some(InsynCmd::Export { target, year }) => export(ctx, &target, year.as_deref()),
     }
 }
 
-fn live(ctx: &Ctx, port: u16) -> Result<()> {
+fn live(ctx: &Ctx, port: u16, adress: Option<&str>) -> Result<()> {
     let store = ctx.open()?;
     let archive = ctx.archive().open()?;
     let company = store.company()?;
@@ -59,11 +70,50 @@ fn live(ctx: &Ctx, port: u16) -> Result<()> {
         crate::render::safe(&company.name),
         company.org_number
     );
-    println!("Öppna länken i webbläsaren; den fungerar en gång:");
-    println!("  http://127.0.0.1:{port}/login?token={login}");
+    let mut view = LiveView::new(
+        &store,
+        &archive,
+        &ctx.db,
+        PROGRAM,
+        login.clone(),
+        session,
+        port,
+    );
+    match adress {
+        Some(origin) => {
+            let origin = origin.trim_end_matches('/');
+            if !origin.starts_with("https://") && !origin.starts_with("http://") {
+                anyhow::bail!("--adress ska börja med https://");
+            }
+            let file = links::file_beside(&ctx.db);
+            links::set_origin(&file, origin, chrono::Utc::now().timestamp())
+                .with_context(|| format!("kan inte skriva {}", file.display()))?;
+            view = view.with_remote(origin, file);
+            println!("Den nås på {origin}. Ta fram en inloggningslänk med `bok insyn lank`.");
+        }
+        None => {
+            println!("Öppna länken i webbläsaren; den fungerar en gång:");
+            println!("  http://127.0.0.1:{port}/login?token={login}");
+        }
+    }
     println!("Insynen visar bokföringen och kan inte ändra den. Avsluta med Ctrl+C.");
-    let mut view = LiveView::new(&store, &archive, &ctx.db, PROGRAM, login, session, port);
     serve(&mut view, &listener, None)?;
+    Ok(())
+}
+
+fn link(ctx: &Ctx) -> Result<()> {
+    let file = links::file_beside(&ctx.db);
+    let Some(origin) = links::origin(&file)? else {
+        anyhow::bail!(
+            "insynen körs inte som tjänst; starta den med `bok insyn --adress <url>`, \
+             eller kör bara `bok insyn` för en länk på den här datorn"
+        );
+    };
+    let token = random_token()?;
+    links::issue(&file, &token, chrono::Utc::now().timestamp())
+        .with_context(|| format!("kan inte skriva {}", file.display()))?;
+    println!("Öppna länken i webbläsaren; den fungerar en gång i 15 minuter:");
+    println!("  {origin}/login?token={token}");
     Ok(())
 }
 

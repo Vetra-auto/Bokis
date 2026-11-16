@@ -163,6 +163,8 @@ table.bok td.konto, table.bok td.dag { white-space: nowrap; }
 /* Underlag bredvid konteringen. */
 .underlag { margin: 1rem 0; }
 .underlag figure { margin: 0 0 1.25rem; }
+.underlag object.pdf { display: block; width: 100%; height: 80vh; border: 1px solid var(--linje); background: #fff; }
+@media print { .underlag object.pdf { display: none; } }
 .underlag img { max-width: 100%; max-height: 44rem; border: 1px solid var(--linje); background: #fff; }
 .underlag pre { white-space: pre-wrap; border: 1px solid var(--linje); padding: .8rem 1rem; background: #fff; font-size: .85rem; max-height: 30rem; overflow: auto; }
 .underlag figcaption { color: var(--grafit); font-size: .9rem; margin-top: .35rem; }

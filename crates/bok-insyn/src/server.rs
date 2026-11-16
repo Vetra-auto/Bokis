@@ -1,9 +1,12 @@
 //! Insynen live på 127.0.0.1.
 //!
 //! Skydden, i den ordning de prövas:
-//! 1. Host-huvudet måste vara 127.0.0.1 eller localhost med rätt port (mot DNS-rebinding).
+//! 1. Host-huvudet måste vara 127.0.0.1 eller localhost med rätt port (mot DNS-rebinding),
+//!    eller adressen tjänsten nås på när den körs med `--adress` bakom
+//!    `tailscale serve`.
 //! 2. Bara GET besvaras. Insynen har inga formulär och kan inte ändra bokföringen.
 //! 3. En engångslänk ger en sessionskaka; utan den visas ingenting utom stilmallen.
+//!    Som tjänst tas länkarna fram med `bok insyn lank` (se [`crate::links`]).
 //! 4. Sidorna har en CSP utan skript och utan externa resurser. Underlag som
 //!    inte är bild, PDF eller text skickas bara som nedladdning.
 //!
@@ -12,7 +15,7 @@
 
 use std::io::{self, Write};
 use std::net::{TcpListener, TcpStream};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 use bok_archive::Archive;
@@ -24,8 +27,8 @@ use bok_store::{Store, VerifyReport};
 use crate::html::esc;
 use crate::{File, Insyn, Mode, CSS};
 
-const PAGE_CSP: &str = "default-src 'none'; style-src 'self'; img-src 'self'; base-uri 'none'; \
-form-action 'none'; frame-ancestors 'none'";
+const PAGE_CSP: &str = "default-src 'none'; style-src 'self'; img-src 'self'; object-src 'self'; \
+frame-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
 
 /// För underlag som visas direkt: bilder och text. Inget i dem får köras.
 const FILE_CSP: &str = "default-src 'none'; style-src 'unsafe-inline'; sandbox";
@@ -106,6 +109,10 @@ pub struct LiveView<'a> {
     login_token: Option<String>,
     session_token: String,
     allowed_hosts: Vec<String>,
+    /// Filen med engångslänkar från `bok insyn lank`, när insynen är en tjänst.
+    link_file: Option<PathBuf>,
+    /// Kakan får `Secure` när insynen nås över https.
+    secure_cookie: bool,
     /// Kontrollen av bokföringen och när den gjordes. Den läser varje
     /// underlag i arkivet, så den görs en gång och inte för varje sida.
     checked: Option<(VerifyReport, String)>,
@@ -130,8 +137,34 @@ impl<'a> LiveView<'a> {
             login_token: Some(login_token),
             session_token,
             allowed_hosts: vec![format!("127.0.0.1:{port}"), format!("localhost:{port}")],
+            link_file: None,
+            secure_cookie: false,
             checked: None,
         }
+    }
+
+    /// Insynen som tjänst: den nås också på `origin`, till exempel
+    /// `https://bokis.tailnet.ts.net:8443` bakom `tailscale serve`, och
+    /// inloggningslänkarna tas fram med `bok insyn lank` och läses ur
+    /// `link_file`. Startlänken gäller inte.
+    pub fn with_remote(mut self, origin: &str, link_file: PathBuf) -> Self {
+        let host = origin
+            .split_once("://")
+            .map_or(origin, |(_, rest)| rest)
+            .split('/')
+            .next()
+            .unwrap_or("")
+            .to_string();
+        if !host.is_empty() {
+            if let Some((name, "443")) = host.rsplit_once(':') {
+                self.allowed_hosts.push(name.to_string());
+            }
+            self.allowed_hosts.push(host);
+        }
+        self.secure_cookie = origin.starts_with("https://");
+        self.login_token = None;
+        self.link_file = Some(link_file);
+        self
     }
 
     fn has_session(&self, req: &Request) -> bool {
@@ -145,11 +178,7 @@ impl<'a> LiveView<'a> {
     pub fn handle(&mut self, req: &Request) -> Response {
         let host = req.header("host").unwrap_or("");
         if !self.allowed_hosts.iter().any(|h| h == host) {
-            return message(
-                403,
-                "Fel adress",
-                "Insynen svarar bara på 127.0.0.1 och localhost.",
-            );
+            return message(403, "Fel adress", "Insynen svarar bara på sin egen adress.");
         }
         if req.method != "GET" {
             let mut r = message(
@@ -170,18 +199,30 @@ impl<'a> LiveView<'a> {
                 .filter_map(|kv| kv.split_once('='))
                 .find(|(k, _)| *k == "token")
                 .map(|(_, v)| v);
-            let valid = match (token, &self.login_token) {
+            let started = match (token, &self.login_token) {
                 (Some(t), Some(expected)) => same_secret(t, expected),
                 _ => false,
             };
-            if !valid {
-                return message(
-                    403,
-                    "Fel länk",
-                    "Länken stämmer inte eller är redan använd. Starta insynen igen med bok insyn för en ny länk.",
-                );
+            let issued = !started
+                && match (token, &self.link_file) {
+                    (Some(t), Some(file)) if !t.is_empty() => {
+                        crate::links::consume(file, t, chrono::Utc::now().timestamp())
+                            .unwrap_or(false)
+                    }
+                    _ => false,
+                };
+            if !started && !issued {
+                let hint = if self.link_file.is_some() {
+                    "Länken stämmer inte, är redan använd eller har gått ut. Ta fram en ny med bok insyn lank."
+                } else {
+                    "Länken stämmer inte eller är redan använd. Starta insynen igen med bok insyn för en ny länk."
+                };
+                return message(403, "Fel länk", hint);
             }
-            self.login_token = None;
+            if started {
+                self.login_token = None;
+            }
+            let secure = if self.secure_cookie { "; Secure" } else { "" };
             return Response {
                 status: 303,
                 headers: vec![
@@ -189,7 +230,7 @@ impl<'a> LiveView<'a> {
                     (
                         "Set-Cookie".into(),
                         format!(
-                            "{COOKIE}={}; HttpOnly; SameSite=Strict; Path=/",
+                            "{COOKIE}={}; HttpOnly; SameSite=Strict; Path=/{secure}",
                             self.session_token
                         ),
                     ),
@@ -210,7 +251,11 @@ impl<'a> LiveView<'a> {
             return message(
                 403,
                 "Inte inloggad",
-                "Öppna länken som visades i terminalen när insynen startade.",
+                if self.link_file.is_some() {
+                    "Ta fram en inloggningslänk med bok insyn lank på servern med bokföringen."
+                } else {
+                    "Öppna länken som visades i terminalen när insynen startade."
+                },
             );
         }
         if path == "/kontrollera" {
