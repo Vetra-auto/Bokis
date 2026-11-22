@@ -1,0 +1,14 @@
+{
+  "regel": "Vinstmarginalbeskattning gäller bara när underlaget visar det: en faktura vid vinstmarginalbeskattning anger varken momsens belopp eller underlaget för den (ML 20 kap. 20 §), och då får ingen ingående moms dras av (ML 20 kap. 16 §). Inköp och försäljning av varor som vinstmarginalbeskattas bokas på konton med momskod 07; försäljningen utan momsen på marginalen, och momsen på ett konto med momskod 10, 11 eller 12. Momsen på marginalen är 20 % av marginalen vid 25 % moms. Trepartshandel där företaget är mellanman: inköpet bokas på ett konto med momskod 37 och försäljningen på ett konto med momskod 38, utan utgående eller ingående moms. Saknas sådana konton i kontoplanen, eller är det oklart om reglerna gäller, ställ en fråga i stället för att gissa.",
+  "lagrum": [
+    "Mervärdesskattelagen (2023:200) 20 kap. 2, 11, 14, 16 och 20 §§ (begagnade varor, konstverk, samlarföremål och antikviteter)",
+    "Mervärdesskattelagen (2023:200) 19 kap. 5 § (resebyråer)",
+    "Mervärdesskattelagen (2023:200) 6 kap. 15–17 §§ (flera leveranser av samma vara)",
+    "Skatteverkets anvisningar till momsdeklarationens fält 07, 37 och 38"
+  ],
+  "kallor": [
+    "https://www.skatteverket.se/foretag/moms/deklareramoms/fyllaimomsdeklarationen.4.3a2a542410ab40a421c80004214.html",
+    "https://www.riksdagen.se/sv/dokument-och-lagar/dokument/svensk-forfattningssamling/mervardesskattelag-2023200_sfs-2023-200/"
+  ],
+  "kontrollerad": "2026-11-22"
+}

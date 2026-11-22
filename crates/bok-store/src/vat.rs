@@ -10,6 +10,19 @@
 //! Konton med momskod 49 (normalt 2650, redovisningskonto för moms) markerar
 //! momsavräkningen. Verifikationer med en sådan rad räknas inte med, annars
 //! skulle avräkningen nolla rapporten.
+//!
+//! Vinstmarginalbeskattning (ruta 07): beskattningsunderlaget är
+//! vinstmarginalen minskad med momsen på den (ML 2023:200 20 kap. 11 och
+//! 14 §§, för resebyråer 19 kap. 5 §). Försäljningskontot (utan momsen, som
+//! bokförs på ett konto med ruta 10–12) och inköpskontot för varorna får båda
+//! momskod 07; inköpet i debet minskar rutan, så summan blir marginalen utan
+//! moms. En negativ marginal redovisas som 0 kronor, som Skatteverket anger,
+//! och rapporten säger till.
+//!
+//! Trepartshandel (rutorna 37 och 38): mellanmannens inköp (debet) och
+//! försäljning (kredit) redovisas utan utgående moms. Beloppet i ruta 38 ska
+//! också med i den periodiska sammanställningen, och rapporten påminner om
+//! det.
 
 use std::collections::{BTreeMap, HashMap};
 
@@ -111,6 +124,24 @@ pub struct VatReport {
     pub unknown_codes: Vec<(String, AccountNumber)>,
     /// Verifikationer som inte räknades med eftersom de är momsavräkningar.
     pub settlements: usize,
+    /// Upplysningar om rutorna: negativ vinstmarginal som blev 0, och
+    /// trepartshandel som också ska med i den periodiska sammanställningen.
+    pub notes: Vec<String>,
+}
+
+/// Belopp i kronor och öre för en upplysning, till exempel "-1 234,50".
+fn kronor(ore: i64) -> String {
+    let sign = if ore < 0 { "-" } else { "" };
+    let abs = ore.unsigned_abs();
+    let whole = (abs / 100).to_string();
+    let mut grouped = String::new();
+    for (i, c) in whole.chars().enumerate() {
+        if i > 0 && (whole.len() - i).is_multiple_of(3) {
+            grouped.push(' ');
+        }
+        grouped.push(c);
+    }
+    format!("{sign}{grouped},{:02}", abs % 100)
 }
 
 impl Store {
@@ -186,11 +217,26 @@ impl Store {
         }
 
         let mut boxes = Vec::new();
+        let mut notes = Vec::new();
         for (code, title) in VAT_BOXES {
             let Some(accounts) = sums.get(code) else {
                 continue;
             };
-            let total: i64 = accounts.values().sum();
+            let mut total: i64 = accounts.values().sum();
+            if code == "07" && total < 0 {
+                notes.push(format!(
+                    "Vinstmarginalen i perioden är negativ ({} kr). Ruta 07 redovisas då som 0 kr.",
+                    kronor(total)
+                ));
+                total = 0;
+            }
+            if code == "38" && total != 0 {
+                notes.push(
+                    "Beloppet i ruta 38 ska också redovisas som trepartshandel i den periodiska \
+                     sammanställningen."
+                        .into(),
+                );
+            }
             boxes.push(VatBox {
                 code: code.to_string(),
                 title: title.to_string(),
@@ -229,6 +275,7 @@ impl Store {
             to_pay,
             unknown_codes: unknown,
             settlements: settlement_vouchers.len(),
+            notes,
         })
     }
 }

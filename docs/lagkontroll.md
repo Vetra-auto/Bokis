@@ -25,7 +25,9 @@ deklarationer och årsredovisning.
 | Arkivplan: vad som arkiverats och var | BFNAR 2013:2 p. 8.3 och 9.2 d | Företagets arkivplan är data (`bok arkivplan satt <fil>`), versionerad i behandlingshistoriken och med i systemdokumentationen och insynen. Bokis visar bevarandetiden per räkenskapsår och den senaste kopian till varje plats. | Uppfyllt när planen är inlagd |
 | Säkerhetskopia, åtskild från originalet | BFNAR 2013:2 p. 8.2 | `bok kopia skapa` och `bok kopia kontrollera`. Arkivplanen markerar vilka kopior som är åtskilda, och systemdokumentationen säger till om ingen är det. | Bokis stödjer, du väljer platsen |
 | Förvaring i sju år, i Sverige | BFL 7 kap. 2–4 §§ | Databas och underlag ligger på din egen dator. Kopior (`bok kopia`) och arkivpaket per år (`bok arkivpaket`). Systemdokumentationen räknar ut sista bevarandedag per räkenskapsår (31 december det sjunde året efter det kalenderår året avslutades). En del av arkivplanen i ett annat EU-land utan angiven anmälan till Skatteverket pekas ut (7 kap. 3 a §). | Bokis stödjer, du väljer platsen |
-| Momsdeklarationens fält | Skatteverkets fält 05–62 (SKV 4700 utg. 22) | `bok moms` räknar fälten ur kontoplanens momskoder. Rubrikerna följer blanketten. | Uppfyllt för konton med momskod; vinstmarginalbeskattning (07) och trepartshandel (37–38) saknas |
+| Momsdeklarationens fält | Skatteverkets fält 05–62 (SKV 4700 utg. 22) | `bok moms` räknar fälten ur kontoplanens momskoder. Rubrikerna följer blanketten. | Uppfyllt för konton med momskod |
+| Vinstmarginalbeskattning (fält 07) | ML 20 kap. 11, 14, 16 och 20 §§, 19 kap. 5 §; Skatteverket, fält 07 | Försäljnings- och inköpskonto med momskod 07 ger marginalen minskad med momsen; momsen redovisas i fält 10–12. En negativ marginal redovisas som 0 kr och rapporten säger till. Regeln `vinstmarginal-trepartshandel` för agenten. | Uppfyllt för konton med momskod 07; vilka varor som omfattas bedömer du |
+| Trepartshandel (fält 37–38) | ML 6 kap. 15–17 §§; Skatteverket, fält 37 och 38 | Mellanmannens inköp (momskod 37) och försäljning (38) utan utgående moms. Rapporten påminner om att fält 38 också ska med i den periodiska sammanställningen. | Uppfyllt för konton med momskod; den periodiska sammanställningen lämnar du |
 | Momsavdrag bara mot faktura eller kvitto som visar momsen | ML 13 kap. 31–32 §§, 17 kap. 24, 26 och 28 §§ | Agentens instruktion och regeln `momsavdrag`. Agenten räknar aldrig fram moms som inte står på underlaget. | Uppfyllt när regeln är inlagd |
 | Privata kostnader ger inget avdrag | IL 9 kap. 2 §, ML 13 kap. 6 § | Regeln `privata-kostnader`: agenten frågar i stället för att föreslå en kostnad. | Uppfyllt när regeln är inlagd |
 | Representation: moms och inkomstskatt | ML 13 kap. 24–25 §§, IL 16 kap. 2 § | Regeln `representation`: moms på högst 300 kr per person, måltider ej avdragsgilla, enklare förtäring högst 60 kr. | Uppfyllt när regeln är inlagd |
@@ -91,7 +93,9 @@ for f in docs/regler/*.json; do bok regel lagg-till "$(basename "$f" .json)" --f
 
 ## Kvar
 
-- Vinstmarginalbeskattning (fält 07) och trepartshandel (fält 37–38) har inga momskoder.
+- Den periodiska sammanställningen (fält 38 och försäljning till andra EU-länder) skrivs inte av
+  Bokis. Kontonummer för vinstmarginal och trepartshandel finns inte i `momskoder-bas.txt`,
+  eftersom BAS-planen inte ingår i repot; sätt momskoderna 07, 37 och 38 på dina egna konton.
 - Årsredovisningen (K2-dokumentet) och den digitala inlämningen till Bolagsverket.
 - Fältförteckningen för INK2 finns bara för 2026P4. Ett räkenskapsår som slutar i en annan period
   kräver Skatteverkets förteckning för den perioden. BAS kopplingstabell anger "Konton i BAS 2023";

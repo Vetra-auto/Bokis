@@ -828,6 +828,9 @@ pub fn vat_report(ctx: &Ctx, period: &str) -> Result<()> {
             report.settlements
         );
     }
+    for note in &report.notes {
+        println!("Obs: {note}");
+    }
     for (code, account) in &report.unknown_codes {
         println!(
             "Obs: konto {account} har momskod {code}, som inte är någon ruta; det räknades inte med."

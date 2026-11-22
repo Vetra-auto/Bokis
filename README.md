@@ -91,7 +91,7 @@ Reglerna som agenten följer signerar du själv in. Grundreglerna, med lagrum oc
 | Grundbok, huvudbok och behandlingshistorik | BFL 5 kap. 1 och 11 §§ | Uppfyllt |
 | Systemdokumentation | BFL 5 kap. 11 § | Delvis: arkivplan saknas |
 | Förvaring i sju år, i Sverige | BFL 7 kap. 2 § | Bokis stödjer, du väljer platsen |
-| Momsdeklarationens fält | Skatteverkets fält 05–62 | Uppfyllt, utom vinstmarginalbeskattning och trepartshandel |
+| Momsdeklarationens fält | Skatteverkets fält 05–62 | Uppfyllt för konton med momskod, även vinstmarginalbeskattning (07) och trepartshandel (37–38) |
 | Momsavdrag bara mot faktura eller kvitto | ML 13 kap. 31–32 §§ | Uppfyllt med grundreglerna |
 | Representation, gåvor och privata kostnader | ML 13 kap. 24–25 §§, IL 9 kap. 2 §, 16 kap. 2 § | Uppfyllt med grundreglerna |
 | Avskrivning enligt plan och inventarier av mindre värde | ÅRL 4 kap. 4 §, K2 kap. 10, IL 18 kap. 4 § | Uppfyllt: inventarieregistret, förslag om årets avskrivningar |

@@ -1748,6 +1748,9 @@ pub(crate) fn vat(i: &Insyn, y: &FiscalYear) -> Result<String> {
             ))
         )?;
     }
+    for note in &year_report.notes {
+        writeln!(b, "<p class=\"notis\">{}</p>", esc(note))?;
+    }
     if !year_report.unknown_codes.is_empty() {
         let list: Vec<String> = year_report
             .unknown_codes

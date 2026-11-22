@@ -12,9 +12,13 @@
 // kontoplanen hoppas över. Bara kontonummer finns här; kontonamnen kommer från
 // din kontoplan.
 //
-// Saknas här: vinstmarginalbeskattning (ruta 07) och trepartshandel (rutorna
-// 37–38). De kräver egna konton och beräkningar enligt Skatteverkets
-// anvisningar.
+// Vinstmarginalbeskattning (ruta 07) och trepartshandel (rutorna 37–38) har
+// inga rader här: sätt momskoden på dina egna konton. Ruta 07: både
+// försäljningskontot (utan momsen på marginalen) och inköpskontot för
+// varorna får kod 07, så blir rutan marginalen utan moms; en negativ marginal
+// redovisas som 0. Ruta 37: mellanmannens inköpskonto. Ruta 38:
+// försäljningskontot. Se docs/anvandning.md och regeln
+// vinstmarginal-trepartshandel.
 //
 // Momskod 49 (2650) markerar momsavräkningen: verifikationer med en rad på
 // ett sådant konto räknas inte med i momsrapporten.

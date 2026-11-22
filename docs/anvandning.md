@@ -186,6 +186,16 @@ inte med. [`momskoder-bas.txt`](momskoder-bas.txt) är granskad mot BAS 2026 och
 beskrivning av fälten, se [lagkontrollen](lagkontroll.md). Stäm ändå av den mot din egen
 kontoplan.
 
+**Vinstmarginalbeskattning (ruta 07).** Ge både försäljningskontot och inköpskontot för varorna
+momskod 07. Försäljningen bokas utan momsen på marginalen, och momsen på ett konto med kod 10–12.
+Köpt för 6 000 kr och sålt för 10 000 kr: marginalen 4 000 kr innehåller 800 kr moms, så
+försäljningen bokas med 9 200 kr och momsen med 800 kr, och ruta 07 blir 9 200 − 6 000 = 3 200 kr.
+Blir marginalen för perioden negativ redovisas ruta 07 som 0 kr, och `bok moms` säger till.
+
+**Trepartshandel (rutorna 37 och 38).** Som mellanman bokar du inköpet på ett konto med momskod 37
+och försäljningen på ett konto med momskod 38, utan moms. `bok moms` påminner om att beloppet i
+ruta 38 också ska med i den periodiska sammanställningen, som du lämnar själv.
+
 ## Bokslut: inventarier, periodiseringar och skatt
 
 Bokslutsposterna blir förslag i serie B, daterade räkenskapsårets sista dag, som du granskar och
