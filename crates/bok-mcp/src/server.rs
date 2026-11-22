@@ -1,6 +1,8 @@
 //! MCP-protokollet över stdio: JSON-RPC 2.0, ett meddelande per rad.
 //!
-//! Servern stöder `initialize`, `ping`, `tools/list` och `tools/call`.
+//! Servern stöder `initialize`, `ping`, `tools/list` och `tools/call`, och
+//! `server/discover` med anrop utan handskakning enligt MCP 2026-07-28 (se
+//! [`crate::modern`]).
 //! Bara operationer med roll Agent i [`crate::registry`] syns och kan anropas.
 
 use std::io::{BufRead, Write};
@@ -10,6 +12,7 @@ use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
 use crate::backend::{AgentBackend, Proposal, Provenance, Receipt};
+use crate::modern::{self, Era, HttpHeaders};
 use crate::registry;
 use crate::validation;
 
@@ -140,35 +143,76 @@ impl<B: AgentBackend> Server<B> {
     /// Hanterar en rad från klienten. Returnerar svaret, eller `None` för
     /// notiser och svar som inte ska besvaras.
     pub fn handle_line(&mut self, line: &str) -> Option<String> {
-        let message: Value = match serde_json::from_str(line) {
+        self.handle(line, None).map(|(_, body)| body)
+    }
+
+    /// Hanterar en förfrågan över HTTP: kroppen och protokollets huvuden.
+    /// Ger HTTP-status och svar, eller `None` för notiser (202 Accepted).
+    pub fn handle_http(&mut self, body: &str, headers: &HttpHeaders<'_>) -> Option<(u16, String)> {
+        self.handle(body, Some(headers))
+    }
+
+    /// Över stdio finns inga huvuden att pröva (`headers` är `None`).
+    fn handle(&mut self, body: &str, headers: Option<&HttpHeaders<'_>>) -> Option<(u16, String)> {
+        let message: Value = match serde_json::from_str(body) {
             Ok(v) => v,
-            Err(_) => return Some(error_response(Value::Null, -32700, "Parse error")),
+            Err(_) => return Some((400, error_response(Value::Null, -32700, "Parse error"))),
         };
         if message.is_array() {
-            return Some(error_response(Value::Null, -32600, "Batchanrop stöds inte"));
+            return Some((
+                400,
+                error_response(Value::Null, -32600, "Batchanrop stöds inte"),
+            ));
         }
         let id = message.get("id").cloned();
+        if let Some(Err(f)) = headers.map(|h| modern::check_headers(h, &message)) {
+            return Some((400, f.response(id.unwrap_or(Value::Null))));
+        }
         let method = message.get("method").and_then(Value::as_str);
         let params = message.get("params").cloned().unwrap_or_else(|| json!({}));
         match (id, method) {
             (None, Some(_)) => None, // notis, till exempel notifications/initialized
             (Some(id), Some(method)) => Some(self.respond(id, method, &params)),
             (Some(_), None) => None, // svar på något vi aldrig frågat
-            (None, None) => Some(error_response(Value::Null, -32600, "Invalid Request")),
+            (None, None) => Some((400, error_response(Value::Null, -32600, "Invalid Request"))),
         }
     }
 
-    fn respond(&mut self, id: Value, method: &str, params: &Value) -> String {
+    fn respond(&mut self, id: Value, method: &str, params: &Value) -> (u16, String) {
+        let modern = match modern::era(params) {
+            Ok(Era::Legacy) => false,
+            Ok(Era::Modern { client }) => {
+                if client.is_some() {
+                    self.client = client;
+                }
+                true
+            }
+            Err(f) => {
+                let status = modern::http_status(true, f.code);
+                return (status, f.response(id));
+            }
+        };
         let result: Result<Value, RpcError> = match method {
+            "server/discover" => Ok(modern::discover_result(INSTRUCTIONS)),
             "initialize" => Ok(self.initialize(params)),
             "ping" => Ok(json!({})),
+            "tools/list" if modern => Ok(modern::cacheable(Self::tools_list())),
             "tools/list" => Ok(Self::tools_list()),
             "tools/call" => self.tools_call(params),
             _ => Err((-32601, format!("Metoden {method} finns inte"))),
         };
         match result {
-            Ok(r) => json!({"jsonrpc": "2.0", "id": id, "result": r}).to_string(),
-            Err((code, text)) => error_response(id, code, &text),
+            Ok(r) => {
+                let r = if modern { modern::complete(r) } else { r };
+                (
+                    200,
+                    json!({"jsonrpc": "2.0", "id": id, "result": r}).to_string(),
+                )
+            }
+            Err((code, text)) => (
+                modern::http_status(modern, code),
+                error_response(id, code, &text),
+            ),
         }
     }
 
@@ -741,5 +785,114 @@ mod tests {
         )
         .unwrap();
         assert_eq!(r["error"]["code"], -32600);
+    }
+
+    fn modern_meta() -> Value {
+        json!({
+            "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+            "io.modelcontextprotocol/clientInfo": {"name": "claude-ai", "version": "2026.11"},
+            "io.modelcontextprotocol/clientCapabilities": {}
+        })
+    }
+
+    fn modern(
+        s: &mut Server<MemoryBackend>,
+        id: i64,
+        method: &str,
+        mut params: Value,
+    ) -> (u16, Value) {
+        params["_meta"] = modern_meta();
+        let body =
+            json!({"jsonrpc": "2.0", "id": id, "method": method, "params": params}).to_string();
+        let headers = HttpHeaders {
+            protocol_version: Some(modern::MODERN_VERSION),
+            method: Some(method),
+            name: params["name"].as_str(),
+        };
+        let (status, reply) = s.handle_http(&body, &headers).unwrap();
+        (status, serde_json::from_str(&reply).unwrap())
+    }
+
+    #[test]
+    fn discover_and_calls_without_a_handshake() {
+        // Ingen initialize: 2026-07-28 bär versionen i varje anrop.
+        let mut s = Server::new(MemoryBackend::demo());
+        let (status, d) = modern(&mut s, 1, "server/discover", json!({}));
+        assert_eq!(status, 200);
+        assert_eq!(d["result"]["resultType"], "complete");
+        assert_eq!(d["result"]["supportedVersions"], json!(["2026-07-28"]));
+        assert!(d["result"]["capabilities"]["tools"].is_object());
+        assert!(d["result"]["instructions"]
+            .as_str()
+            .unwrap()
+            .contains("Bokis"));
+        assert!(d["result"]["ttlMs"].as_u64().unwrap() > 0);
+
+        let (status, tools) = modern(&mut s, 2, "tools/list", json!({}));
+        assert_eq!(status, 200);
+        assert_eq!(tools["result"]["resultType"], "complete");
+        assert_eq!(tools["result"]["cacheScope"], "private");
+        assert!(tools["result"]["tools"].as_array().unwrap().len() > 5);
+
+        let (status, r) = modern(
+            &mut s,
+            3,
+            "tools/call",
+            json!({"name": "foresla_verifikation", "arguments": {
+                "affarshandelse_datum": "2026-03-14",
+                "beskrivning": "Molntjänst, månadsabonnemang mars",
+                "motpart": {"namn": "Exempel Hosting AB", "orgnr": "556000-0001"},
+                "rader": [
+                    {"konto": 5420, "debet_ore": 40000},
+                    {"konto": 2641, "debet_ore": 10000},
+                    {"konto": 2440, "kredit_ore": 50000}
+                ],
+                "underlag_ids": ["INK-1"],
+                "harkomst": provenance()
+            }}),
+        );
+        assert_eq!(status, 200);
+        assert_eq!(r["result"]["resultType"], "complete");
+        assert_ne!(r["result"]["isError"], json!(true), "{r}");
+        // Klientens namn kommer ur _meta, utan initialize.
+        let (_, prov) = s.backend().proposal("F1").unwrap();
+        assert_eq!(prov.client.as_deref(), Some("claude-ai 2026.11"));
+
+        let (status, unknown) = modern(&mut s, 4, "resources/list", json!({}));
+        assert_eq!(status, 404);
+        assert_eq!(unknown["error"]["code"], -32601);
+    }
+
+    #[test]
+    fn modern_errors_name_the_versions() {
+        let mut s = Server::new(MemoryBackend::demo());
+        let mut meta = modern_meta();
+        meta["io.modelcontextprotocol/protocolVersion"] = json!("1900-01-01");
+        let body = json!({"jsonrpc": "2.0", "id": 1, "method": "server/discover", "params": {"_meta": meta}}).to_string();
+        let headers = HttpHeaders {
+            protocol_version: Some("1900-01-01"),
+            ..HttpHeaders::default()
+        };
+        let (status, reply) = s.handle_http(&body, &headers).unwrap();
+        let reply: Value = serde_json::from_str(&reply).unwrap();
+        assert_eq!(status, 400);
+        assert_eq!(reply["error"]["code"], modern::UNSUPPORTED_VERSION);
+        assert_eq!(reply["error"]["data"]["requested"], "1900-01-01");
+        assert!(reply["error"]["data"]["supported"]
+            .as_array()
+            .unwrap()
+            .contains(&json!("2025-11-25")));
+        // Över stdio finns inga huvuden; fel version i _meta avvisas ändå.
+        let line = s.handle_line(&body).unwrap();
+        assert!(line.contains("-32022"), "{line}");
+        // Den äldre handskakningen fungerar som förut på samma server.
+        let init = s
+            .handle_line(r#"{"jsonrpc":"2.0","id":2,"method":"initialize","params":{"protocolVersion":"2025-11-25"}}"#)
+            .unwrap();
+        assert!(
+            init.contains("\"protocolVersion\":\"2025-11-25\""),
+            "{init}"
+        );
+        assert!(!init.contains("resultType"), "{init}");
     }
 }

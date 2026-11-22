@@ -39,6 +39,11 @@ agenten, till exempel "Bokför underlag 17".
   bokföringen. Koden gäller i 15 minuter, en gång och i högst 5 försök.
 - **Inloggning och nycklar.** Inloggningen är OAuth 2.1 med PKCE (S256) och dynamisk registrering.
   Nycklarna gäller en timme, och förnyelsenycklarna byts ut vid varje förnyelse.
+- **Protokollversioner.** Servern talar MCP 2026-07-28 (`server/discover`, och version och
+  kapabiliteter i `_meta` på varje anrop i stället för `initialize`) och de äldre versionerna
+  2025-11-25, 2025-06-18, 2025-03-26 och 2024-11-05 med `initialize`, på samma `/mcp`. Huvudet
+  `MCP-Protocol-Version` måste stämma med `_meta`, och `Mcp-Method` och `Mcp-Name` med anropet
+  när de skickas. En okänd version ger 400 med felkod -32022 och versionerna servern talar.
 - **Lagring och logg.** Nycklar, koder och länkar sparas bara som SHA-256 i `fjarr.json`, bredvid databasen
   med behörigheten 0600. Godkännanden, nya länkar och återkallelser loggas i behandlingshistoriken
   och syns i insynen och systemdokumentationen.

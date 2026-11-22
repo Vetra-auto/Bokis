@@ -279,18 +279,6 @@ impl App {
             )
             .with("WWW-Authenticate", challenge);
         };
-        if let Some(v) = req.header("mcp-protocol-version") {
-            if !bok_mcp::server::PROTOCOL_VERSIONS.contains(&v.trim()) {
-                return Response::json(
-                    400,
-                    &json!({"jsonrpc": "2.0", "id": null, "error": {"code": -32600, "message": format!(
-                        "Protokollversionen {} stöds inte. Servern talar {}.",
-                        v.trim(),
-                        bok_mcp::server::PROTOCOL_VERSIONS.join(", ")
-                    )}}),
-                );
-            }
-        }
         let Ok(text) = std::str::from_utf8(&req.body) else {
             return Response::json(
                 400,
@@ -313,17 +301,15 @@ impl App {
         let Some(agent) = self.agents.get_mut(&client.id) else {
             return pages::message(500, "Fel", "agenten saknas");
         };
-        match agent.handle_line(text) {
-            Some(reply) => {
-                let parse_error = serde_json::from_str::<serde_json::Value>(&reply)
-                    .map(|v| v.get("error").is_some() && v["id"].is_null())
-                    .unwrap_or(false);
-                Response::new(
-                    if parse_error { 400 } else { 200 },
-                    "application/json",
-                    reply,
-                )
-            }
+        // Huvudena prövas mot kroppen i bok-mcp, som också väljer status:
+        // MCP 2026-07-28 vill ha 400 för protokollfel och 404 för en okänd metod.
+        let headers = bok_mcp::modern::HttpHeaders {
+            protocol_version: req.header("mcp-protocol-version"),
+            method: req.header("mcp-method"),
+            name: req.header("mcp-name"),
+        };
+        match agent.handle_http(text, &headers) {
+            Some((status, reply)) => Response::new(status, "application/json", reply),
             None => Response::empty(202),
         }
     }

@@ -8,6 +8,7 @@
 //!
 //! - [`registry`] definierar alla operationer med roll och risk.
 //! - [`server`] talar MCP över stdio och exponerar bara agentens operationer.
+//! - [`modern`] är MCP 2026-07-28: `server/discover` och anrop utan handskakning.
 //! - [`backend::AgentBackend`] är gränssnittet mot lagret.
 //! - [`validation`] kontrollerar förslag innan de sparas.
 //! - [`preview`] skalar ner kvittofoton som skickas till agenten; originalet rörs inte.
@@ -16,6 +17,7 @@
 
 pub mod backend;
 pub mod memory;
+pub mod modern;
 pub mod preview;
 pub mod registry;
 pub mod server;

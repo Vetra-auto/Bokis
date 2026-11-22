@@ -438,6 +438,61 @@ fn the_agent_gets_its_tools_but_can_never_post() {
     );
     assert_eq!(future.status, 400);
     assert!(Fixture::text(&future).contains("2025-11-25"));
+
+    // MCP 2026-07-28: server/discover och anrop utan initialize, med
+    // versionen i både huvud och _meta.
+    let meta = json!({
+        "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+        "io.modelcontextprotocol/clientInfo": {"name": "claude-ai", "version": "2026.11"},
+        "io.modelcontextprotocol/clientCapabilities": {}
+    });
+    let modern = |f: &mut Fixture, method: &str, name: Option<&str>, params: serde_json::Value| {
+        let mut params = params;
+        params["_meta"] = meta.clone();
+        let body =
+            json!({"jsonrpc": "2.0", "id": 9, "method": method, "params": params}).to_string();
+        let mut headers = vec![
+            ("Authorization", auth.as_str()),
+            ("MCP-Protocol-Version", "2026-07-28"),
+            ("Mcp-Method", method),
+        ];
+        if let Some(n) = name {
+            headers.push(("Mcp-Name", n));
+        }
+        f.send("POST", "/mcp", &headers, body.as_bytes())
+    };
+    let discover = modern(&mut f, "server/discover", None, json!({}));
+    assert_eq!(discover.status, 200);
+    let d = Fixture::json(&discover);
+    assert_eq!(d["result"]["supportedVersions"], json!(["2026-07-28"]));
+    assert_eq!(d["result"]["resultType"], "complete");
+    let listed = Fixture::json(&modern(&mut f, "tools/list", None, json!({})));
+    assert!(listed["result"]["tools"].as_array().unwrap().len() > 5);
+    assert_eq!(listed["result"]["cacheScope"], "private");
+    let called = modern(
+        &mut f,
+        "tools/call",
+        Some("hamta_kontoplan"),
+        json!({"name": "hamta_kontoplan", "arguments": {}}),
+    );
+    assert_eq!(called.status, 200);
+    assert_eq!(Fixture::json(&called)["result"]["resultType"], "complete");
+    let unknown = modern(&mut f, "resources/list", None, json!({}));
+    assert_eq!(unknown.status, 404);
+    // Huvudet och _meta måste säga samma sak.
+    let mismatch = f.send(
+        "POST",
+        "/mcp",
+        &[
+            ("Authorization", auth.as_str()),
+            ("MCP-Protocol-Version", "2025-11-25"),
+        ],
+        json!({"jsonrpc": "2.0", "id": 10, "method": "tools/list", "params": {"_meta": meta}})
+            .to_string()
+            .as_bytes(),
+    );
+    assert_eq!(mismatch.status, 400);
+    assert_eq!(Fixture::json(&mismatch)["error"]["code"], -32020);
     let garbage = f.send(
         "POST",
         "/mcp",
