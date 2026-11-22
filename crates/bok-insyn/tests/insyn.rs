@@ -714,11 +714,109 @@ fn live_view_checks_once_until_asked_again() {
 }
 
 #[test]
-fn as_a_service_it_answers_on_its_address_with_links_on_demand() {
-    let f = fixture();
+fn as_a_service_it_answers_on_its_address_with_named_links() {
+    use bok_insyn::server::Login;
+    use std::cell::RefCell;
+    use std::rc::Rc;
+
+    let mut f = fixture();
+    let human = Actor::human("granskare");
+    let now = f.store.now();
+    let revisor = f
+        .store
+        .create_insyn_link(&human, "Revisor X", now + Duration::days(30))
+        .unwrap();
+    let short = f
+        .store
+        .create_insyn_link(&human, "Skatteverket", now + Duration::hours(1))
+        .unwrap();
     let file = bok_insyn::links::file_beside(&f.db);
     let origin = "https://bokis.example.ts.net:8443";
-    bok_insyn::links::set_origin(&file, origin, Utc::now().timestamp()).unwrap();
+    let ts = now.timestamp();
+    bok_insyn::links::set_origin(&file, origin, ts).unwrap();
+    let token = "3333333333333333333333333333333333333333333333333333333333333333";
+    let other_token = "4444444444444444444444444444444444444444444444444444444444444444";
+    bok_insyn::links::issue(&file, revisor, token, ts + 30 * 86_400, ts).unwrap();
+    bok_insyn::links::issue(&file, short, other_token, ts + 3_600, ts).unwrap();
+
+    let logged: Rc<RefCell<Vec<Login>>> = Rc::default();
+    let sink = logged.clone();
+    let mut view = LiveView::new(
+        &f.store,
+        &f.archive,
+        &f.db,
+        "bok test",
+        LOGIN.into(),
+        SESSION.into(),
+        PORT,
+    )
+    .with_remote(origin, file.clone())
+    .with_login_log(Box::new(move |l| {
+        sink.borrow_mut().push(l);
+        Ok(())
+    }));
+    let remote = |target: &str, cookie: Option<&str>| {
+        let mut r = request("GET", target, false);
+        r.headers[0].1 = "bokis.example.ts.net:8443".into();
+        if let Some(c) = cookie {
+            r.headers.push(("Cookie".into(), c.to_string()));
+        }
+        r
+    };
+
+    // Startlänken gäller inte för en tjänst, och utan länk syns inget.
+    assert_eq!(
+        view.handle(&remote(&format!("/login?token={LOGIN}"), None))
+            .status,
+        403
+    );
+    let refused = view.handle(&remote("/", None));
+    assert_eq!(refused.status, 403);
+    assert!(String::from_utf8_lossy(&refused.body).contains("din länk"));
+    // En annan värd släpps inte in.
+    let mut other = remote("/", None);
+    other.headers[0].1 = "evil.example".into();
+    assert_eq!(view.handle(&other).status, 403);
+
+    // Den namngivna länken ger en säker kaka med utgångstid, och fungerar
+    // igen; varje inloggning loggas.
+    let login = view.handle(&remote(&format!("/login?token={token}"), None));
+    assert_eq!(login.status, 303);
+    let set = login.header("Set-Cookie").unwrap().to_string();
+    assert!(set.contains("Secure") && set.contains("HttpOnly"), "{set}");
+    let age = |c: &str| -> i64 {
+        c.split("Max-Age=")
+            .nth(1)
+            .unwrap()
+            .split(';')
+            .next()
+            .unwrap()
+            .parse()
+            .unwrap()
+    };
+    assert!((43_100..=43_200).contains(&age(&set)), "{set}");
+    let cookie = set.split(';').next().unwrap().to_string();
+    assert!(!cookie.contains(SESSION));
+    assert_eq!(view.handle(&remote("/", Some(&cookie))).status, 200);
+    let again = view.handle(&remote(&format!("/login?token={token}"), None));
+    assert_eq!(again.status, 303);
+    assert_eq!(logged.borrow().len(), 2);
+    assert!(matches!(logged.borrow()[0], Login::Link { id, .. } if id == revisor));
+    // Sessionen för en kortare länk slutar när länken slutar.
+    let short_login = view.handle(&remote(&format!("/login?token={other_token}"), None));
+    let short_cookie = short_login.header("Set-Cookie").unwrap().to_string();
+    assert!(
+        (3_500..=3_600).contains(&age(&short_cookie)),
+        "{short_cookie}"
+    );
+    // Som tjänst finns ingen startkaka; den släpper inte in, inte ens på
+    // 127.0.0.1.
+    assert_eq!(view.handle(&request("GET", "/", true)).status, 403);
+    drop(view);
+
+    // En återkallad länk släpper inte in, och dess session slutar gälla
+    // direkt, också om filen inte har skrivits om.
+    f.store.revoke_insyn_link(&human, revisor).unwrap();
     let mut view = LiveView::new(
         &f.store,
         &f.archive,
@@ -729,41 +827,53 @@ fn as_a_service_it_answers_on_its_address_with_links_on_demand() {
         PORT,
     )
     .with_remote(origin, file.clone());
-    let remote = |target: &str, cookie: bool| {
-        let mut r = request("GET", target, cookie);
-        r.headers[0].1 = "bokis.example.ts.net:8443".into();
-        r
-    };
-
-    // Startlänken gäller inte för en tjänst, och utan länk syns inget.
+    assert_eq!(view.handle(&remote("/", Some(&cookie))).status, 403);
     assert_eq!(
-        view.handle(&remote(&format!("/login?token={LOGIN}"), false))
+        view.handle(&remote(&format!("/login?token={token}"), None))
             .status,
         403
     );
-    let refused = view.handle(&remote("/", false));
-    assert_eq!(refused.status, 403);
-    assert!(String::from_utf8_lossy(&refused.body).contains("bok insyn lank"));
-    // En annan värd släpps inte in.
-    let mut other = remote("/", true);
-    other.headers[0].1 = "evil.example".into();
-    assert_eq!(view.handle(&other).status, 403);
+    let links = f.store.insyn_links().unwrap();
+    assert_eq!(links.len(), 2);
+    assert!(links[0].revoked.is_some());
+}
 
-    // En länk från `bok insyn lank` fungerar en gång och ger en säker kaka.
-    let token = "3333333333333333333333333333333333333333333333333333333333333333";
-    bok_insyn::links::issue(&file, token, Utc::now().timestamp()).unwrap();
-    let login = view.handle(&remote(&format!("/login?token={token}"), false));
-    assert_eq!(login.status, 303);
-    let cookie = login.header("Set-Cookie").unwrap();
-    assert!(cookie.contains("Secure") && cookie.contains("HttpOnly"));
-    assert_eq!(
-        view.handle(&remote(&format!("/login?token={token}"), false))
-            .status,
-        403
-    );
-    assert_eq!(view.handle(&remote("/", true)).status, 200);
-    // Samma tjänst svarar fortfarande på 127.0.0.1.
-    assert_eq!(view.handle(&request("GET", "/", true)).status, 200);
+#[test]
+fn a_login_that_cannot_be_logged_is_refused() {
+    let mut f = fixture();
+    let now = f.store.now();
+    let id = f
+        .store
+        .create_insyn_link(
+            &Actor::human("granskare"),
+            "Revisor X",
+            now + Duration::days(1),
+        )
+        .unwrap();
+    let file = bok_insyn::links::file_beside(&f.db);
+    let origin = "https://bokis.example.ts.net:8443";
+    bok_insyn::links::set_origin(&file, origin, now.timestamp()).unwrap();
+    let token = "5555555555555555555555555555555555555555555555555555555555555555";
+    bok_insyn::links::issue(&file, id, token, now.timestamp() + 86_400, now.timestamp()).unwrap();
+    let mut view = LiveView::new(
+        &f.store,
+        &f.archive,
+        &f.db,
+        "bok test",
+        LOGIN.into(),
+        SESSION.into(),
+        PORT,
+    )
+    .with_remote(origin, file)
+    .with_login_log(Box::new(|_| Err("databasen är låst".into())));
+    let mut r = request("GET", &format!("/login?token={token}"), false);
+    r.headers[0].1 = "bokis.example.ts.net:8443".into();
+    let refused = view.handle(&r);
+    assert_eq!(refused.status, 500);
+    assert!(refused.header("Set-Cookie").is_none());
+    // Startlänken lokalt loggas också; går det inte blir det ingen kaka.
+    let local = view.handle(&request("GET", &format!("/login?token={LOGIN}"), false));
+    assert_eq!(local.status, 403, "startlänken gäller inte för en tjänst");
 }
 
 #[test]

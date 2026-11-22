@@ -323,6 +323,19 @@ pub fn render_with(
         count("fjarr.lank.skapad"),
         count("fjarr.lank.aterkallad")
     )?;
+    writeln!(w)?;
+    writeln!(
+        w,
+        "Insynen (`bok insyn`) visar bokföringen och kan inte ändra den. Som tjänst får varje person \
+         en egen namngiven länk (`bok insyn lank --namn`) med ett slutdatum; den kan återkallas \
+         (`bok insyn aterkalla`) och slutar då gälla direkt, också för öppna sessioner. En session \
+         gäller högst 12 timmar och aldrig längre än länken. Varje inloggning loggas med vem och när \
+         innan den släpps in. Historiken visar {} skapade och {} återkallade insynslänkar och {} \
+         inloggningar.",
+        count(bok_store::INSYN_LINK_CREATED),
+        count(bok_store::INSYN_LINK_REVOKED),
+        count(bok_store::INSYN_LOGIN)
+    )?;
 
     writeln!(w)?;
     writeln!(w, "## Behandlingshistorik och kopior")?;

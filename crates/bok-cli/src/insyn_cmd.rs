@@ -2,7 +2,10 @@
 //!
 //! Utan underkommando startar insynen live på 127.0.0.1 med en engångslänk.
 //! Med `--adress` körs den som tjänst bakom `tailscale serve`, och
-//! inloggningslänkarna tas fram med `bok insyn lank`.
+//! inloggningslänkarna tas fram per person med `bok insyn lank --namn
+//! "Revisor X" --giltig 30d`. Länken gäller till sitt slutdatum eller tills
+//! den återkallas med `bok insyn aterkalla`, och varje inloggning loggas i
+//! behandlingshistoriken. `bok insyn lankar` listar länkarna.
 //! `bok insyn export <katalog>` skriver samma sidor som fristående filer med
 //! underlagen, SIE 4 och CSV per år och `manifest.sha256`, så att kopian kan
 //! lämnas på ett USB-minne och läsas utan Bokis.
@@ -12,7 +15,7 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use clap::{Args, Subcommand};
 
-use bok_insyn::server::{LiveView, bind, random_token, serve};
+use bok_insyn::server::{LiveView, Login, bind, random_token, serve};
 use bok_insyn::{ExtraFile, Insyn, Mode, links};
 
 use crate::{Ctx, PROGRAM, resolve_year, sie_bytes};
@@ -33,9 +36,26 @@ pub struct InsynArgs {
 
 #[derive(Subcommand)]
 pub enum InsynCmd {
-    /// Ny inloggningslänk till insynen som körs som tjänst. Den fungerar en gång i 15 minuter.
+    /// Ny namngiven inloggningslänk till insynen som körs som tjänst. Den
+    /// gäller till sitt slutdatum eller tills den återkallas.
     #[command(visible_alias = "link")]
-    Lank,
+    Lank {
+        /// Vem länken är till, till exempel "Revisor X" [standard: --user].
+        #[arg(long, visible_alias = "name")]
+        namn: Option<String>,
+        /// Hur länge länken gäller: minuter (15m), timmar (12h) eller dagar (30d), högst 366d.
+        #[arg(long, visible_alias = "valid", default_value = "15m")]
+        giltig: String,
+    },
+    /// Listar insynslänkarna: vem, giltig till, återkallad och inloggningar.
+    #[command(visible_alias = "links")]
+    Lankar,
+    /// Återkallar en insynslänk; dess sessioner slutar gälla direkt.
+    #[command(visible_alias = "revoke")]
+    Aterkalla {
+        /// Länkens nummer ur `bok insyn lankar`.
+        id: i64,
+    },
     /// Skriver insynen som fristående sidor i en ny katalog, med underlag, SIE 4, CSV och manifest.
     Export {
         /// Katalogen som skapas, till exempel på ett USB-minne. En befintlig katalog skrivs aldrig över.
@@ -53,7 +73,9 @@ fn now() -> String {
 pub fn insyn(ctx: &Ctx, args: InsynArgs) -> Result<()> {
     match args.cmd {
         None => live(ctx, args.port, args.adress.as_deref()),
-        Some(InsynCmd::Lank) => link(ctx),
+        Some(InsynCmd::Lank { namn, giltig }) => link(ctx, namn, &giltig),
+        Some(InsynCmd::Lankar) => list_links(ctx),
+        Some(InsynCmd::Aterkalla { id }) => revoke(ctx, id),
         Some(InsynCmd::Export { target, year }) => export(ctx, &target, year.as_deref()),
     }
 }
@@ -70,6 +92,9 @@ fn live(ctx: &Ctx, port: u16, adress: Option<&str>) -> Result<()> {
         crate::render::safe(&company.name),
         company.org_number
     );
+    // Inloggningarna skrivs genom en egen anslutning; insynen själv läser bara.
+    let mut writer = ctx.open()?;
+    let user = ctx.user.clone();
     let mut view = LiveView::new(
         &store,
         &archive,
@@ -78,7 +103,14 @@ fn live(ctx: &Ctx, port: u16, adress: Option<&str>) -> Result<()> {
         login.clone(),
         session,
         port,
-    );
+    )
+    .with_login_log(Box::new(move |login| {
+        match login {
+            Login::Link { id, until } => writer.record_insyn_login(id, until),
+            Login::Local => writer.record_local_insyn_login(&user),
+        }
+        .map_err(|e| e.to_string())
+    }));
     match adress {
         Some(origin) => {
             let origin = origin.trim_end_matches('/');
@@ -89,7 +121,10 @@ fn live(ctx: &Ctx, port: u16, adress: Option<&str>) -> Result<()> {
             links::set_origin(&file, origin, chrono::Utc::now().timestamp())
                 .with_context(|| format!("kan inte skriva {}", file.display()))?;
             view = view.with_remote(origin, file);
-            println!("Den nås på {origin}. Ta fram en inloggningslänk med `bok insyn lank`.");
+            println!(
+                "Den nås på {origin}. Ta fram en länk per person med \
+                 `bok insyn lank --namn \"Revisor X\" --giltig 30d`."
+            );
         }
         None => {
             println!("Öppna länken i webbläsaren; den fungerar en gång:");
@@ -101,7 +136,33 @@ fn live(ctx: &Ctx, port: u16, adress: Option<&str>) -> Result<()> {
     Ok(())
 }
 
-fn link(ctx: &Ctx) -> Result<()> {
+/// En tidpunkt i lokal tid för visning.
+fn shown(t: chrono::DateTime<chrono::Utc>) -> String {
+    bok_store::display_timestamp(&bok_store::format_timestamp(t))
+}
+
+/// Tolkar en giltighetstid som 15m, 12h eller 30d.
+fn parse_validity(text: &str) -> Result<chrono::Duration> {
+    let text = text.trim();
+    let bad = || {
+        anyhow::anyhow!(
+            "--giltig {text:?}: ange minuter, timmar eller dagar, till exempel 15m, 12h eller 30d"
+        )
+    };
+    let (number, unit) = text.split_at(text.len().saturating_sub(1));
+    let n: i64 = number.parse().map_err(|_| bad())?;
+    if n <= 0 {
+        return Err(bad());
+    }
+    match unit {
+        "m" => Ok(chrono::Duration::minutes(n)),
+        "h" => Ok(chrono::Duration::hours(n)),
+        "d" => Ok(chrono::Duration::days(n)),
+        _ => Err(bad()),
+    }
+}
+
+fn link(ctx: &Ctx, name: Option<String>, validity: &str) -> Result<()> {
     let file = links::file_beside(&ctx.db);
     let Some(origin) = links::origin(&file)? else {
         anyhow::bail!(
@@ -109,11 +170,71 @@ fn link(ctx: &Ctx) -> Result<()> {
              eller kör bara `bok insyn` för en länk på den här datorn"
         );
     };
+    let validity = parse_validity(validity)?;
+    let name = name.unwrap_or_else(|| ctx.user.clone());
+    let mut store = ctx.open()?;
+    let now = store.now();
+    let until = now + validity;
+    // Länken loggas i historiken innan den finns i filen, så att det aldrig
+    // finns en länk utan händelse.
+    let id = store.create_insyn_link(&ctx.actor(), &name, until)?;
     let token = random_token()?;
-    links::issue(&file, &token, chrono::Utc::now().timestamp())
+    links::issue(&file, id, &token, until.timestamp(), now.timestamp())
         .with_context(|| format!("kan inte skriva {}", file.display()))?;
-    println!("Öppna länken i webbläsaren; den fungerar en gång i 15 minuter:");
+    println!(
+        "Insynslänk {id} till {} gäller till {}. Den kan användas flera gånger; varje \
+         inloggning loggas. Återkalla med `bok insyn aterkalla {id}`.",
+        crate::render::safe(&name),
+        shown(until)
+    );
     println!("  {origin}/login?token={token}");
+    Ok(())
+}
+
+fn list_links(ctx: &Ctx) -> Result<()> {
+    let store = ctx.open()?;
+    let links = store.insyn_links()?;
+    if links.is_empty() {
+        println!(
+            "Inga insynslänkar. Skapa en med `bok insyn lank --namn \"Revisor X\" --giltig 30d`."
+        );
+        return Ok(());
+    }
+    let now = store.now();
+    for l in links {
+        let state = match (&l.revoked, l.active_at(now)) {
+            (Some(t), _) => format!("återkallad {}", bok_store::display_timestamp(t)),
+            (None, true) => format!("gäller till {}", shown(l.valid_until)),
+            (None, false) => format!("gick ut {}", shown(l.valid_until)),
+        };
+        let last = l
+            .last_login
+            .as_deref()
+            .map(|t| format!(", senast {}", bok_store::display_timestamp(t)))
+            .unwrap_or_default();
+        println!(
+            "{:>4}  {}  {state}  {} inloggningar{last}  (skapad av {})",
+            l.id,
+            crate::render::safe(&l.name),
+            l.logins,
+            crate::render::safe(&l.created_by)
+        );
+    }
+    Ok(())
+}
+
+fn revoke(ctx: &Ctx, id: i64) -> Result<()> {
+    let mut store = ctx.open()?;
+    let link = store.revoke_insyn_link(&ctx.actor(), id)?;
+    let file = links::file_beside(&ctx.db);
+    if file.exists() {
+        links::revoke(&file, id, store.now().timestamp())
+            .with_context(|| format!("kan inte skriva {}", file.display()))?;
+    }
+    println!(
+        "Insynslänk {id} till {} är återkallad. Dess sessioner slutar gälla direkt.",
+        crate::render::safe(&link.name)
+    );
     Ok(())
 }
 
@@ -169,4 +290,23 @@ fn export(ctx: &Ctx, target: &std::path::Path, year: Option<&str>) -> Result<()>
         report.manifest_sha256
     );
     Ok(())
+}
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn validity_in_minutes_hours_and_days() {
+        assert_eq!(
+            parse_validity("15m").unwrap(),
+            chrono::Duration::minutes(15)
+        );
+        assert_eq!(parse_validity("12h").unwrap(), chrono::Duration::hours(12));
+        assert_eq!(parse_validity(" 30d ").unwrap(), chrono::Duration::days(30));
+        for bad in ["", "d", "0d", "-1d", "30", "30x", "1,5d"] {
+            assert!(parse_validity(bad).is_err(), "{bad:?}");
+        }
+    }
 }

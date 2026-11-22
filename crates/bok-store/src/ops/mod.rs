@@ -5,6 +5,7 @@ pub(crate) mod assets;
 mod bank;
 mod cases;
 mod closing;
+pub(crate) mod insyn_access;
 mod periods;
 mod posting;
 mod proposals;

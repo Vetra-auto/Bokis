@@ -123,6 +123,10 @@ fn action_label(action: &str) -> &str {
         "fjarr.anslutning.aterkallad" => "Agentanslutning återkallad",
         "fjarr.lank.skapad" => "Uppladdningslänk skapad",
         "fjarr.lank.aterkallad" => "Uppladdningslänk återkallad",
+        "insyn.lank.skapad" => "Insynslänk skapad",
+        "insyn.lank.aterkallad" => "Insynslänk återkallad",
+        "insyn.inloggning" => "Inloggning i insynen",
+        "arkivplan.satt" => "Arkivplan inlagd",
         "klocka.godtagen" => "Tid bakåt godtagen",
         other => other,
     }

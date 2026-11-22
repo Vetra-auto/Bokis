@@ -585,6 +585,59 @@ fn archive_plan_is_data_in_the_history() {
 }
 
 #[test]
+fn insyn_links_per_person() {
+    let Some(env) = Env::new() else {
+        eprintln!("ssh-keygen saknas; hoppar över testet");
+        return;
+    };
+    env.init();
+    let err = env.fails(&["insyn", "lank", "--namn", "Revisor X"]);
+    assert!(err.contains("körs inte som tjänst"), "{err}");
+    // Som när tjänsten har startats med --adress.
+    let file = env.path("data/insyn.json");
+    std::fs::write(&file, r#"{"adress": "https://bokis.example.ts.net:8443"}"#).unwrap();
+
+    let out = env.ok(&["insyn", "lank", "--namn", "Revisor X", "--giltig", "30d"]);
+    assert!(out.contains("till Revisor X gäller till"), "{out}");
+    let url = out
+        .lines()
+        .find_map(|l| {
+            l.trim()
+                .strip_prefix("https://bokis.example.ts.net:8443/login?token=")
+        })
+        .unwrap()
+        .to_string();
+    assert_eq!(url.len(), 64);
+    let id: String = out
+        .split("Insynslänk ")
+        .nth(1)
+        .unwrap()
+        .chars()
+        .take_while(char::is_ascii_digit)
+        .collect();
+    let stored = std::fs::read_to_string(&file).unwrap();
+    assert!(!stored.contains(&url), "hemligheten sparas aldrig");
+    assert!(stored.contains(&format!("\"id\":{id}")), "{stored}");
+
+    let err = env.fails(&["insyn", "lank", "--namn", "Revisor X", "--giltig", "400d"]);
+    assert!(err.contains("högst 366 dagar"), "{err}");
+    let listed = env.ok(&["insyn", "lankar"]);
+    assert!(listed.contains("Revisor X  gäller till"), "{listed}");
+    assert!(listed.contains("0 inloggningar"), "{listed}");
+
+    let out = env.ok(&["insyn", "aterkalla", &id]);
+    assert!(out.contains("är återkallad"), "{out}");
+    assert!(
+        !std::fs::read_to_string(&file)
+            .unwrap()
+            .contains(&format!("\"id\":{id}"))
+    );
+    assert!(env.ok(&["insyn", "lankar"]).contains("återkallad"));
+    let history = env.ok(&["historik"]);
+    assert!(history.contains("insyn.lank.skapad") && history.contains("insyn.lank.aterkallad"));
+}
+
+#[test]
 fn closing_proposals_through_the_command_line() {
     let Some(env) = Env::new() else {
         eprintln!("ssh-keygen saknas; hoppar över testet");

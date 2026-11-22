@@ -39,6 +39,9 @@ pub use guards::{APPEND_ONLY_TABLES, Guard};
 pub use model::*;
 pub use ops::archive_plan::{ARCHIVE_PLAN_SET, ArchivePlanRecord};
 pub use ops::assets::{ASSET_DISPOSED, ASSET_REGISTERED};
+pub use ops::insyn_access::{
+    INSYN_LINK_CREATED, INSYN_LINK_REVOKED, INSYN_LOGIN, InsynLink, MAX_INSYN_LINK_DAYS,
+};
 pub use ops::security::SECURITY_LEVEL_DECIDED;
 pub use vat::{VAT_BOXES, VatBox, VatReport, box_title};
 pub use verify::{Check, VerifyReport};
@@ -233,7 +236,8 @@ impl Store {
         Ok(())
     }
 
-    pub(crate) fn now(&self) -> DateTime<Utc> {
+    /// Tiden nu enligt bokföringens klocka (i tester en egen klocka).
+    pub fn now(&self) -> DateTime<Utc> {
         (self.clock)()
     }
 

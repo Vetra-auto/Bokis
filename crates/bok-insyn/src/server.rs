@@ -5,8 +5,14 @@
 //!    eller adressen tjänsten nås på när den körs med `--adress` bakom
 //!    `tailscale serve`.
 //! 2. Bara GET besvaras. Insynen har inga formulär och kan inte ändra bokföringen.
-//! 3. En engångslänk ger en sessionskaka; utan den visas ingenting utom stilmallen.
-//!    Som tjänst tas länkarna fram med `bok insyn lank` (se [`crate::links`]).
+//! 3. En länk ger en sessionskaka; utan den visas ingenting utom stilmallen.
+//!    Lokalt är det startlänken, som fungerar en gång. Som tjänst är det en
+//!    namngiven länk från `bok insyn lank --namn`, som gäller till sitt
+//!    slutdatum eller tills den återkallas (se [`crate::links`]). Sessionen
+//!    gäller högst [`crate::links::SESSION_TTL`] och aldrig längre än länken,
+//!    och lagret tillfrågas vid varje sida om länken fortfarande gäller.
+//!    Varje inloggning loggas i behandlingshistoriken innan kakan ges; går
+//!    det inte att logga blir det ingen inloggning.
 //! 4. Sidorna har en CSP utan skript och utan externa resurser. Underlag som
 //!    inte är bild, PDF eller text skickas bara som nedladdning.
 //!
@@ -23,6 +29,7 @@ pub use bok_review::router::{Request, Response};
 use bok_review::server::read_request;
 pub use bok_review::server::{bind, random_token};
 use bok_store::{Store, VerifyReport};
+use chrono::{DateTime, Utc};
 
 use crate::html::esc;
 use crate::{File, Insyn, Mode, CSS};
@@ -99,6 +106,28 @@ fn file_response(file: File) -> Response {
     }
 }
 
+/// En inloggning som ska loggas innan den släpps in.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Login {
+    /// Med den namngivna länken `id`; sessionen gäller till `until`.
+    Link { id: i64, until: DateTime<Utc> },
+    /// Med startlänken på datorn med bokföringen.
+    Local,
+}
+
+/// Skriver en inloggning i behandlingshistoriken. Insynen läser bara; det
+/// här är det enda den låter skriva, och det görs genom en egen anslutning.
+pub type LoginLog<'a> = Box<dyn FnMut(Login) -> Result<(), String> + 'a>;
+
+fn cookie_value(req: &Request) -> Option<&str> {
+    req.header("cookie").and_then(|c| {
+        c.split(';')
+            .filter_map(|part| part.trim().split_once('='))
+            .find(|(k, _)| *k == COOKIE)
+            .map(|(_, v)| v)
+    })
+}
+
 /// Insynen live: håller sessionen och tar fram sidorna ur bokföringen.
 pub struct LiveView<'a> {
     store: &'a Store,
@@ -116,6 +145,8 @@ pub struct LiveView<'a> {
     /// Kontrollen av bokföringen och när den gjordes. Den läser varje
     /// underlag i arkivet, så den görs en gång och inte för varje sida.
     checked: Option<(VerifyReport, String)>,
+    /// Loggar inloggningarna; utan den loggas inget (i tester).
+    login_log: Option<LoginLog<'a>>,
 }
 
 impl<'a> LiveView<'a> {
@@ -140,7 +171,34 @@ impl<'a> LiveView<'a> {
             link_file: None,
             secure_cookie: false,
             checked: None,
+            login_log: None,
         }
+    }
+
+    /// Loggar varje inloggning med `log` innan den släpps in.
+    pub fn with_login_log(mut self, log: LoginLog<'a>) -> Self {
+        self.login_log = Some(log);
+        self
+    }
+
+    fn log(&mut self, login: Login) -> Result<(), String> {
+        match &mut self.login_log {
+            Some(log) => log(login),
+            None => Ok(()),
+        }
+    }
+
+    /// Länken bakom en giltig session som tjänst, om den gäller nu.
+    fn remote_session(&self, req: &Request) -> bool {
+        let (Some(value), Some(file)) = (cookie_value(req), &self.link_file) else {
+            return false;
+        };
+        let now = self.store.now();
+        crate::links::session_link(file, value, now.timestamp())
+            .ok()
+            .flatten()
+            .and_then(|id| self.store.insyn_link(id).ok().flatten())
+            .is_some_and(|l| l.active_at(now))
     }
 
     /// Insynen som tjänst: den nås också på `origin`, till exempel
@@ -168,11 +226,40 @@ impl<'a> LiveView<'a> {
     }
 
     fn has_session(&self, req: &Request) -> bool {
-        req.header("cookie").is_some_and(|c| {
-            c.split(';')
-                .filter_map(|part| part.trim().split_once('='))
-                .any(|(k, v)| k == COOKIE && same_secret(v, &self.session_token))
-        })
+        if self.link_file.is_some() {
+            return self.remote_session(req);
+        }
+        cookie_value(req).is_some_and(|v| same_secret(v, &self.session_token))
+    }
+
+    /// Inloggning med en namngiven länk: länken ska finnas i filen och gälla
+    /// enligt lagret. Ger sessionens hemlighet och sista tid.
+    fn named_login(&mut self, token: &str) -> Result<Option<(String, DateTime<Utc>)>, String> {
+        let Some(file) = self.link_file.clone() else {
+            return Ok(None);
+        };
+        let now = self.store.now();
+        let Some(id) =
+            crate::links::link_for(&file, token, now.timestamp()).map_err(|e| e.to_string())?
+        else {
+            return Ok(None);
+        };
+        let Some(link) = self
+            .store
+            .insyn_link(id)
+            .map_err(|e| e.to_string())?
+            .filter(|l| l.active_at(now))
+        else {
+            return Ok(None);
+        };
+        let until = link
+            .valid_until
+            .min(now + chrono::Duration::seconds(crate::links::SESSION_TTL));
+        self.log(Login::Link { id, until })?;
+        let session = random_token().map_err(|e| e.to_string())?;
+        crate::links::start_session(&file, id, &session, until.timestamp(), now.timestamp())
+            .map_err(|e| e.to_string())?;
+        Ok(Some((session, until)))
     }
 
     pub fn handle(&mut self, req: &Request) -> Response {
@@ -203,25 +290,31 @@ impl<'a> LiveView<'a> {
                 (Some(t), Some(expected)) => same_secret(t, expected),
                 _ => false,
             };
-            let issued = !started
-                && match (token, &self.link_file) {
-                    (Some(t), Some(file)) if !t.is_empty() => {
-                        crate::links::consume(file, t, chrono::Utc::now().timestamp())
-                            .unwrap_or(false)
-                    }
-                    _ => false,
-                };
-            if !started && !issued {
-                let hint = if self.link_file.is_some() {
-                    "Länken stämmer inte, är redan använd eller har gått ut. Ta fram en ny med bok insyn lank."
-                } else {
-                    "Länken stämmer inte eller är redan använd. Starta insynen igen med bok insyn för en ny länk."
-                };
-                return message(403, "Fel länk", hint);
-            }
-            if started {
+            let (session, max_age) = if started {
+                if let Err(e) = self.log(Login::Local) {
+                    return message(500, "Inloggningen kunde inte loggas", &e);
+                }
                 self.login_token = None;
-            }
+                (self.session_token.clone(), String::new())
+            } else {
+                match token.filter(|t| !t.is_empty()).map(|t| self.named_login(t)) {
+                    Some(Ok(Some((session, until)))) => {
+                        let seconds = (until - self.store.now()).num_seconds().max(0);
+                        (session, format!("; Max-Age={seconds}"))
+                    }
+                    Some(Err(e)) => {
+                        return message(500, "Inloggningen kunde inte loggas", &e);
+                    }
+                    _ => {
+                        let hint = if self.link_file.is_some() {
+                            "Länken stämmer inte, har gått ut eller är återkallad. Be om en ny länk."
+                        } else {
+                            "Länken stämmer inte eller är redan använd. Starta insynen igen med bok insyn för en ny länk."
+                        };
+                        return message(403, "Fel länk", hint);
+                    }
+                }
+            };
             let secure = if self.secure_cookie { "; Secure" } else { "" };
             return Response {
                 status: 303,
@@ -230,8 +323,7 @@ impl<'a> LiveView<'a> {
                     (
                         "Set-Cookie".into(),
                         format!(
-                            "{COOKIE}={}; HttpOnly; SameSite=Strict; Path=/{secure}",
-                            self.session_token
+                            "{COOKIE}={session}; HttpOnly; SameSite=Strict; Path=/{max_age}{secure}"
                         ),
                     ),
                     ("Cache-Control".into(), "no-store".into()),
@@ -252,7 +344,7 @@ impl<'a> LiveView<'a> {
                 403,
                 "Inte inloggad",
                 if self.link_file.is_some() {
-                    "Ta fram en inloggningslänk med bok insyn lank på servern med bokföringen."
+                    "Logga in med din länk igen, eller be om en ny om den har gått ut eller återkallats."
                 } else {
                     "Öppna länken som visades i terminalen när insynen startade."
                 },

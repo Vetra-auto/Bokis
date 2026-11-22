@@ -44,6 +44,16 @@ impl Actor {
             role: "system".into(),
         }
     }
+
+    /// Den som loggar in i insynen med en namngiven länk, till exempel en
+    /// revisor. Hen kan bara läsa; händelsen visar vem som loggade in.
+    pub fn insyn(name: impl Into<String>) -> Actor {
+        Actor {
+            kind: ActorKind::System,
+            name: name.into(),
+            role: "insyn".into(),
+        }
+    }
 }
 
 /// Händelsen som en skrivning lägger i historiken.

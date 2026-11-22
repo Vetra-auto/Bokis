@@ -10,6 +10,23 @@ bok insyn export /media/usb/bokforing     # hela bokföringen som fristående fi
 bok insyn export /media/usb/bokforing-2026 --year 2026   # ett räkenskapsår
 ```
 
+Som tjänst (till exempel bakom `tailscale serve`) får varje person en egen länk:
+
+```bash
+bok insyn --port 8790 --adress https://bokis.ditt-tailnet.ts.net:8443   # tjänsten, utan startlänk
+bok insyn lank --namn "Revisor X" --giltig 30d   # länk till en person; 15m, 12h eller 30d, högst 366d
+bok insyn lankar                                 # vem som har länk, giltig till, inloggningar, senast
+bok insyn aterkalla 12                           # länk 12 slutar gälla direkt, också öppna sessioner
+```
+
+En länk kan användas flera gånger tills den går ut eller återkallas. Varje inloggning ger en
+session som gäller högst 12 timmar och aldrig längre än länken, och loggas i
+behandlingshistoriken (`insyn.inloggning`, med personens namn och sessionens sluttid) innan
+kakan ges; går det inte att logga blir det ingen inloggning. Att länken skapas och återkallas
+loggas också. Historiken avgör om en länk gäller: tjänsten frågar vid varje sida, så en
+återkallelse gäller direkt. `insyn.json` bredvid databasen sparar bara SHA-256 av länkar och
+sessioner. Utan `--namn` får länken ditt namn och gäller 15 minuter.
+
 | Flik | Innehåll |
 | --- | --- |
 | Översikt | Kontrollstämpeln: hela `bok verify` (kedjan, serierna, varje signatur, perioderna, banken, underlagen i arkivet) med antal kontrollerade poster, räkenskapsåren med resultat och perioder, nycklarna och hur bokföringen förs |
@@ -29,7 +46,7 @@ för macOS och Windows också). Sidorna har inget JavaScript, inga formulär och
 resurser, så de fungerar från ett USB-minne utan nät och skrivs ut som de ser ut. En export
 loggas i behandlingshistoriken, och en befintlig katalog skrivs aldrig över.
 
-Liveläget har samma skydd som granskningsvyn men tar bara emot GET: Host-kontroll, engångslänk
+Liveläget har samma skydd som granskningsvyn men tar bara emot GET: Host-kontroll, länk
 till en sessionskaka (`bok_insyn`, eftersom kakor inte skiljer på portar), CSP utan skript.
 Underlag får en filändelse efter sitt innehåll, aldrig `.html` eller `.svg`; det webbläsaren inte
 kan visa skickas som nedladdning. Text från underlag och agenten escapas, och styrtecken och
