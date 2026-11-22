@@ -213,10 +213,15 @@ fn list_links(ctx: &Ctx) -> Result<()> {
             .map(|t| format!(", senast {}", bok_store::display_timestamp(t)))
             .unwrap_or_default();
         println!(
-            "{:>4}  {}  {state}  {} inloggningar{last}  (skapad av {})",
+            "{:>4}  {}  {state}  {} {}{last}  (skapad av {})",
             l.id,
             crate::render::safe(&l.name),
             l.logins,
+            if l.logins == 1 {
+                "inloggning"
+            } else {
+                "inloggningar"
+            },
             crate::render::safe(&l.created_by)
         );
     }

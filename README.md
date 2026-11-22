@@ -89,7 +89,7 @@ Reglerna som agenten följer signerar du själv in. Grundreglerna, med lagrum oc
 | Det bokförda går inte att radera eller ändra | BFL 5 kap. 5 §, BFNAR 2013:2 p. 2.1 | Uppfyllt |
 | Rättelse med rättelsepost i rätt period | BFL 5 kap. 5 §, BFNAR 2013:2 p. 2.17 | Uppfyllt |
 | Grundbok, huvudbok och behandlingshistorik | BFL 5 kap. 1 och 11 §§ | Uppfyllt |
-| Systemdokumentation | BFL 5 kap. 11 § | Delvis: arkivplan saknas |
+| Systemdokumentation och arkivplan | BFL 5 kap. 11 §, BFNAR 2013:2 p. 8.3 och 9.2 | Uppfyllt: arkivplanen är din egen fil, inlagd med `bok arkivplan satt` |
 | Förvaring i sju år, i Sverige | BFL 7 kap. 2 § | Bokis stödjer, du väljer platsen |
 | Momsdeklarationens fält | Skatteverkets fält 05–62 | Uppfyllt för konton med momskod, även vinstmarginalbeskattning (07) och trepartshandel (37–38) |
 | Momsavdrag bara mot faktura eller kvitto | ML 13 kap. 31–32 §§ | Uppfyllt med grundreglerna |

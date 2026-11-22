@@ -2,7 +2,10 @@
 
 Kontrollerad 2026-11-15 mot lagtexterna på riksdagen.se, BFN:s vägledning Bokföring och
 Skatteverkets sidor. Bokslutet och inkomstdeklarationen kontrollerades 2026-11-16 mot
-inkomstskattelagen, årsredovisningslagen, BFN:s vägledning K2 och Skatteverkets SRU-format. Lagar och belopp ändras: kontrollera igen minst en gång om året och när
+inkomstskattelagen, årsredovisningslagen, BFN:s vägledning K2 och Skatteverkets SRU-format. Identitetsnumren, arkivplanen, motpartens adress och momsdeklarationens
+fält 07 och 37–38 kontrollerades 2026-11-22 mot lagen om identitetsbeteckning för juridiska personer,
+folkbokföringslagen, lagen om samordningsnummer, bokföringslagen 7 kap., BFNAR 2013:2 (punkt 5.6,
+8.2, 8.3 och 9.2), mervärdesskattelagen och Skatteverkets "Fylla i momsdeklarationen". Lagar och belopp ändras: kontrollera igen minst en gång om året och när
 Skatteverket eller BFN ändrar något.
 
 Bokis är ett verktyg. Ansvaret för bokföringen ligger kvar hos företaget, som också lämnar

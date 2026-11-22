@@ -28,7 +28,7 @@ fn paragraph(text: &str) -> String {
 }
 
 /// Den senaste kopian i historiken som skrevs under `path`, som tid.
-fn latest_copy<'a>(events: &'a [EventRow], path: &str) -> Option<&'a str> {
+fn latest_copy(events: &[EventRow], path: &str) -> Option<String> {
     let prefix = path.trim_end_matches('/');
     events
         .iter()
@@ -45,7 +45,7 @@ fn latest_copy<'a>(events: &'a [EventRow], path: &str) -> Option<&'a str> {
                             .is_some_and(|f| f == prefix || f.starts_with(&format!("{prefix}/")))
                 })
         })
-        .map(|e| e.time.as_str())
+        .map(|e| bok_store::display_timestamp(&e.time))
 }
 
 /// Avsnittet som Markdown, med rubriken `## Arkivplan`.
@@ -67,7 +67,7 @@ pub fn section(store: &Store, events: &[EventRow]) -> Result<String> {
     writeln!(
         w,
         "Planen lades in {} av {} (händelse {} i behandlingshistoriken). Ansvarig: {}.",
-        record.time,
+        bok_store::display_timestamp(&record.time),
         record.actor,
         record.event_seq,
         paragraph(&plan.responsible)
@@ -82,8 +82,8 @@ pub fn section(store: &Store, events: &[EventRow]) -> Result<String> {
         let latest = p
             .path
             .as_deref()
-            .map(|path| latest_copy(events, path).unwrap_or("ingen i historiken"))
-            .unwrap_or("–");
+            .map(|path| latest_copy(events, path).unwrap_or_else(|| "ingen i historiken".into()))
+            .unwrap_or_else(|| "–".into());
         let country = match &p.notified {
             Some(n) => format!("{} (anmäld {})", p.country, n),
             None => p.country.clone(),
@@ -99,7 +99,7 @@ pub fn section(store: &Store, events: &[EventRow]) -> Result<String> {
             cell(p.kept.as_deref().unwrap_or("")),
             cell(p.check.as_deref().unwrap_or("")),
             if p.separate { "ja" } else { "nej" },
-            cell(latest)
+            cell(&latest)
         )?;
     }
     if let Some(r) = &plan.readable {

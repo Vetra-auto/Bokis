@@ -39,6 +39,11 @@ agentens betalningsförslag, avstämning, stängd period, verifiering, kopia och
 inventarieregistret, agentens avskrivningsförslag genom `bok-mcp`, periodisering med återföring,
 bolagsskatt, årets resultat, INK2 som SRU-filer, insynen och en full verifiering.
 
+`scripts/e2e-checklista.sh <ny katalog>` provar checklistan från 2026-11-17: organisationsnummer
+med fel kontrollsiffra stoppas, motpartens adress, vinstmarginal och trepartshandel i
+momsrapporten, arkivplanen i systemdokumentationen, insyn per person mot en riktig insynstjänst
+(inloggning loggas, återkallelse stänger sessionen) och MCP 2026-07-28 mot `bok-mcp`.
+
 ## Schema
 
 Schemaversion 2 (`schema_v2.sql`) lägger till `bankrader`, `bankmatchningar`,
@@ -50,6 +55,13 @@ Schemaversion 3 (`schema_v3.sql`) lägger till `sakerhetsniva`, besluten om säk
 Schemaversion 4 (`schema_v4.sql`) lägger till inventarieregistret, `inventarier` och
 `inventarieavgangar`, som bara kan växa. En felregistrering rättas med en avgång av typen
 `felregistrering` och en ny registrering.
+
+Schemaversion 5 (`schema_v5.sql`) lägger till motpartens adress: `motparter.adress` och
+`motpart_adress` på `forslag` och `verifikationer`, med `ALTER TABLE ADD COLUMN`. Spärrarna från
+version 1 gäller hela raden. Adressen ingår i verifikationens kanoniska form bara när den finns,
+så signaturer från före version 5 verifieras som förut. Arkivplanen och insynslänkarna har inga
+egna tabeller; de är händelser i behandlingshistoriken (`arkivplan.satt`, `insyn.lank.skapad`,
+`insyn.lank.aterkallad`, `insyn.inloggning`).
 
 ## Granskningar
 
