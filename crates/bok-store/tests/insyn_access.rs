@@ -91,11 +91,11 @@ fn only_humans_create_links_and_only_for_a_while() {
 #[test]
 fn a_login_with_the_start_link_is_logged_too() {
     let mut b = book();
-    b.store.record_local_insyn_login("henrik").unwrap();
+    b.store.record_local_insyn_login("granskare").unwrap();
     let e = b.store.events(Some(1)).unwrap().remove(0);
     assert_eq!(
         (e.action.as_str(), e.actor.as_str()),
-        (INSYN_LOGIN, "henrik")
+        (INSYN_LOGIN, "granskare")
     );
     assert!(e.new_values.unwrap().contains("startlänken"));
 }
