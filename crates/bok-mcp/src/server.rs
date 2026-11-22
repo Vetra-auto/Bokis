@@ -511,7 +511,7 @@ mod tests {
         json!({
             "affarshandelse_datum": "2026-03-14",
             "beskrivning": "Molntjänst, månadsabonnemang mars",
-            "motpart": {"namn": "Exempel Hosting AB", "orgnr": "556000-0000"},
+            "motpart": {"namn": "Exempel Hosting AB", "orgnr": "556000-0001"},
             "rader": [
                 {"konto": 5420, "debet_ore": 40000},
                 {"konto": 2641, "debet_ore": 10000},

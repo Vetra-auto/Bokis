@@ -445,6 +445,7 @@ dependencies = [
  "base64 0.22.1",
  "bok-archive",
  "bok-bokslut",
+ "bok-core",
  "bok-store",
  "chrono",
  "hex",
@@ -474,6 +475,7 @@ dependencies = [
 name = "bok-sru"
 version = "0.1.0"
 dependencies = [
+ "bok-core",
  "chrono",
  "thiserror 2.0.18",
 ]

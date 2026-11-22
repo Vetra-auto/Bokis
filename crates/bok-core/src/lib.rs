@@ -16,6 +16,7 @@ pub mod chain;
 pub mod correction;
 pub mod decision;
 pub mod fiscal_year;
+pub mod id_number;
 pub mod money;
 pub mod period;
 pub mod security;
@@ -24,6 +25,7 @@ pub mod signature;
 pub mod voucher;
 
 pub use account::AccountNumber;
+pub use id_number::{IdKind, IdNumber, IdNumberError};
 pub use money::Money;
 pub use period::PeriodStatus;
 pub use series::{Series, VoucherRef};

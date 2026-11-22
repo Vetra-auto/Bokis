@@ -73,11 +73,11 @@ EOF
 HARKOMST='{"modell": "e2e-skript", "region": "lokal", "motivering": "Enligt underlaget.", "osakerhet": 0.1}'
 
 echo "== 1. Bokföringen skapas och fakturan läses in från inkorgen"
-"$BOK" init --security mjukvara --company "Testbolaget AB" --orgnr 559999-9999 --year "$YEAR"
+"$BOK" init --security mjukvara --company "Testbolaget AB" --orgnr 559999-9991 --year "$YEAR"
 printf '1930;Företagskonto\n2440;Leverantörsskulder\n2641;Debiterad ingående moms\n2650;Redovisningskonto för moms\n5420;Programvaror\n6540;IT-tjänster\n' \
     > "$WORK/konton.txt"
 "$BOK" account import "$WORK/konton.txt" --vat-codes "$ROOT/docs/momskoder-bas.txt"
-printf 'Exempel Hosting AB\norg.nr 556000-0000\nFaktura 2026-311\nMolntjänst 400,00 kr\nMoms 25 %% 100,00 kr\nAtt betala 500,00 kr\n' \
+printf 'Exempel Hosting AB\norg.nr 556000-0001\nFaktura 2026-311\nMolntjänst 400,00 kr\nMoms 25 %% 100,00 kr\nAtt betala 500,00 kr\n' \
     > "$WORK/inkorg/faktura-2026-311.txt"
 "$BOK" inkorg "$WORK/inkorg" --min-age 0
 
@@ -86,7 +86,7 @@ agent "[[\"lista_underlag\", {}],
         [\"hamta_underlag\", {\"id\": \"1\"}],
         [\"foresla_verifikation\", {\"affarshandelse_datum\": \"$TODAY\",
           \"beskrivning\": \"Molntjänst, faktura 2026-311 från Exempel Hosting AB\",
-          \"motpart\": {\"namn\": \"Exempel Hosting AB\", \"orgnr\": \"556000-0000\"},
+          \"motpart\": {\"namn\": \"Exempel Hosting AB\", \"orgnr\": \"556000-0001\"},
           \"rader\": [{\"konto\": 5420, \"debet_ore\": 40000}, {\"konto\": 2641, \"debet_ore\": 10000},
                       {\"konto\": 2440, \"kredit_ore\": 50000}],
           \"underlag_ids\": [\"1\"], \"harkomst\": $HARKOMST}],

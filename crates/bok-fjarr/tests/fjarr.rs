@@ -44,7 +44,7 @@ impl Fixture {
             "test",
             NewBook {
                 company_name: "Fjärrbolaget AB",
-                org_number: "559999-0002",
+                org_number: "559999-0008",
                 key_name: "granskare",
                 public_key: &signer.public_key_openssh(),
                 signer: &signer,

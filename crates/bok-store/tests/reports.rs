@@ -208,7 +208,7 @@ fn counterparty_snapshot_survives_a_change_in_the_register() {
 
     let renamed = Counterparty {
         name: "Kontorsjätten AB".into(),
-        org_number: Some("556999-9999".into()),
+        org_number: Some("556999-9997".into()),
         vat_number: None,
     };
     b.store.update_counterparty(&b.human, id, &renamed).unwrap();

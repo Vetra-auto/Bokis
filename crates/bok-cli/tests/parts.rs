@@ -67,7 +67,7 @@ impl Env {
             "--company",
             "Testbolaget AB",
             "--orgnr",
-            "559999-9999",
+            "559999-9991",
             "--year",
             &year,
         ]);
@@ -506,7 +506,7 @@ fn system_documentation_is_generated_from_the_book() {
     let doc = std::fs::read_to_string(&out).unwrap();
     for needle in [
         "# Systemdokumentation för Bokis",
-        "Testbolaget AB (559999-9999)",
+        "Testbolaget AB (559999-9991)",
         "| `lista_underlag` | agenten (läser)",
         "| `bokfor_forslag` | granskaren",
         "Alla tabeller som bara ska kunna växa har spärrar",

@@ -15,6 +15,7 @@ default = ["store"]
 store = ["dep:bok-store", "dep:bok-archive", "dep:bok-bokslut"]
 
 [dependencies]
+bok-core = { path = "../bok-core" }
 bok-store = { path = "../bok-store", optional = true }
 bok-archive = { path = "../bok-archive", optional = true }
 bok-bokslut = { path = "../bok-bokslut", optional = true }

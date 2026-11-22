@@ -246,7 +246,8 @@ struct InitArgs {
     /// Företagets namn.
     #[arg(long)]
     company: String,
-    /// Organisationsnummer.
+    /// Organisationsnummer (NNNNNN-NNNN), eller personnummer för en enskild
+    /// firma. Kontrollsiffran prövas.
     #[arg(long)]
     orgnr: String,
     /// Namnet på den som äger nyckeln [standard: --user].
@@ -751,11 +752,12 @@ fn init(ctx: &Ctx, args: InitArgs) -> Result<()> {
             security_level: level,
         },
     )?;
+    let company = store.company()?;
     println!(
         "Skapade bokföringen {} för {} ({}).",
         ctx.db.display(),
-        args.company.trim(),
-        args.orgnr.trim()
+        company.name,
+        company.org_number
     );
     println!("Nyckel {} registrerad för {name}.", info.fingerprint);
     println!("Säkerhetsnivå: {}. {}", level.title(), level.meaning());

@@ -14,6 +14,7 @@ deklarationer och årsredovisning.
 |------|--------|--------------|------|
 | En verifikation för varje affärshändelse | BFL 5 kap. 6 § | Varje bokföring är en verifikation med länk till sitt underlag. Ett förslag utan underlag eller bankrad får en varning. | Uppfyllt |
 | Verifikationens innehåll: när, vad, belopp, motpart | BFL 5 kap. 7–8 §§, BFNAR 2013:2 p. 5.5–5.7 | Affärshändelsens datum, beskrivning, rader och motpart sparas. Bokis sätter sammanställningsdatum och verifikationsnummer. Saknas motpart får förslaget en varning, eftersom motpart bara får utelämnas vid anonym kontantförsäljning. | Uppfyllt |
+| Företagets och motpartens identitet | Lag (1974:174) om identitetsbeteckning för juridiska personer m.fl. 4 §, folkbokföringslagen (1991:481) 18 §, lag (2022:1697) om samordningsnummer 2 kap. 8 § | `bok init`, motpartsregistret, `bok propose` och agentens förslag prövar numret: tio siffror där den sista är kontrollsiffra, personnummer för enskild firma (plustecken från det år personen fyller 100) och samordningsnummer (dagen plus 60). Lagtexterna anger inte hur kontrollsiffran räknas; Bokis använder Luhn (modulus 10, vikterna 2-1), som stämmer med Skatteverkets exempel 556000-0100. Ett utländskt nummer anges med landskod och prövas inte. | Uppfyllt för svenska nummer |
 | Obruten verifikationsserie | BFNAR 2013:2 p. 5.9 | Numret tas först när förslaget bokförs, i samma transaktion. `bok verify` letar luckor. | Uppfyllt |
 | Det bokförda går inte att radera eller ändra | BFL 5 kap. 5 §, BFNAR 2013:2 p. 2.1 och 5.4 | Databasen vägrar ändringar och raderingar (spärrar i schemat), och historiken är en hashkedja. | Uppfyllt |
 | Rättelse med rättelsepost i rätt period | BFL 5 kap. 5 §, BFNAR 2013:2 p. 2.17–2.18 | Rättelsen blir en ny verifikation i serie R, kopplad åt båda hållen. Är originalets period stängd bokförs rättelsen i perioden som är öppen nu. | Uppfyllt |
@@ -120,6 +121,14 @@ for f in docs/regler/*.json; do bok regel lagg-till "$(basename "$f" .json)" --f
   <https://www.skatteverket.se/foretag/skatterochavdrag/avdragforforetag/avdragslexikonforetag.4.3684199413c956649b550c8.html>
 - Skatteverket, Omvänd betalningsskyldighet:
   <https://www.skatteverket.se/foretag/moms/sarskildamomsregler/omvandbetalningsskyldighet.4.47eb30f51122b1aaad28000258292.html>
+- Lag (1974:174) om identitetsbeteckning för juridiska personer m.fl., ändrad t.o.m. SFS 2019:851:
+  <https://www.riksdagen.se/sv/dokument-och-lagar/dokument/svensk-forfattningssamling/lag-1974174-om-identitetsbeteckning-for_sfs-1974-174/>
+- Folkbokföringslag (1991:481), ändrad t.o.m. SFS 2026:1613:
+  <https://www.riksdagen.se/sv/dokument-och-lagar/dokument/svensk-forfattningssamling/folkbokforingslag-1991481_sfs-1991-481/>
+- Lag (2022:1697) om samordningsnummer, ändrad t.o.m. SFS 2026:1455:
+  <https://www.riksdagen.se/sv/dokument-och-lagar/dokument/svensk-forfattningssamling/lag-20221697-om-samordningsnummer_sfs-2022-1697/>
+- Skatteverket, Personnummer (kontrollsiffran "räknas ut maskinellt", metoden anges inte):
+  <https://www.skatteverket.se/privat/folkbokforing/personnummerochsamordningsnummer.4.3810a01c150939e893f18c29.html>
 - BAS 2026: <https://www.bas.se/kontoplaner/>
 - Årsredovisningslagen (1995:1554):
   <https://www.riksdagen.se/sv/dokument-och-lagar/dokument/svensk-forfattningssamling/arsredovisningslag-19951554_sfs-1995-1554/>

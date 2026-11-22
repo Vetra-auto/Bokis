@@ -128,7 +128,7 @@ def main() -> None:
                       BOKIS_USER="granskare")
 
     print("Bokföringen och kontoplanen")
-    bok("init", "--security", "mjukvara", "--company", "Fjällvind Konsult AB", "--orgnr", "559999-0001",
+    bok("init", "--security", "mjukvara", "--company", "Fjällvind Konsult AB", "--orgnr", "559999-0008",
         "--year", "2025")
     bok("ar", "add", "2026")
     chart = files / "konton.txt"
@@ -155,12 +155,12 @@ def main() -> None:
     human("2025-01-03", "Insättning av aktiekapital", [(1930, 2_500_000), (2081, -2_500_000)], [u])
 
     u = attach(receipt(files / "kvitto-kodverkstan.jpg", [
-        "KODVERKSTAN AB", "org.nr 556000-1111", "Kvitto 2025-02-10 14:02", "",
+        "KODVERKSTAN AB", "org.nr 556000-1116", "Kvitto 2025-02-10 14:02", "",
         "Utvecklarlicens, 1 år     1 200,00", "Moms 25 %                  300,00",
         "Totalt                   1 500,00", "Betalt med kort ****4417"]), "kvitton@fjallvind.example")
     propose("2025-02-10", "Utvecklarlicens för ett år, Kodverkstan AB",
             [(5420, 120_000), (2641, 30_000), (1930, -150_000)], [u],
-            {"namn": "Kodverkstan AB", "orgnr": "556000-1111"},
+            {"namn": "Kodverkstan AB", "orgnr": "556000-1116"},
             why="Kvittot visar en programlicens på ett år med 25 % moms, betald med företagets kort.")
 
     invoice = files / "faktura-1001.txt"

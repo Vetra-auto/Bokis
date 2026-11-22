@@ -425,13 +425,19 @@ impl AgentBackend for StoreBackend {
                     series: Series::A,
                     date,
                     description: proposal.description.clone(),
-                    counterparty: proposal.counterparty.as_ref().map(|c| {
-                        ProposalCounterparty::Inline(CoreCounterparty {
-                            name: c.name.clone(),
-                            org_number: c.org_number.clone(),
-                            vat_number: c.vat_number.clone(),
+                    counterparty: proposal
+                        .counterparty
+                        .as_ref()
+                        .map(|c| {
+                            Ok::<_, BackendError>(ProposalCounterparty::Inline(CoreCounterparty {
+                                name: c.name.clone(),
+                                org_number: c.party_number().map_err(|e| {
+                                    BackendError::Invalid(format!("motpartens orgnr: {e}"))
+                                })?,
+                                vat_number: c.vat_number.clone(),
+                            }))
                         })
-                    }),
+                        .transpose()?,
                     lines,
                     attachments,
                     idempotency_key: Some(provenance.arguments_sha256.clone()),
@@ -702,7 +708,7 @@ mod tests {
             "bok-mcp-test",
             NewBook {
                 company_name: "Testbolaget AB",
-                org_number: "559999-9999",
+                org_number: "559999-9991",
                 key_name: "granskare",
                 public_key: &signer.public_key_openssh(),
                 signer: &signer,
@@ -789,7 +795,7 @@ mod tests {
             description: "Molntjänst, Exempel Hosting AB".into(),
             counterparty: Some(Counterparty {
                 name: "Exempel Hosting AB".into(),
-                org_number: Some("556000-0000".into()),
+                org_number: Some("556000-0001".into()),
                 vat_number: None,
                 country: None,
             }),
@@ -898,7 +904,7 @@ mod tests {
             .store
             .approve(&Actor::human("granskare"), id, &f.signer)
             .unwrap();
-        let found = f.backend.search_counterparty("556000-0000", 5).unwrap();
+        let found = f.backend.search_counterparty("556000-0001", 5).unwrap();
         assert_eq!(found.len(), 1);
         assert!(found[0].voucher.starts_with(&posted.reference.to_string()));
         assert_eq!(found[0].lines[0].account, 5420);

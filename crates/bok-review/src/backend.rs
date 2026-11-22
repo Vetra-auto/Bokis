@@ -162,7 +162,7 @@ impl MemoryReviewBackend {
             text: None,
         };
         let invoice =
-            "Exempel Hosting AB\norg.nr 556000-0000\nFaktura 2026-311, fakturadatum 2026-03-14\n\
+            "Exempel Hosting AB\norg.nr 556000-0001\nFaktura 2026-311, fakturadatum 2026-03-14\n\
                        Molntjänst mars 400,00 kr\nMoms 25 % 100,00 kr\nAtt betala 500,00 kr\n";
         let svg_attempt = "<svg xmlns=\"http://www.w3.org/2000/svg\" onload=\"alert(1)\"></svg>";
         Self {
@@ -178,7 +178,7 @@ impl MemoryReviewBackend {
                         uncertainty: Some(0.1),
                         warnings: 0,
                     },
-                    counterparty_org_number: Some("556000-0000".into()),
+                    counterparty_org_number: Some("556000-0001".into()),
                     lines: vec![
                         line(5420, "Programvaror", 40_000, 0),
                         line(2641, "Debiterad ingående moms", 10_000, 0),

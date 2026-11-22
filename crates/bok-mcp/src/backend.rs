@@ -112,6 +112,37 @@ pub struct Counterparty {
     pub country: Option<String>,
 }
 
+impl Counterparty {
+    /// Motpartens nummer så som det sparas: ett svenskt nummer på formen
+    /// NNNNNN-NNNN, ett utländskt med landskoden först. Står landet på
+    /// motparten (till exempel `DK`) och numret saknar landskod läggs den
+    /// till. Fel om ett svenskt nummer inte går igenom kontrollen.
+    pub fn party_number(&self) -> Result<Option<String>, String> {
+        let Some(number) = self
+            .org_number
+            .as_deref()
+            .map(str::trim)
+            .filter(|n| !n.is_empty())
+        else {
+            return Ok(None);
+        };
+        let foreign_country = self
+            .country
+            .as_deref()
+            .map(str::trim)
+            .filter(|c| c.len() == 2 && c.chars().all(|ch| ch.is_ascii_alphabetic()))
+            .map(str::to_uppercase)
+            .filter(|c| c != "SE");
+        let number = match foreign_country {
+            Some(c) if !bok_core::id_number::is_foreign(number) => format!("{c}{number}"),
+            _ => number.to_string(),
+        };
+        bok_core::id_number::normalize_party_number(&number)
+            .map(Some)
+            .map_err(|e| e.to_string())
+    }
+}
+
 /// En konteringsrad i ett förslag. Exakt ett av debet och kredit ska vara satt.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ProposalLine {

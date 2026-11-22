@@ -35,7 +35,7 @@ pub fn parse_line(spec: &str) -> Result<Line> {
 ///
 /// ```json
 /// {"serie": "A", "datum": "2026-03-15", "beskrivning": "Papper",
-///  "motpart": {"namn": "Papper AB", "orgnr": "556000-0000"},
+///  "motpart": {"namn": "Papper AB", "orgnr": "556000-0001"},
 ///  "underlag": [1],
 ///  "rader": [{"konto": 5410, "debet": 8000}, {"konto": 1930, "kredit": 8000}]}
 /// ```
@@ -221,7 +221,7 @@ mod tests {
     #[test]
     fn proposal_file_uses_ore_and_swedish_keys() {
         let json = r#"{"datum": "2026-03-15", "beskrivning": "Papper",
-            "motpart": {"namn": "Papper AB", "orgnr": "556000-0000"},
+            "motpart": {"namn": "Papper AB", "orgnr": "556000-0001"},
             "rader": [{"konto": 5410, "debet": 8000}, {"konto": 1930, "kredit": 8000}]}"#;
         let p: ProposalFile = serde_json::from_str(json).unwrap();
         let p = p.into_proposal();

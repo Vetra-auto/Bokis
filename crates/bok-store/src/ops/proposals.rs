@@ -6,8 +6,8 @@ use serde_json::json;
 use bok_core::correction::{correction_description, reversal_lines, validate_reason};
 use bok_core::money::checked_sum;
 use bok_core::voucher::{
-    Counterparty, Line, validate_counterparty, validate_description, validate_lines,
-    validate_series, validate_series_lines,
+    Counterparty, Line, normalize_counterparty, validate_counterparty, validate_description,
+    validate_lines, validate_series, validate_series_lines,
 };
 use bok_core::{Series, VoucherRef};
 
@@ -53,7 +53,7 @@ impl Store {
             }
             Some(ProposalCounterparty::Inline(c)) => {
                 validate_counterparty(c)?;
-                (None, Some(c.clone()))
+                (None, Some(normalize_counterparty(c)))
             }
         };
         for id in &p.attachments {

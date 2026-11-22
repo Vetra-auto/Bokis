@@ -138,9 +138,9 @@ pub fn all() -> Vec<Operation> {
                         "required": ["namn"],
                         "properties": {
                             "namn": {"type": "string"},
-                            "orgnr": {"type": "string"},
+                            "orgnr": {"type": "string", "description": "Svenskt organisationsnummer (NNNNNN-NNNN, kontrollsiffran prövas) eller personnummer för en enskild firma. Ett utländskt nummer med landskoden först, till exempel DK12345678."},
                             "momsnr": {"type": "string"},
-                            "land": {"type": "string"}
+                            "land": {"type": "string", "description": "Landskod med två bokstäver, till exempel DK. Läggs framför ett utländskt orgnr som saknar landskod."}
                         }
                     },
                     "rader": {"type": "array", "minItems": 2, "items": line_schema()},

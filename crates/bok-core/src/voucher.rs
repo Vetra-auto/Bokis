@@ -106,6 +106,10 @@ pub enum VoucherError {
     CorrectionOutsideSeriesR,
     #[error("motparten måste ha ett namn")]
     MissingCounterpartyName,
+    /// Motpartens organisations- eller personnummer går inte igenom
+    /// kontrollen; texten säger varför.
+    #[error("motpartens nummer: {0}")]
+    InvalidPartyNumber(String),
     #[error(
         "ingående balans (serie I) får bara innehålla balanskonton; {account} är ett resultatkonto"
     )]
@@ -158,11 +162,37 @@ pub fn validate_description(description: &str) -> Result<(), VoucherError> {
     check_text("beskrivningen", description)
 }
 
+/// Kontrollerar motparten: namnet måste finnas, och ett svenskt
+/// organisations- eller personnummer måste ha rätt form och kontrollsiffra.
+/// Ett utländskt nummer anges med landskoden först (till exempel DK12345678).
 pub fn validate_counterparty(c: &Counterparty) -> Result<(), VoucherError> {
     if c.name.trim().is_empty() {
         return Err(VoucherError::MissingCounterpartyName);
     }
-    check_text("motpartens namn", &c.name)
+    check_text("motpartens namn", &c.name)?;
+    if let Some(number) = c.org_number.as_deref().filter(|n| !n.trim().is_empty()) {
+        check_text("motpartens nummer", number)?;
+        crate::id_number::normalize_party_number(number)
+            .map_err(|e| VoucherError::InvalidPartyNumber(e.to_string()))?;
+    }
+    Ok(())
+}
+
+/// Motparten på normalform: namnet utan omgivande blanksteg, numret som
+/// NNNNNN-NNNN (eller med landskod) och tomma fält borttagna. Anropas efter
+/// [`validate_counterparty`].
+pub fn normalize_counterparty(c: &Counterparty) -> Counterparty {
+    let clean = |s: Option<&str>| {
+        s.map(str::trim)
+            .filter(|t| !t.is_empty())
+            .map(str::to_string)
+    };
+    Counterparty {
+        name: c.name.trim().to_string(),
+        org_number: clean(c.org_number.as_deref())
+            .map(|n| crate::id_number::normalize_party_number(&n).unwrap_or(n)),
+        vat_number: clean(c.vat_number.as_deref()),
+    }
 }
 
 /// Serie R och en hänvisning till originalet hör ihop: varje rättelse ligger
@@ -465,5 +495,25 @@ mod tests {
             Line::from_signed(acc(1930), kr(-1)),
             Line::credit(acc(1930), kr(1))
         );
+    }
+
+    #[test]
+    fn counterparty_numbers_are_checked_and_normalized() {
+        let cp = |n: &str| Counterparty {
+            name: " Exempel AB ".into(),
+            org_number: Some(n.into()),
+            vat_number: Some(" ".into()),
+        };
+        assert!(validate_counterparty(&cp("5560000100")).is_ok());
+        assert!(validate_counterparty(&cp("")).is_ok());
+        assert!(validate_counterparty(&cp("DK12345678")).is_ok());
+        assert!(matches!(
+            validate_counterparty(&cp("559000-0000")),
+            Err(VoucherError::InvalidPartyNumber(_))
+        ));
+        let n = normalize_counterparty(&cp("5560000100"));
+        assert_eq!(n.name, "Exempel AB");
+        assert_eq!(n.org_number.as_deref(), Some("556000-0100"));
+        assert_eq!(n.vat_number, None);
     }
 }

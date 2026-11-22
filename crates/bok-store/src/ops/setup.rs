@@ -9,8 +9,8 @@ use serde_json::json;
 
 use bok_core::decision::{ChartEntry, chart_change_hash, key_registration_hash};
 use bok_core::signature::{NS_KEY, NS_SYSTEM, Signer, parse_public_key, verify};
-use bok_core::voucher::{Counterparty, validate_counterparty};
-use bok_core::{Series, fiscal_year};
+use bok_core::voucher::{Counterparty, normalize_counterparty, validate_counterparty};
+use bok_core::{IdNumber, Series, fiscal_year};
 
 use super::{counterparty_by_id, require_human, verify_registered};
 use crate::model::*;
@@ -21,6 +21,15 @@ fn clean(s: Option<&str>) -> Option<String> {
     s.map(str::trim)
         .filter(|t| !t.is_empty())
         .map(str::to_string)
+}
+
+/// Företagets nummer i `bok init`: ett svenskt organisationsnummer, eller
+/// personnummer för en enskild näringsidkare, med rätt kontrollsiffra. Sparas
+/// på normalformen NNNNNN-NNNN.
+fn company_number(input: &str) -> Result<String> {
+    IdNumber::parse(input)
+        .map(|n| n.to_string())
+        .map_err(|e| StoreError::Invalid(format!("företagets organisationsnummer: {e}")))
 }
 
 impl Store {
@@ -37,6 +46,7 @@ impl Store {
                 "företagsnamn, organisationsnummer och nyckelns ägare måste anges".into(),
             ));
         }
+        let org_number = company_number(book.org_number)?;
         let level = book.security_level;
         if !level.admits_key(key.hardware) {
             return Err(StoreError::Invalid(format!(
@@ -48,7 +58,7 @@ impl Store {
         self.write(&actor, |ctx| {
             ctx.tx.execute(
                 "INSERT INTO foretag (namn, orgnr, registrerad) VALUES (?1, ?2, ?3)",
-                params![book.company_name.trim(), book.org_number.trim(), ctx.now_str],
+                params![book.company_name.trim(), org_number, ctx.now_str],
             )?;
             let hash = key_registration_hash(name, &key.openssh, &key.fingerprint, &ctx.now_str);
             let sig = book.signer.sign(NS_KEY, hash.as_bytes())?;
@@ -63,7 +73,7 @@ impl Store {
                 .new_values(json!({
                     "schemaversion": crate::SCHEMA_VERSION,
                     "foretag": book.company_name.trim(),
-                    "orgnr": book.org_number.trim(),
+                    "orgnr": org_number,
                     "nyckel": {
                         "namn": name,
                         "fingeravtryck": key.fingerprint,
@@ -288,11 +298,7 @@ impl Store {
     pub fn add_counterparty(&mut self, actor: &Actor, counterparty: &Counterparty) -> Result<i64> {
         require_human(actor, "ändra motpartsregistret")?;
         validate_counterparty(counterparty)?;
-        let c = Counterparty {
-            name: counterparty.name.trim().to_string(),
-            org_number: clean(counterparty.org_number.as_deref()),
-            vat_number: clean(counterparty.vat_number.as_deref()),
-        };
+        let c = normalize_counterparty(counterparty);
         self.write(actor, |ctx| {
             ctx.tx.execute(
                 "INSERT INTO motparter (namn, orgnr, momsnr, registrerad) VALUES (?1, ?2, ?3, ?4)",
@@ -315,11 +321,7 @@ impl Store {
     ) -> Result<()> {
         require_human(actor, "ändra motpartsregistret")?;
         validate_counterparty(counterparty)?;
-        let c = Counterparty {
-            name: counterparty.name.trim().to_string(),
-            org_number: clean(counterparty.org_number.as_deref()),
-            vat_number: clean(counterparty.vat_number.as_deref()),
-        };
+        let c = normalize_counterparty(counterparty);
         self.write(actor, |ctx| {
             let old = counterparty_by_id(ctx.tx, id)?;
             ctx.tx.execute(

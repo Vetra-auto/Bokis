@@ -6,6 +6,7 @@ license = "MIT"
 description = "Bokis: SRU-filer (INFO.SRU och BLANKETTER.SRU) för Skatteverkets filöverföring – skrivning, läsning och formkontroll"
 
 [dependencies]
+bok-core = { path = "../bok-core" }
 chrono = { workspace = true }
 thiserror = { workspace = true }
 

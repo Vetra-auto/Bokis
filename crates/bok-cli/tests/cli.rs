@@ -78,7 +78,7 @@ fn the_whole_flow_through_the_command_line() {
         "--company",
         "Testbolaget AB",
         "--orgnr",
-        "559999-9999",
+        "559999-9991",
         "--year",
         "2026",
     ]);
@@ -91,7 +91,7 @@ fn the_whole_flow_through_the_command_line() {
         "--company",
         "Annat AB",
         "--orgnr",
-        "556000-0000",
+        "556000-0001",
     ]);
     assert!(err.contains("finns redan"), "{err}");
     assert!(std::fs::metadata(env.db()).unwrap().len() >= size);
@@ -136,7 +136,7 @@ fn the_whole_flow_through_the_command_line() {
         "--counterparty-name",
         "Papper AB",
         "--orgnr",
-        "556000-0000",
+        "556000-0001",
     ]);
     assert!(out.contains("Förslag 1 lagt"), "{out}");
     env.ok(&[
@@ -176,7 +176,7 @@ fn the_whole_flow_through_the_command_line() {
     );
     assert!(journal.contains("registrerad"), "{journal}");
     assert!(
-        journal.contains("Motpart: Papper AB (556000-0000)"),
+        journal.contains("Motpart: Papper AB (556000-0001)"),
         "{journal}"
     );
     assert!(journal.contains("Rättad genom R1 (fel konto)"), "{journal}");
@@ -295,7 +295,7 @@ fn signing_with_an_unregistered_key_posts_nothing() {
         "--company",
         "Testbolaget AB",
         "--orgnr",
-        "559999-9999",
+        "559999-9991",
         "--year",
         "2026",
     ]);
@@ -344,7 +344,7 @@ fn the_security_level_is_chosen_at_init_and_changed_with_a_signature() {
         "--company",
         "Testbolaget AB",
         "--orgnr",
-        "559999-9999",
+        "559999-9991",
     ]);
     assert!(err.contains("kräver en hårdvarunyckel"), "{err}");
     assert!(err.contains("--security mjukvara"), "{err}");
@@ -357,7 +357,7 @@ fn the_security_level_is_chosen_at_init_and_changed_with_a_signature() {
         "--company",
         "Testbolaget AB",
         "--orgnr",
-        "559999-9999",
+        "559999-9991",
     ]);
     assert!(out.contains("Säkerhetsnivå: mjukvarunyckel."), "{out}");
     let shown = env.ok(&["sakerhet", "visa"]);
@@ -378,4 +378,77 @@ fn the_security_level_is_chosen_at_init_and_changed_with_a_signature() {
     let err = env.fails(&["sakerhet", "satt", "mjukvara"]);
     assert!(err.contains("redan"), "{err}");
     assert!(env.ok(&["verify"]).contains("Bokföringen är intakt"));
+}
+
+#[test]
+fn organisation_numbers_are_checked() {
+    let Some(env) = Env::new() else {
+        eprintln!("ssh-keygen saknas; hoppar över testet");
+        return;
+    };
+    let init = |orgnr: &str| {
+        vec![
+            "init".to_string(),
+            "--security".into(),
+            "mjukvara".into(),
+            "--company".into(),
+            "Testbolaget AB".into(),
+            "--orgnr".into(),
+            orgnr.into(),
+            "--year".into(),
+            "2026".into(),
+        ]
+    };
+    let args = init("559000-0000");
+    let args: Vec<&str> = args.iter().map(String::as_str).collect();
+    // Numret som gick igenom vid starten 2026-11-16 har fel kontrollsiffra.
+    let err = env.fails(&args);
+    assert!(err.contains("kontrollsiffran"), "{err}");
+    assert!(
+        !env.db().exists(),
+        "en misslyckad init lämnar ingen databas"
+    );
+
+    let args = init("5599999991");
+    let args: Vec<&str> = args.iter().map(String::as_str).collect();
+    let out = env.ok(&args);
+    assert!(out.contains("(559999-9991)"), "{out}");
+
+    write(
+        &env.path("kontoplan.txt"),
+        "1930;Företagskonto\n6570;Bankkostnader\n".as_bytes(),
+    );
+    env.ok(&["account", "import", "kontoplan.txt"]);
+    let err = env.fails(&[
+        "propose",
+        "--date",
+        "2026-03-15",
+        "--text",
+        "Bankavgift mars",
+        "--line",
+        "6570=10,00",
+        "--line",
+        "1930=-10,00",
+        "--counterparty-name",
+        "Banken AB",
+        "--orgnr",
+        "556000-0000",
+    ]);
+    assert!(err.contains("kontrollsiffran"), "{err}");
+    let out = env.ok(&[
+        "propose",
+        "--date",
+        "2026-03-15",
+        "--text",
+        "Bankavgift mars",
+        "--line",
+        "6570=10,00",
+        "--line",
+        "1930=-10,00",
+        "--counterparty-name",
+        "Banken A/S",
+        "--orgnr",
+        "dk 1234 5678",
+    ]);
+    assert!(out.contains("Förslag"), "{out}");
 }

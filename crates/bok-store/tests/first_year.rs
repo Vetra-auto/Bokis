@@ -18,7 +18,7 @@ fn the_first_year_starts_on_the_day_the_company_was_formed() {
         "bok-store-test",
         NewBook {
             company_name: "Nybildat AB",
-            org_number: "559999-9999",
+            org_number: "559999-9991",
             key_name: "granskare",
             public_key: &signer.public_key_openssh(),
             signer: &signer,

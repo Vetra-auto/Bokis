@@ -78,7 +78,7 @@ impl MemoryBackend {
     /// kontering och en omatchad bankrad.
     pub fn demo() -> Self {
         let text =
-            "Exempel Hosting AB\norg.nr 556000-0000\nFaktura 2026-311, fakturadatum 2026-03-14\n\
+            "Exempel Hosting AB\norg.nr 556000-0001\nFaktura 2026-311, fakturadatum 2026-03-14\n\
                     Molntjänst mars 400,00 kr\nMoms 25 % 100,00 kr\nAtt betala 500,00 kr\n"
                 .as_bytes()
                 .to_vec();
@@ -122,7 +122,7 @@ impl MemoryBackend {
             rule("R3", "Representation: syfte och deltagare måste anges av granskaren; fråga om de saknas i underlaget."),
         ];
         let history = vec![(
-            "exempel hosting ab 556000-0000".to_string(),
+            "exempel hosting ab 556000-0001".to_string(),
             PastPosting {
                 voucher: "A7".into(),
                 date: "2026-02-14".into(),

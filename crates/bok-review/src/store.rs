@@ -474,7 +474,7 @@ mod tests {
             "bok-review-test",
             NewBook {
                 company_name: "Testbolaget AB",
-                org_number: "559999-9999",
+                org_number: "559999-9991",
                 key_name: "granskare",
                 public_key: &signer.public_key_openssh(),
                 signer: &signer,
@@ -530,7 +530,7 @@ mod tests {
                     description: "Molntjänst, Exempel Hosting AB".into(),
                     counterparty: Some(ProposalCounterparty::Inline(Counterparty {
                         name: "Exempel Hosting AB".into(),
-                        org_number: Some("556000-0000".into()),
+                        org_number: Some("556000-0001".into()),
                         vat_number: None,
                     })),
                     lines: vec![
@@ -573,7 +573,7 @@ mod tests {
         assert_eq!(p.rationale, "Molntjänst enligt regel R1.");
         assert_eq!(p.client.as_deref(), Some("claude-code 2.1"));
         assert_eq!(p.rule_ids, vec!["R1".to_string()]);
-        assert_eq!(p.counterparty_org_number.as_deref(), Some("556000-0000"));
+        assert_eq!(p.counterparty_org_number.as_deref(), Some("556000-0001"));
         assert_eq!(p.lines[0].account_name, "Programvaror");
         assert!(p.warnings.is_empty(), "{:?}", p.warnings);
         // Filen heter .jpg men är en PDF; innehållet avgör.

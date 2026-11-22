@@ -113,6 +113,12 @@ pub fn check(proposal: &Proposal, accounts: &[Account]) -> Check {
         if cp.name.trim().is_empty() {
             c.errors.push("motpartens namn är tomt".into());
         }
+        if let Err(e) = cp.party_number() {
+            c.errors.push(format!(
+                "motpartens orgnr: {e}. Ett utländskt nummer anges med landskoden först \
+                 (till exempel DK12345678) eller med land; saknar underlaget numret, utelämna orgnr"
+            ));
+        }
     }
     c
 }
@@ -156,7 +162,7 @@ mod tests {
             description: "Molntjänst, månadsabonnemang mars".into(),
             counterparty: Some(Counterparty {
                 name: "Exempel Hosting AB".into(),
-                org_number: Some("556000-0000".into()),
+                org_number: Some("556000-0001".into()),
                 vat_number: None,
                 country: Some("SE".into()),
             }),
@@ -216,6 +222,34 @@ mod tests {
         let c = check(&p, &accounts());
         assert!(c.passed());
         assert_eq!(c.warnings.len(), 2, "{:?}", c.warnings);
+    }
+
+    #[test]
+    fn counterparty_numbers_are_checked() {
+        let mut p = valid();
+        let cp = p.counterparty.as_mut().unwrap();
+        cp.org_number = Some("559000-0000".into());
+        let c = check(&p, &accounts());
+        assert!(
+            c.errors.iter().any(|e| e.contains("kontrollsiffran")),
+            "{:?}",
+            c.errors
+        );
+        let cp = p.counterparty.as_mut().unwrap();
+        cp.org_number = Some("12345678".into());
+        cp.country = Some("dk".into());
+        assert!(check(&p, &accounts()).passed());
+        assert_eq!(
+            p.counterparty.as_ref().unwrap().party_number(),
+            Ok(Some("DK12345678".into()))
+        );
+        let cp = p.counterparty.as_mut().unwrap();
+        cp.org_number = Some("5560000001".into());
+        cp.country = Some("SE".into());
+        assert_eq!(
+            p.counterparty.as_ref().unwrap().party_number(),
+            Ok(Some("556000-0001".into()))
+        );
     }
 
     #[test]

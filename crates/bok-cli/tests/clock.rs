@@ -34,7 +34,7 @@ fn a_history_ahead_of_the_clock_stops_bok_until_it_is_accepted() {
         "test",
         NewBook {
             company_name: "Klockbolaget AB",
-            org_number: "559999-0003",
+            org_number: "559999-0008",
             key_name: "granskare",
             public_key: &signer.public_key_openssh(),
             signer: &signer,

@@ -108,7 +108,7 @@ verktyg: ansvaret för bokföringen ligger kvar hos företaget.
 cargo build --release -p bok-cli -p bok-mcp -p bok-review
 export PATH="$PWD/target/release:$PATH"
 ssh-keygen -t ed25519-sk                          # din nyckel, på en YubiKey
-bok init --company "Exempel AB" --orgnr 556000-0000 --year 2026
+bok init --company "Exempel AB" --orgnr 556000-0001 --year 2026
 bok konto importera kontoplan.se                  # din kontoplan, till exempel ur en SIE-fil
 bok inkorg ~/Kvitton                              # kvitton och fakturor in
 claude mcp add bokis -- "$PWD/target/release/bok-mcp" --db ~/.local/share/bokis/bokis.db

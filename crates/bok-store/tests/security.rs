@@ -63,7 +63,7 @@ fn create(
         "test",
         NewBook {
             company_name: "Nivåbolaget AB",
-            org_number: "559999-0004",
+            org_number: "559999-0008",
             key_name: "granskare",
             public_key,
             signer,

@@ -74,7 +74,7 @@ pub fn book() -> Book {
         "bok-store-test",
         NewBook {
             company_name: "Testbolaget AB",
-            org_number: "559999-9999",
+            org_number: "559999-9991",
             key_name: "granskare",
             public_key: &signer.public_key_openssh(),
             signer: &signer,

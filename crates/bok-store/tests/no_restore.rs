@@ -13,7 +13,7 @@ use common::*;
 fn new_book<'a>(signer: &'a dyn Signer, public_key: &'a str) -> NewBook<'a> {
     NewBook {
         company_name: "Nytt AB",
-        org_number: "559000-0000",
+        org_number: "559000-0005",
         key_name: "granskare",
         public_key,
         signer,

@@ -64,7 +64,7 @@ fn fixture() -> Fixture {
         "bok-insyn-test",
         NewBook {
             company_name: "Insynsbolaget <AB> & Co",
-            org_number: "559999-9999",
+            org_number: "559999-9991",
             key_name: "granskare",
             public_key: &signer.public_key_openssh(),
             signer: &signer,
@@ -159,7 +159,7 @@ fn fixture() -> Fixture {
         description: EVIL.into(),
         counterparty: Some(ProposalCounterparty::Inline(Counterparty {
             name: "Papper & Penna <AB>".into(),
-            org_number: Some("556000-0000".into()),
+            org_number: Some("556000-0001".into()),
             vat_number: None,
         })),
         lines: vec![

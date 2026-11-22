@@ -16,18 +16,24 @@ cargo build --release -p bok-cli          # ger target/release/bok
 ssh-keygen -t ed25519-sk                  # en gång: nyckel på YubiKeyn, ger ~/.ssh/id_ed25519_sk
 ```
 
+Organisationsnumret kontrolleras när bokföringen skapas och när en motpart anges: tio siffror
+(NNNNNN-NNNN) med rätt kontrollsiffra, eller personnummer för en enskild firma. Numret sparas på
+formen NNNNNN-NNNN även om det skrevs utan bindestreck. Ett utländskt nummer skrivs med landskoden
+först, till exempel `DK12345678`; det kan Bokis inte kontrollera. Företagets uppgifter kan inte
+ändras efteråt, så ett felskrivet nummer stoppas innan något sparas.
+
 Databasen ligger i `~/.local/share/bokis/bokis.db` och underlagen i katalogen `underlag/` bredvid.
 Ange annan plats med `--db` eller `BOKIS_DB`, och annan nyckel med `--key` eller `BOKIS_KEY`.
 
 ```bash
 # Ny bokföring: företaget, din nyckel och första räkenskapsåret (A, B, I och R börjar på 1)
-bok init --company "Vetra AB" --orgnr 559000-0000 --year 2026
+bok init --company "Exempel AB" --orgnr 559000-0005 --year 2026
 bok account import kontoplan.se           # #KONTO ur en SIE-fil, eller KONTO;NAMN per rad
 
 # Underlag och förslag
 bok attachment add kvitto.pdf             # sparas oförändrat med SHA-256 och mottagningstid
 bok propose --date 2026-03-15 --text "Papper" --line 5410=80,00 --line 2641=20,00 \
-    --line 1930=-100,00 --attachment 1 --counterparty-name "Papper AB" --orgnr 556000-0000
+    --line 1930=-100,00 --attachment 1 --counterparty-name "Papper AB" --orgnr 556000-0001
 bok proposals                             # förslag som väntar på beslut
 bok approve 1                             # bokför som nästa nummer i serien; rör vid nyckeln
 bok reject 2 --reason "dubblett"
@@ -72,7 +78,7 @@ ssh-keygen -t ed25519-sk                       # hardvara: nyckeln på YubiKeyn
 ssh-keygen -t ed25519-sk -O verify-required    # hardvara-pin: YubiKeyn kräver också PIN
 ssh-keygen -t ed25519                          # mjukvara: en nyckelfil, gärna med lösenfras
 
-bok init --security mjukvara --company "Vetra AB" --orgnr 559000-0000 --year 2026
+bok init --security mjukvara --company "Exempel AB" --orgnr 559000-0005 --year 2026
 bok sakerhet visa                              # nivån och alla beslut om den
 bok sakerhet satt hardvara-pin                 # signeras; beslutet står i historiken
 ```
