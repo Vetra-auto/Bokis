@@ -9,6 +9,7 @@
 //! återställer en databas. `bok init` skapar bara nya filer.
 
 mod archive;
+mod archive_plan_cmd;
 mod closing;
 mod declaration_cmd;
 mod input;
@@ -110,6 +111,9 @@ enum Command {
     /// Skriver systemdokumentationen, genererad ur bokföringen, till en ny fil.
     #[command(visible_alias = "systemdokumentation")]
     SystemDoc { out: PathBuf },
+    /// Arkivplanen: vad som arkiveras, var, hur ofta och hur det kontrolleras.
+    #[command(subcommand, visible_alias = "arkivplan")]
+    ArchivePlan(archive_plan_cmd::ArchivePlanCmd),
     /// Bokslut: förslag om avskrivningar, periodiseringar, skatt och årets resultat (serie B)
     /// och ingående balans för nästa år (serie I).
     #[command(subcommand, visible_alias = "bokslut")]
@@ -568,6 +572,7 @@ fn run(cli: Cli) -> Result<ExitCode> {
         Command::Rule(cmd) => rules_cmd::rule(&ctx, cmd)?,
         Command::Vat { period } => parts::vat_report(&ctx, &period)?,
         Command::SystemDoc { out } => sysdoc::write(&ctx, &out)?,
+        Command::ArchivePlan(cmd) => archive_plan_cmd::archive_plan(&ctx, cmd)?,
         Command::Closing(cmd) => closing::closing(&ctx, cmd)?,
         Command::Inventory(cmd) => inventory_cmd::inventory(&ctx, cmd)?,
         Command::Declaration(cmd) => declaration_cmd::declaration(&ctx, cmd)?,

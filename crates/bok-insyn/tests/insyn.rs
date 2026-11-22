@@ -805,3 +805,32 @@ fn the_declaration_draft_and_the_asset_register_have_pages() {
         assets.contains("href=\"deklaration.html\"") || assets.contains("ar-2026/deklaration.html")
     );
 }
+
+#[test]
+fn the_archive_plan_shows_in_the_system_documentation() {
+    let mut f = fixture();
+    let plan = bok_store::bok_arkivplan::ArchivePlan::from_json(
+        r#"{"ansvarig": "Ekonomiansvarig <b>",
+            "delar": [{"vad": "Databasen", "slag": "original", "plats": "/srv/bokis | kontoret"}]}"#,
+    )
+    .unwrap();
+    f.store
+        .set_archive_plan(&Actor::human("granskare"), &plan)
+        .unwrap();
+    let mut view = LiveView::new(
+        &f.store,
+        &f.archive,
+        &f.db,
+        "bok test",
+        LOGIN.into(),
+        SESSION.into(),
+        PORT,
+    );
+    view.handle(&request("GET", &format!("/login?token={LOGIN}"), false));
+    let doc = page(&mut view, "/systemdokumentation.html");
+    assert!(doc.contains("<h2>Arkivplan</h2>"), "{doc}");
+    assert!(doc.contains("Ekonomiansvarig &lt;b&gt;"), "{doc}");
+    assert!(doc.contains("/srv/bokis / kontoret"), "{doc}");
+    assert!(doc.contains("bevaras till och med 2033-12-31"), "{doc}");
+    assert!(doc.contains("BFNAR 2013:2 punkt 8.2"), "{doc}");
+}

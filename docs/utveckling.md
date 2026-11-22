@@ -25,6 +25,7 @@ cargo test -p bok-store                  # och så vidare, en crate i taget
 | `bok-inventarier` | Inventarieregistret som ren logik: avskrivning enligt plan per månad, avyttring, halva prisbasbeloppet och treårsregeln |
 | `bok-sru` | SRU-filer för Skatteverkets filöverföring: `INFO.SRU` och `BLANKETTER.SRU` i ISO 8859-1, och en sträng läsare för kontroll |
 | `bok-deklaration` | Inkomstdeklaration 2 (INK2, INK2R, INK2S) ur saldobalansen. Fältförteckningen och kontokopplingen är data, och bolagsskatten räknas här |
+| `bok-arkivplan` | Arkivplanen som data: delarna (original, säkerhetskopia, arkivpaket, papper), kontrollen av filen, iakttagelser mot BFL och BFNAR och bevarandetiden |
 | `bok-bokslut` | Bokslutsposterna som förslag i serie B: avskrivningar, avyttring, periodisering och bolagsskatt, och deklarationens indata ur lagret |
 | `bok-fjarr` | Bokis på distans: agenten ansluter över HTTPS med OAuth och kopplingskod, och telefonen skickar kvittofoton med en personlig länk |
 

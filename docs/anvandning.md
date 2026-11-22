@@ -132,6 +132,13 @@ bok avstam 1630 --date 2026-03-31 --balance 12345,00 --note "Skattekontot mars"
 # granskarens operationer, nycklar, perioder, momskoder och en full verifiering. Loggas i historiken.
 bok systemdokumentation systemdokumentation-2026-11.md
 
+# Arkivplan (BFNAR 2013:2 p. 8.3 och 9.2 d): vad som arkiveras, var, hur ofta och hur det
+# kontrolleras. Planen är din egen JSON-fil (mall: docs/arkivplan-exempel.json) och läggs in som en ny
+# version i historiken; systemdokumentationen och insynen visar den med bevarandetid per år och den
+# senaste kopian till varje plats som har en "sokvag".
+bok arkivplan satt arkivplan.json
+bok arkivplan visa
+
 # Bokslut: förslag som du granskar och bokför med nyckeln som alla andra (se Bokslut nedan)
 bok bokslut avskrivningar --year 2026     # serie B: årets avskrivningar ur inventarieregistret
 bok bokslut skatt --year 2026             # serie B: bolagsskatten ur deklarationens överskott

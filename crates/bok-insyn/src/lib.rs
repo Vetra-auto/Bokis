@@ -33,6 +33,7 @@ mod markdown;
 mod pages;
 pub mod server;
 pub mod sysdoc;
+pub mod sysdoc_archive;
 
 #[derive(Debug, thiserror::Error)]
 pub enum InsynError {

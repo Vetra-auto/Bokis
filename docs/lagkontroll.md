@@ -20,8 +20,10 @@ deklarationer och årsredovisning.
 | Rättelse med rättelsepost i rätt period | BFL 5 kap. 5 §, BFNAR 2013:2 p. 2.17–2.18 | Rättelsen blir en ny verifikation i serie R, kopplad åt båda hållen. Är originalets period stängd bokförs rättelsen i perioden som är öppen nu. | Uppfyllt |
 | Grundbok och huvudbok | BFL 5 kap. 1 § | `bok grundbok` i registreringsordning, `bok huvudbok` per konto. | Uppfyllt |
 | Behandlingshistorik | BFL 5 kap. 11 § | Varje händelse loggas med vem, när och vad, i en kedja som `bok verify` kontrollerar. | Uppfyllt |
-| Systemdokumentation | BFL 5 kap. 11 § | `bok systemdokumentation` skrivs ur databasen: spärrar, operationer, nycklar, perioder, momskoder och kontroll. | Delvis: beskrivningen av arkiveringen (arkivplan) saknas |
-| Förvaring i sju år, i Sverige | BFL 7 kap. 2–4 §§ | Databas och underlag ligger på din egen dator. Kopior (`bok kopia`) och arkivpaket per år (`bok arkivpaket`). | Bokis stödjer, du väljer platsen |
+| Systemdokumentation | BFL 5 kap. 11 §, BFNAR 2013:2 p. 9.2 | `bok systemdokumentation` skrivs ur databasen: spärrar, operationer, nycklar, perioder, momskoder, arkivplan och kontroll. | Uppfyllt; kontoplanen och samlingsplanen (9.2 a–c) är din |
+| Arkivplan: vad som arkiverats och var | BFNAR 2013:2 p. 8.3 och 9.2 d | Företagets arkivplan är data (`bok arkivplan satt <fil>`), versionerad i behandlingshistoriken och med i systemdokumentationen och insynen. Bokis visar bevarandetiden per räkenskapsår och den senaste kopian till varje plats. | Uppfyllt när planen är inlagd |
+| Säkerhetskopia, åtskild från originalet | BFNAR 2013:2 p. 8.2 | `bok kopia skapa` och `bok kopia kontrollera`. Arkivplanen markerar vilka kopior som är åtskilda, och systemdokumentationen säger till om ingen är det. | Bokis stödjer, du väljer platsen |
+| Förvaring i sju år, i Sverige | BFL 7 kap. 2–4 §§ | Databas och underlag ligger på din egen dator. Kopior (`bok kopia`) och arkivpaket per år (`bok arkivpaket`). Systemdokumentationen räknar ut sista bevarandedag per räkenskapsår (31 december det sjunde året efter det kalenderår året avslutades). En del av arkivplanen i ett annat EU-land utan angiven anmälan till Skatteverket pekas ut (7 kap. 3 a §). | Bokis stödjer, du väljer platsen |
 | Momsdeklarationens fält | Skatteverkets fält 05–62 (SKV 4700 utg. 22) | `bok moms` räknar fälten ur kontoplanens momskoder. Rubrikerna följer blanketten. | Uppfyllt för konton med momskod; vinstmarginalbeskattning (07) och trepartshandel (37–38) saknas |
 | Momsavdrag bara mot faktura eller kvitto som visar momsen | ML 13 kap. 31–32 §§, 17 kap. 24, 26 och 28 §§ | Agentens instruktion och regeln `momsavdrag`. Agenten räknar aldrig fram moms som inte står på underlaget. | Uppfyllt när regeln är inlagd |
 | Privata kostnader ger inget avdrag | IL 9 kap. 2 §, ML 13 kap. 6 § | Regeln `privata-kostnader`: agenten frågar i stället för att föreslå en kostnad. | Uppfyllt när regeln är inlagd |
@@ -88,7 +90,6 @@ for f in docs/regler/*.json; do bok regel lagg-till "$(basename "$f" .json)" --f
 
 ## Kvar
 
-- Systemdokumentationen behöver en beskrivning av arkiveringen (arkivplan).
 - Motpartens adress kan inte sparas. BFN godtar namn och adress som identifiering, och för
   privatpersoner finns ofta inget organisationsnummer.
 - Vinstmarginalbeskattning (fält 07) och trepartshandel (fält 37–38) har inga momskoder.

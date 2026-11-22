@@ -1,0 +1,43 @@
+{
+  "ansvarig": "Ekonomiansvarig i Exempel AB",
+  "delar": [
+    {
+      "vad": "Bokföringsdatabasen (bokis.db) och underlagsarkivet (underlag/)",
+      "slag": "original",
+      "plats": "/srv/bokis på kontorsservern, Exempelgatan 1, X-köping",
+      "hur_ofta": "löpande",
+      "sparas": "hela bevarandetiden",
+      "kontroll": "bok verify varje natt; resultatet syns i systemdokumentationen"
+    },
+    {
+      "vad": "Nattlig kopia av databasen och underlagen (bok kopia skapa)",
+      "slag": "sakerhetskopia",
+      "plats": "/mnt/kopior, en egen disk i samma server",
+      "sokvag": "/mnt/kopior",
+      "hur_ofta": "varje natt 02.30",
+      "sparas": "alla nätter; underlagen kopieras bara en gång",
+      "kontroll": "bok kopia kontrollera på den senaste kopian varje natt",
+      "atskild": true
+    },
+    {
+      "vad": "Kopia på USB-minne",
+      "slag": "sakerhetskopia",
+      "plats": "USB-minne i kassaskåpet hos ekonomiansvarig, Annangatan 2, X-köping",
+      "hur_ofta": "varje vecka",
+      "sparas": "hela bevarandetiden",
+      "kontroll": "bok kopia kontrollera när minnet byts",
+      "atskild": true
+    },
+    {
+      "vad": "Arkivpaket per avslutat räkenskapsår (bok arkivpaket): SIE, rapporter, underlag, historik, systemdokumentation och programmet",
+      "slag": "arkivpaket",
+      "plats": "/srv/bokis/arkiv och en kopia på USB-minnet",
+      "hur_ofta": "efter varje bokslut",
+      "sparas": "till och med det sjunde året efter det kalenderår då räkenskapsåret avslutades",
+      "kontroll": "sha256sum -c i paketet",
+      "atskild": true
+    }
+  ],
+  "lasbar_form": "bok insyn visar bokföringen i en webbläsare. Arkivpaketet innehåller HTML-sidor och programmet bok för Linux, så det kan läsas och skrivas ut utan nätverk.",
+  "kommentar": "Exempel med påhittade uppgifter. Byt till ert eget arkiv innan planen läggs in."
+}

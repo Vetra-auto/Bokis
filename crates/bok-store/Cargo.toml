@@ -6,6 +6,7 @@ license = "MIT"
 description = "Bokis AI-first: SQLite-schema med triggers; varje skrivning i en transaktion med en hashkedjad händelse"
 
 [dependencies]
+bok-arkivplan = { path = "../bok-arkivplan" }
 bok-core = { path = "../bok-core" }
 bok-inventarier = { path = "../bok-inventarier" }
 chrono = { workspace = true }

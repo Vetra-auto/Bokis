@@ -1,0 +1,15 @@
+[package]
+name = "bok-arkivplan"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Bokis: arkivplanen som data – vad som arkiveras, var, hur ofta och hur det kontrolleras (BFNAR 2013:2 punkt 8.3 och 9.2 d)"
+
+[dependencies]
+chrono = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+
+[lints]
+workspace = true

@@ -2,8 +2,9 @@
 //!
 //! Dokumentet beskriver det som faktiskt gäller i databasen: spärrarna som
 //! de står i schemat, agentens och granskarens operationer ur
-//! operationsregistret, nycklarna, perioderna, kontoplanens momskoder och
-//! resultatet av en full verifiering vid framtagandet. `bok
+//! operationsregistret, nycklarna, perioderna, kontoplanens momskoder,
+//! företagets arkivplan och resultatet av en full verifiering vid
+//! framtagandet. `bok
 //! systemdokumentation` skriver det som Markdown, och insynsvyn visar det.
 
 use std::fmt::Write as _;
@@ -359,6 +360,9 @@ pub fn render_with(
          `bok kopia kontrollera`; inläsning görs bara till en tom katalog (`bok kopia las-in`). \
          Historiken visar {backups} kopior."
     )?;
+
+    writeln!(w)?;
+    w.push_str(&crate::sysdoc_archive::section(store, &events)?);
 
     writeln!(w)?;
     if checked == generated {

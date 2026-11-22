@@ -284,6 +284,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "bok-arkivplan"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "bok-backup"
 version = "0.1.0"
 dependencies = [
@@ -484,6 +494,7 @@ dependencies = [
 name = "bok-store"
 version = "0.1.0"
 dependencies = [
+ "bok-arkivplan",
  "bok-core",
  "bok-inventarier",
  "chrono",

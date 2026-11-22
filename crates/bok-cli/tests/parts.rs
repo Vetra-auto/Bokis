@@ -525,6 +525,66 @@ fn system_documentation_is_generated_from_the_book() {
 }
 
 #[test]
+fn archive_plan_is_data_in_the_history() {
+    let Some(env) = Env::new() else {
+        eprintln!("ssh-keygen saknas; hoppar över testet");
+        return;
+    };
+    env.init();
+    let before = env.ok(&["arkivplan", "visa"]);
+    assert!(before.contains("Ingen arkivplan är inlagd"), "{before}");
+
+    let target = env.path("kopior");
+    std::fs::create_dir_all(&target).unwrap();
+    env.ok(&["kopia", "skapa", target.to_str().unwrap()]);
+    let example = include_str!("../../../docs/arkivplan-exempel.json")
+        .replace("/mnt/kopior\"", &format!("{}\"", target.display()));
+    let file = env.path("arkivplan.json");
+    std::fs::write(&file, example).unwrap();
+    let out = env.ok(&["arkivplan", "satt", file.to_str().unwrap()]);
+    assert!(out.contains("Arkivplanen med 4 delar är inlagd"), "{out}");
+    assert!(!out.contains("Att se över"), "{out}");
+    let err = env.fails(&["arkivplan", "satt", file.to_str().unwrap()]);
+    assert!(err.contains("densamma"), "{err}");
+
+    let year = chrono_year();
+    let shown = env.ok(&["arkivplan", "visa"]);
+    for needle in [
+        "## Arkivplan",
+        "Ansvarig: Ekonomiansvarig i Exempel AB",
+        "| säkerhetskopia |",
+        &format!(
+            "bevaras till och med {}-12-31",
+            year.parse::<i32>().unwrap() + 7
+        ),
+        "Planen täcker original",
+    ] {
+        assert!(shown.contains(needle), "saknar {needle:?} i\n{shown}");
+    }
+    // Den nattliga kopian hittas i historiken under planens sökväg.
+    let copy_row = shown
+        .lines()
+        .find(|l| l.starts_with("| Nattlig kopia"))
+        .unwrap();
+    assert!(
+        copy_row.ends_with(" |") && copy_row.contains(&year),
+        "{copy_row}"
+    );
+    assert!(!copy_row.contains("ingen i historiken"), "{copy_row}");
+
+    let out = env.path("systemdokumentation.md");
+    env.ok(&["systemdokumentation", out.to_str().unwrap()]);
+    let doc = std::fs::read_to_string(&out).unwrap();
+    assert!(doc.contains("## Arkivplan"), "{doc}");
+    assert!(doc.contains("Kopia på USB-minne"), "{doc}");
+    assert!(env.ok(&["historik"]).contains("arkivplan.satt"));
+
+    std::fs::write(&file, r#"{"ansvarig": "X", "delar": [], "okänd": 1}"#).unwrap();
+    let err = env.fails(&["arkivplan", "satt", file.to_str().unwrap()]);
+    assert!(err.contains("kan inte läsas"), "{err}");
+}
+
+#[test]
 fn closing_proposals_through_the_command_line() {
     let Some(env) = Env::new() else {
         eprintln!("ssh-keygen saknas; hoppar över testet");

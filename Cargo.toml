@@ -17,6 +17,7 @@ members = [
     "crates/bok-sru",
     "crates/bok-deklaration",
     "crates/bok-bokslut",
+    "crates/bok-arkivplan",
     "crates/bokforing-core",
     "crates/bokforing-db",
     "crates/bokforing-export",

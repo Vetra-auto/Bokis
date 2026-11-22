@@ -31,11 +31,13 @@ use chrono::{DateTime, Local, NaiveDate, Utc};
 use rusqlite::config::DbConfig;
 use rusqlite::{Connection, OpenFlags};
 
+pub use bok_arkivplan;
 pub use bok_core;
 pub use bok_inventarier;
 pub use error::StoreError;
 pub use guards::{APPEND_ONLY_TABLES, Guard};
 pub use model::*;
+pub use ops::archive_plan::{ARCHIVE_PLAN_SET, ArchivePlanRecord};
 pub use ops::assets::{ASSET_DISPOSED, ASSET_REGISTERED};
 pub use ops::security::SECURITY_LEVEL_DECIDED;
 pub use vat::{VAT_BOXES, VatBox, VatReport, box_title};
