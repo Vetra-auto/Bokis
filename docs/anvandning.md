@@ -34,6 +34,10 @@ bok account import kontoplan.se           # #KONTO ur en SIE-fil, eller KONTO;NA
 bok attachment add kvitto.pdf             # sparas oförändrat med SHA-256 och mottagningstid
 bok propose --date 2026-03-15 --text "Papper" --line 5410=80,00 --line 2641=20,00 \
     --line 1930=-100,00 --attachment 1 --counterparty-name "Papper AB" --orgnr 556000-0001
+# En privatperson utan nummer identifieras med namn och adress (sparas på en rad)
+bok propose --date 2026-03-16 --text "Begagnad bokhylla" --line 5410=500,00 --line 1930=-500,00 \
+    --counterparty-name "Anna Exempel" --motpart-adress "Storgatan 1, 123 45 Exempelstad"
+bok motpart lagg-till --name "Anna Exempel" --adress "Storgatan 1, 123 45 Exempelstad"
 bok proposals                             # förslag som väntar på beslut
 bok approve 1                             # bokför som nästa nummer i serien; rör vid nyckeln
 bok reject 2 --reason "dubblett"

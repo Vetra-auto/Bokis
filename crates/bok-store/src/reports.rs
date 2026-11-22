@@ -33,7 +33,7 @@ pub(crate) fn voucher_view(conn: &Connection, id: i64) -> Result<VoucherView> {
         .query_row(
             "SELECT v.id, v.rakenskapsar_id, v.serie, v.nummer, v.period_id, v.datum, v.sammanstallningsdag,
                     v.registrerad, v.beskrivning, v.motpart_namn, v.motpart_orgnr, v.motpart_momsnr, v.forslag_id,
-                    v.kanonisk_hash, v.signatur, n.namn, n.fingeravtryck, v.kedjehash
+                    v.kanonisk_hash, v.signatur, n.namn, n.fingeravtryck, v.kedjehash, v.motpart_adress
              FROM verifikationer v JOIN nycklar n ON n.id = v.nyckel_id WHERE v.id = ?1",
             params![id],
             |r| {
@@ -41,6 +41,7 @@ pub(crate) fn voucher_view(conn: &Connection, id: i64) -> Result<VoucherView> {
                     name,
                     org_number: r.get(10).ok().flatten(),
                     vat_number: r.get(11).ok().flatten(),
+                    address: r.get(18).ok().flatten(),
                 });
                 Ok(VoucherView {
                     id: r.get(0)?,
@@ -205,7 +206,7 @@ impl Store {
     pub fn counterparties(&self) -> Result<Vec<CounterpartyRow>> {
         let mut stmt = self
             .conn()
-            .prepare("SELECT id, namn, orgnr, momsnr FROM motparter ORDER BY namn, id")?;
+            .prepare("SELECT id, namn, orgnr, momsnr, adress FROM motparter ORDER BY namn, id")?;
         let rows = stmt
             .query_map([], |r| {
                 Ok(CounterpartyRow {
@@ -214,6 +215,7 @@ impl Store {
                         name: r.get(1)?,
                         org_number: r.get(2)?,
                         vat_number: r.get(3)?,
+                        address: r.get(4)?,
                     },
                 })
             })?

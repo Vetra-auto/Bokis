@@ -219,6 +219,9 @@ pub fn detail_page(p: &ProposalDetail, csrf: &str, inline_texts: &[(String, Stri
         "Organisationsnummer",
         p.counterparty_org_number.as_deref().unwrap_or("saknas"),
     ));
+    if let Some(a) = &p.counterparty_address {
+        body.push_str(&row("Adress", a));
+    }
     if let Some(c) = &p.corrects {
         body.push_str(&row("Rättar", c));
     }

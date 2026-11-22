@@ -110,6 +110,10 @@ pub struct Counterparty {
     pub vat_number: Option<String>,
     #[serde(rename = "land", default)]
     pub country: Option<String>,
+    /// Postadressen. Namn och adress identifierar en motpart som saknar
+    /// organisationsnummer, till exempel en privatperson.
+    #[serde(rename = "adress", default)]
+    pub address: Option<String>,
 }
 
 impl Counterparty {

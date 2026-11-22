@@ -435,6 +435,7 @@ impl AgentBackend for StoreBackend {
                                     BackendError::Invalid(format!("motpartens orgnr: {e}"))
                                 })?,
                                 vat_number: c.vat_number.clone(),
+                                address: c.address.clone(),
                             }))
                         })
                         .transpose()?,
@@ -797,6 +798,7 @@ mod tests {
                 name: "Exempel Hosting AB".into(),
                 org_number: Some("556000-0001".into()),
                 vat_number: None,
+                address: None,
                 country: None,
             }),
             lines: vec![

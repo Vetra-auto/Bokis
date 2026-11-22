@@ -684,6 +684,9 @@ pub(crate) fn voucher(i: &Insyn, y: &FiscalYear, v: &VoucherView) -> Result<Stri
         if let Some(m) = &c.vat_number {
             parts.push(format!("momsreg.nr {}", esc(m)));
         }
+        if let Some(a) = &c.address {
+            parts.push(esc(a));
+        }
         writeln!(b, "<dt>Motpart</dt><dd>{}</dd>", parts.join(", "))?;
     }
     for l in &v.corrected_by {

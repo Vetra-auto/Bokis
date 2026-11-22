@@ -51,6 +51,8 @@ pub struct DocumentRef {
 pub struct ProposalDetail {
     pub summary: ProposalSummary,
     pub counterparty_org_number: Option<String>,
+    /// Motpartens postadress, om den angavs.
+    pub counterparty_address: Option<String>,
     pub lines: Vec<ProposalLine>,
     pub documents: Vec<DocumentRef>,
     pub warnings: Vec<String>,
@@ -179,6 +181,7 @@ impl MemoryReviewBackend {
                         warnings: 0,
                     },
                     counterparty_org_number: Some("556000-0001".into()),
+                    counterparty_address: None,
                     lines: vec![
                         line(5420, "Programvaror", 40_000, 0),
                         line(2641, "Debiterad ingående moms", 10_000, 0),
@@ -210,6 +213,7 @@ impl MemoryReviewBackend {
                         warnings: 2,
                     },
                     counterparty_org_number: None,
+                    counterparty_address: None,
                     lines: vec![
                         line(6071, "Representation, avdragsgill", 30_357, 0),
                         line(2641, "Debiterad ingående moms", 3_643, 0),

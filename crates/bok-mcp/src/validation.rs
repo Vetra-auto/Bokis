@@ -113,6 +113,15 @@ pub fn check(proposal: &Proposal, accounts: &[Account]) -> Check {
         if cp.name.trim().is_empty() {
             c.errors.push("motpartens namn är tomt".into());
         }
+        let blank = |v: &Option<String>| v.as_deref().is_none_or(|t| t.trim().is_empty());
+        if blank(&cp.org_number) && blank(&cp.vat_number) && blank(&cp.address) {
+            c.warnings.push(
+                "motparten har bara ett namn; ange organisationsnummer, momsregistreringsnummer \
+                 eller adress om underlaget visar dem, så att motparten går att identifiera \
+                 (BFNAR 2013:2 punkt 5.6)"
+                    .into(),
+            );
+        }
         if let Err(e) = cp.party_number() {
             c.errors.push(format!(
                 "motpartens orgnr: {e}. Ett utländskt nummer anges med landskoden först \
@@ -164,6 +173,7 @@ mod tests {
                 name: "Exempel Hosting AB".into(),
                 org_number: Some("556000-0001".into()),
                 vat_number: None,
+                address: None,
                 country: Some("SE".into()),
             }),
             lines: vec![
@@ -222,6 +232,22 @@ mod tests {
         let c = check(&p, &accounts());
         assert!(c.passed());
         assert_eq!(c.warnings.len(), 2, "{:?}", c.warnings);
+    }
+
+    #[test]
+    fn a_name_alone_does_not_identify_the_counterparty() {
+        let mut p = valid();
+        let cp = p.counterparty.as_mut().unwrap();
+        cp.org_number = None;
+        let c = check(&p, &accounts());
+        assert!(c.passed());
+        assert!(
+            c.warnings.iter().any(|w| w.contains("punkt 5.6")),
+            "{:?}",
+            c.warnings
+        );
+        p.counterparty.as_mut().unwrap().address = Some("Storgatan 1, 123 45 Exempelstad".into());
+        assert!(check(&p, &accounts()).warnings.is_empty());
     }
 
     #[test]

@@ -25,7 +25,7 @@ pub enum Record {
         #[serde(rename = "tid")]
         at: String,
         #[serde(rename = "forslag")]
-        proposal: Proposal,
+        proposal: Box<Proposal>,
         #[serde(rename = "harkomst")]
         provenance: Provenance,
     },
@@ -165,7 +165,7 @@ impl<B: AgentBackend> AgentBackend for RecordingBackend<B> {
         self.write(&Record::Voucher {
             id: receipt.id.clone(),
             at: now(),
-            proposal,
+            proposal: Box::new(proposal),
             provenance,
         })?;
         Ok(receipt)
@@ -258,7 +258,7 @@ pub(crate) mod tests {
         Record::Voucher {
             id: id.into(),
             at: "2026-11-14T02:00:00Z".into(),
-            proposal: Proposal {
+            proposal: Box::new(Proposal {
                 transaction_date: "2026-05-12".into(),
                 description: "Test".into(),
                 counterparty: None,
@@ -267,7 +267,7 @@ pub(crate) mod tests {
                 bank_row_ids: vec![],
                 rule_ids: vec![],
                 corrects: None,
-            },
+            }),
             provenance: provenance(uncertainty),
         }
     }
@@ -306,11 +306,11 @@ pub(crate) mod tests {
             unreachable!()
         };
         backend
-            .propose_voucher(proposal.clone(), provenance(0.2))
+            .propose_voucher(*proposal.clone(), provenance(0.2))
             .unwrap();
         let mut missing = proposal;
         missing.document_ids = vec!["INK-404".into()];
-        assert!(backend.propose_voucher(missing, provenance(0.2)).is_err());
+        assert!(backend.propose_voucher(*missing, provenance(0.2)).is_err());
         backend
             .ask_question(Some("INK-2"), "Vilka deltog?", provenance(0.8))
             .unwrap();

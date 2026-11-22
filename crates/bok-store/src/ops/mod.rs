@@ -227,13 +227,14 @@ pub(crate) fn verify_registered(
 
 pub(crate) fn counterparty_by_id(conn: &Connection, id: i64) -> Result<Counterparty> {
     conn.query_row(
-        "SELECT namn, orgnr, momsnr FROM motparter WHERE id = ?1",
+        "SELECT namn, orgnr, momsnr, adress FROM motparter WHERE id = ?1",
         params![id],
         |r| {
             Ok(Counterparty {
                 name: r.get(0)?,
                 org_number: r.get(1)?,
                 vat_number: r.get(2)?,
+                address: r.get(3)?,
             })
         },
     )
@@ -299,7 +300,7 @@ pub(crate) fn corrected_original(conn: &Connection, original_id: i64) -> Result<
 pub(crate) const PROPOSAL_COLUMNS: &str = "f.id, f.serie, f.datum, f.beskrivning, f.motpart_id, \
     f.motpart_namn, f.motpart_orgnr, f.motpart_momsnr, f.rader, f.underlag, f.rattar, \
     f.rattelseorsak, f.kalla, f.aktor, f.skapad, f.fragor, f.flaggor, f.sakerhet, f.modell, \
-    f.leverantor, f.region, f.prompt_hash, f.regelversion, f.ratt_svar";
+    f.leverantor, f.region, f.prompt_hash, f.regelversion, f.ratt_svar, f.motpart_adress";
 
 pub(crate) fn proposal_by_id(conn: &Connection, id: i64) -> Result<ProposalRow> {
     let mut row = conn
@@ -324,6 +325,7 @@ pub(crate) fn proposal_from_row(r: &Row<'_>) -> rusqlite::Result<ProposalRow> {
             name,
             org_number: r.get(6)?,
             vat_number: r.get(7)?,
+            address: r.get(24)?,
         })),
         (None, None) => None,
     };

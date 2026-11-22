@@ -161,6 +161,7 @@ fn fixture() -> Fixture {
             name: "Papper & Penna <AB>".into(),
             org_number: Some("556000-0001".into()),
             vat_number: None,
+            address: Some("Storgatan <1>, 123 45 Exempelstad".into()),
         })),
         lines: vec![
             Line::debit(acc(5410), kr(80_000)),
@@ -423,6 +424,9 @@ fn nothing_from_the_books_becomes_markup() {
     assert!(journal.contains("Insynsbolaget &lt;AB&gt; &amp; Co"));
     let voucher = read("ar-2026/v-A1.html");
     assert!(voucher.contains("Papper &amp; Penna &lt;AB&gt;"));
+    assert!(voucher.contains(
+        "Papper &amp; Penna &lt;AB&gt;, org.nr 556000-0001, Storgatan &lt;1&gt;, 123 45 Exempelstad"
+    ));
     assert!(voucher.contains("&lt;img src=x onerror=alert(2)&gt;"));
     assert!(voucher.contains("claude-opus-5-5, Anthropic, EU"));
     assert!(voucher.contains("93 %"));

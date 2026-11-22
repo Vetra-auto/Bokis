@@ -357,6 +357,9 @@ enum CounterpartyCmd {
         orgnr: Option<String>,
         #[arg(long)]
         vatnr: Option<String>,
+        /// Postadressen, till exempel "Storgatan 1, 123 45 Exempelstad".
+        #[arg(long, visible_alias = "adress")]
+        address: Option<String>,
     },
     /// Ändrar en motpart. Redan bokförda verifikationer behåller sin kopia.
     #[command(visible_alias = "andra")]
@@ -368,6 +371,9 @@ enum CounterpartyCmd {
         orgnr: Option<String>,
         #[arg(long)]
         vatnr: Option<String>,
+        /// Ny postadress.
+        #[arg(long, visible_alias = "adress")]
+        address: Option<String>,
     },
     #[command(visible_alias = "lista")]
     List,
@@ -413,6 +419,10 @@ struct ProposeArgs {
     orgnr: Option<String>,
     #[arg(long, requires = "counterparty_name")]
     vatnr: Option<String>,
+    /// Motpartens postadress; identifierar den tillsammans med namnet när
+    /// organisationsnummer saknas.
+    #[arg(long, visible_alias = "motpart-adress", requires = "counterparty_name")]
+    counterparty_address: Option<String>,
     /// Underlag (id) som verifikationen bygger på. Upprepa för flera.
     #[arg(long = "attachment")]
     attachments: Vec<i64>,
@@ -967,7 +977,12 @@ fn account(ctx: &Ctx, cmd: AccountCmd) -> Result<()> {
 
 fn counterparty(ctx: &Ctx, cmd: CounterpartyCmd) -> Result<()> {
     match cmd {
-        CounterpartyCmd::Add { name, orgnr, vatnr } => {
+        CounterpartyCmd::Add {
+            name,
+            orgnr,
+            vatnr,
+            address,
+        } => {
             let mut store = ctx.open()?;
             let id = store.add_counterparty(
                 &ctx.actor(),
@@ -975,6 +990,7 @@ fn counterparty(ctx: &Ctx, cmd: CounterpartyCmd) -> Result<()> {
                     name,
                     org_number: orgnr,
                     vat_number: vatnr,
+                    address,
                 },
             )?;
             println!("Motpart {id} tillagd.");
@@ -984,6 +1000,7 @@ fn counterparty(ctx: &Ctx, cmd: CounterpartyCmd) -> Result<()> {
             name,
             orgnr,
             vatnr,
+            address,
         } => {
             let mut store = ctx.open()?;
             let current = store
@@ -996,6 +1013,7 @@ fn counterparty(ctx: &Ctx, cmd: CounterpartyCmd) -> Result<()> {
                 name: name.unwrap_or(current.name),
                 org_number: orgnr.or(current.org_number),
                 vat_number: vatnr.or(current.vat_number),
+                address: address.or(current.address),
             };
             store.update_counterparty(&ctx.actor(), id, &updated)?;
             println!("Motpart {id} ändrad. Bokförda verifikationer behåller sin kopia.");
@@ -1063,6 +1081,7 @@ fn propose(ctx: &Ctx, args: ProposeArgs) -> Result<()> {
                     name,
                     org_number: args.orgnr.clone(),
                     vat_number: args.vatnr.clone(),
+                    address: args.counterparty_address.clone(),
                 })),
                 (None, None) => None,
             };

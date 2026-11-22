@@ -200,6 +200,7 @@ fn counterparty_snapshot_survives_a_change_in_the_register() {
         name: "Papper & Penna AB".into(),
         org_number: Some("556000-0001".into()),
         vat_number: Some("SE556000000101".into()),
+        address: None,
     };
     let id = b.store.add_counterparty(&b.human, &supplier).unwrap();
     let mut p = b.purchase(d(2026, 3, 2), "Papper", 5410, 10000);
@@ -210,6 +211,7 @@ fn counterparty_snapshot_survives_a_change_in_the_register() {
         name: "Kontorsjätten AB".into(),
         org_number: Some("556999-9997".into()),
         vat_number: None,
+        address: None,
     };
     b.store.update_counterparty(&b.human, id, &renamed).unwrap();
     assert_eq!(b.store.counterparties().unwrap()[0].counterparty, renamed);
@@ -252,6 +254,7 @@ fn an_inline_counterparty_is_copied_as_is() {
         name: "Restaurang Ö".into(),
         org_number: None,
         vat_number: Some("SE559000000001".into()),
+        address: None,
     }));
     let posted = b.post(&p);
     let cp = b

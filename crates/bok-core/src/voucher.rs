@@ -80,6 +80,11 @@ pub struct Counterparty {
     pub org_number: Option<String>,
     #[serde(rename = "momsnr", default, skip_serializing_if = "Option::is_none")]
     pub vat_number: Option<String>,
+    /// Postadressen, på en rad. Namn och adress räcker för att identifiera
+    /// en motpart som saknar organisationsnummer (BFNAR 2013:2, kommentaren
+    /// till punkt 5.6).
+    #[serde(rename = "adress", default, skip_serializing_if = "Option::is_none")]
+    pub address: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
@@ -170,6 +175,9 @@ pub fn validate_counterparty(c: &Counterparty) -> Result<(), VoucherError> {
         return Err(VoucherError::MissingCounterpartyName);
     }
     check_text("motpartens namn", &c.name)?;
+    if let Some(a) = &c.address {
+        check_text("motpartens adress", a)?;
+    }
     if let Some(number) = c.org_number.as_deref().filter(|n| !n.trim().is_empty()) {
         check_text("motpartens nummer", number)?;
         crate::id_number::normalize_party_number(number)
@@ -192,7 +200,20 @@ pub fn normalize_counterparty(c: &Counterparty) -> Counterparty {
         org_number: clean(c.org_number.as_deref())
             .map(|n| crate::id_number::normalize_party_number(&n).unwrap_or(n)),
         vat_number: clean(c.vat_number.as_deref()),
+        address: c.address.as_deref().and_then(one_line_address),
     }
+}
+
+/// En adress på en rad: varje rad utan överflödiga blanksteg, åtskilda med
+/// kommatecken. Ingenting kvar ger `None`.
+pub fn one_line_address(text: &str) -> Option<String> {
+    let lines: Vec<String> = text
+        .lines()
+        .map(|l| l.split_whitespace().collect::<Vec<_>>().join(" "))
+        .map(|l| l.trim_matches(',').trim().to_string())
+        .filter(|l| !l.is_empty())
+        .collect();
+    (!lines.is_empty()).then(|| lines.join(", "))
 }
 
 /// Serie R och en hänvisning till originalet hör ihop: varje rättelse ligger
@@ -276,6 +297,11 @@ impl PostedVoucher {
         w.opt("motpart.namn", cp.map(|c| c.name.as_str()));
         w.opt("motpart.orgnr", cp.and_then(|c| c.org_number.as_deref()));
         w.opt("motpart.momsnr", cp.and_then(|c| c.vat_number.as_deref()));
+        // Adressen kom i schemaversion 5. Den skrivs bara när den finns, så
+        // att verifikationer utan adress behåller sin kanoniska form.
+        if let Some(a) = cp.and_then(|c| c.address.as_deref()) {
+            w.field("motpart.adress", a);
+        }
         w.int("forslag", self.proposal_id);
         let mut attachments = self.attachments.clone();
         attachments.sort();
@@ -338,6 +364,7 @@ mod tests {
                 name: "Papper & Penna AB".into(),
                 org_number: Some("556000-0000".into()),
                 vat_number: None,
+                address: None,
             }),
             proposal_id: 7,
             attachments: vec!["b".repeat(64), "a".repeat(64)],
@@ -503,6 +530,7 @@ mod tests {
             name: " Exempel AB ".into(),
             org_number: Some(n.into()),
             vat_number: Some(" ".into()),
+            address: None,
         };
         assert!(validate_counterparty(&cp("5560000100")).is_ok());
         assert!(validate_counterparty(&cp("")).is_ok());
@@ -515,5 +543,42 @@ mod tests {
         assert_eq!(n.name, "Exempel AB");
         assert_eq!(n.org_number.as_deref(), Some("556000-0100"));
         assert_eq!(n.vat_number, None);
+    }
+
+    #[test]
+    fn the_address_is_in_the_canonical_form_only_when_given() {
+        let without = sample();
+        let text = String::from_utf8(without.canonical_bytes()).unwrap();
+        assert!(!text.contains("motpart.adress"), "{text}");
+        let mut with = sample();
+        with.counterparty.as_mut().unwrap().address =
+            Some("Storgatan 1, 123 45 Exempelstad".into());
+        let text = String::from_utf8(with.canonical_bytes()).unwrap();
+        assert!(
+            text.contains(
+                "motpart.momsnr:-\nmotpart.adress:31:Storgatan 1, 123 45 Exempelstad\nforslag:"
+            ),
+            "{text}"
+        );
+        assert_ne!(with.canonical_hash(), without.canonical_hash());
+    }
+
+    #[test]
+    fn addresses_end_up_on_one_line() {
+        assert_eq!(
+            one_line_address("  Storgatan  1,\n\n123 45   Exempelstad \n").as_deref(),
+            Some("Storgatan 1, 123 45 Exempelstad")
+        );
+        assert_eq!(one_line_address(" \n "), None);
+        let cp = Counterparty {
+            name: "Anna Exempel".into(),
+            org_number: None,
+            vat_number: None,
+            address: Some("Storgatan 1\n123 45 Exempelstad".into()),
+        };
+        assert_eq!(
+            normalize_counterparty(&cp).address.as_deref(),
+            Some("Storgatan 1, 123 45 Exempelstad")
+        );
     }
 }

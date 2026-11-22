@@ -8,7 +8,7 @@ use crate::backend::*;
 /// Ett förslag eller annat ärende som agenten har lagt.
 #[derive(Debug, Clone)]
 pub enum Case {
-    Voucher(Proposal, Provenance),
+    Voucher(Box<Proposal>, Provenance),
     Match {
         bank_row: String,
         voucher: String,
@@ -164,7 +164,7 @@ impl MemoryBackend {
     /// Ett sparat verifikationsförslag.
     pub fn proposal(&self, id: &str) -> Option<(&Proposal, &Provenance)> {
         self.cases.iter().find_map(|(i, c)| match c {
-            Case::Voucher(p, prov) if i == id => Some((p, prov)),
+            Case::Voucher(p, prov) if i == id => Some((p.as_ref(), prov)),
             _ => None,
         })
     }
@@ -247,7 +247,7 @@ impl AgentBackend for MemoryBackend {
             }
         }
         self.cases
-            .push((id.clone(), Case::Voucher(proposal, provenance)));
+            .push((id.clone(), Case::Voucher(Box::new(proposal), provenance)));
         Ok(Receipt {
             id,
             warnings: vec![],

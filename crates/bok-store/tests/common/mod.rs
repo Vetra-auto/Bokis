@@ -192,3 +192,10 @@ impl Book {
         self.store.events(None).unwrap().len()
     }
 }
+
+/// Tar bort schemaversion 5:s kolumner, för tester som låtsas att en
+/// bokföring kommer från en äldre version.
+#[allow(dead_code)]
+pub const DROP_V5: &str = "ALTER TABLE motparter DROP COLUMN adress; \
+    ALTER TABLE forslag DROP COLUMN motpart_adress; \
+    ALTER TABLE verifikationer DROP COLUMN motpart_adress;";

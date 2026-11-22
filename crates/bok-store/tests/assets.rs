@@ -179,9 +179,9 @@ fn an_older_book_gets_the_register_when_opened() {
     } = b;
     drop(store);
     let raw = rusqlite::Connection::open(&path).unwrap();
-    raw.execute_batch(
-        "DROP TABLE inventarieavgangar; DROP TABLE inventarier; PRAGMA user_version = 3;",
-    )
+    raw.execute_batch(&format!(
+        "{DROP_V5} DROP TABLE inventarieavgangar; DROP TABLE inventarier; PRAGMA user_version = 3;"
+    ))
     .unwrap();
     drop(raw);
     let store = Store::open(&path, "test").unwrap();

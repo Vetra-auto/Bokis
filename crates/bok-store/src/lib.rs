@@ -45,7 +45,7 @@ pub use verify::{Check, VerifyReport};
 pub use write::Actor;
 
 /// Schemaversionen som programmet skriver och förstår.
-pub const SCHEMA_VERSION: i64 = 4;
+pub const SCHEMA_VERSION: i64 = 5;
 
 /// Migreringarna i ordning. En publicerad migrering ändras aldrig; nya
 /// tabeller och kolumner kommer i nästa version.
@@ -57,6 +57,8 @@ const MIGRATIONS: &[(i64, &str)] = &[
     (3, include_str!("schema_v3.sql")),
     // Inventarieregistret: anskaffningar och avgångar.
     (4, include_str!("schema_v4.sql")),
+    // Motpartens adress i registret, på förslaget och på verifikationen.
+    (5, include_str!("schema_v5.sql")),
 ];
 
 /// Klocka som ger tiden i UTC. Kan bytas ut i tester.

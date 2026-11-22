@@ -57,11 +57,16 @@ pub fn counterparty(c: &Counterparty) -> String {
         .into_iter()
         .flatten()
         .collect();
-    if ids.is_empty() {
-        safe(&c.name)
+    let mut text = if ids.is_empty() {
+        c.name.clone()
     } else {
-        safe(&format!("{} ({})", c.name, ids.join(", ")))
+        format!("{} ({})", c.name, ids.join(", "))
+    };
+    if let Some(a) = &c.address {
+        text.push_str(", ");
+        text.push_str(a);
     }
+    safe(&text)
 }
 
 /// "R1", eller "R1 (2027)" om rättelsen ligger i ett annat räkenskapsår.

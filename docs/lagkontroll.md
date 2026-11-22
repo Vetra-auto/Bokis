@@ -13,7 +13,7 @@ deklarationer och årsredovisning.
 | Krav | Lagrum | Så gör Bokis | Läge |
 |------|--------|--------------|------|
 | En verifikation för varje affärshändelse | BFL 5 kap. 6 § | Varje bokföring är en verifikation med länk till sitt underlag. Ett förslag utan underlag eller bankrad får en varning. | Uppfyllt |
-| Verifikationens innehåll: när, vad, belopp, motpart | BFL 5 kap. 7–8 §§, BFNAR 2013:2 p. 5.5–5.7 | Affärshändelsens datum, beskrivning, rader och motpart sparas. Bokis sätter sammanställningsdatum och verifikationsnummer. Saknas motpart får förslaget en varning, eftersom motpart bara får utelämnas vid anonym kontantförsäljning. | Uppfyllt |
+| Verifikationens innehåll: när, vad, belopp, motpart | BFL 5 kap. 7–8 §§, BFNAR 2013:2 p. 5.5–5.7 | Affärshändelsens datum, beskrivning, rader och motpart sparas. Bokis sätter sammanställningsdatum och verifikationsnummer. Saknas motpart får förslaget en varning, eftersom motpart bara får utelämnas vid anonym kontantförsäljning. Motparten identifieras med namn och organisationsnummer, momsregistreringsnummer eller adress (kommentaren till p. 5.6); adressen finns sedan schemaversion 5 och täcks av verifikationens signatur. Har agentens motpart bara ett namn får förslaget en varning. | Uppfyllt |
 | Företagets och motpartens identitet | Lag (1974:174) om identitetsbeteckning för juridiska personer m.fl. 4 §, folkbokföringslagen (1991:481) 18 §, lag (2022:1697) om samordningsnummer 2 kap. 8 § | `bok init`, motpartsregistret, `bok propose` och agentens förslag prövar numret: tio siffror där den sista är kontrollsiffra, personnummer för enskild firma (plustecken från det år personen fyller 100) och samordningsnummer (dagen plus 60). Lagtexterna anger inte hur kontrollsiffran räknas; Bokis använder Luhn (modulus 10, vikterna 2-1), som stämmer med Skatteverkets exempel 556000-0100. Ett utländskt nummer anges med landskod och prövas inte. | Uppfyllt för svenska nummer |
 | Obruten verifikationsserie | BFNAR 2013:2 p. 5.9 | Numret tas först när förslaget bokförs, i samma transaktion. `bok verify` letar luckor. | Uppfyllt |
 | Det bokförda går inte att radera eller ändra | BFL 5 kap. 5 §, BFNAR 2013:2 p. 2.1 och 5.4 | Databasen vägrar ändringar och raderingar (spärrar i schemat), och historiken är en hashkedja. | Uppfyllt |
@@ -90,8 +90,6 @@ for f in docs/regler/*.json; do bok regel lagg-till "$(basename "$f" .json)" --f
 
 ## Kvar
 
-- Motpartens adress kan inte sparas. BFN godtar namn och adress som identifiering, och för
-  privatpersoner finns ofta inget organisationsnummer.
 - Vinstmarginalbeskattning (fält 07) och trepartshandel (fält 37–38) har inga momskoder.
 - Årsredovisningen (K2-dokumentet) och den digitala inlämningen till Bolagsverket.
 - Fältförteckningen för INK2 finns bara för 2026P4. Ett räkenskapsår som slutar i en annan period

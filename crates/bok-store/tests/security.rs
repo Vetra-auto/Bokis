@@ -301,7 +301,10 @@ fn a_book_from_before_the_levels_accepts_every_key() {
     drop(store);
     let raw = rusqlite::Connection::open(&path).unwrap();
     raw.execute_batch(
-        "DROP TABLE inventarieavgangar; DROP TABLE inventarier; DROP TABLE sakerhetsniva; PRAGMA user_version = 2;",
+        &format!(
+            "{DROP_V5} DROP TABLE inventarieavgangar; DROP TABLE inventarier; DROP TABLE sakerhetsniva; \
+             PRAGMA user_version = 2;"
+        ),
     )
         .unwrap();
     drop(raw);

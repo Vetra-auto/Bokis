@@ -301,8 +301,8 @@ impl Store {
         let c = normalize_counterparty(counterparty);
         self.write(actor, |ctx| {
             ctx.tx.execute(
-                "INSERT INTO motparter (namn, orgnr, momsnr, registrerad) VALUES (?1, ?2, ?3, ?4)",
-                params![c.name, c.org_number, c.vat_number, ctx.now_str],
+                "INSERT INTO motparter (namn, orgnr, momsnr, registrerad, adress) VALUES (?1, ?2, ?3, ?4, ?5)",
+                params![c.name, c.org_number, c.vat_number, ctx.now_str, c.address],
             )?;
             let id = ctx.tx.last_insert_rowid();
             let event = EventDraft::new("motpart.skapad", format!("motpart:{id}"))
@@ -325,8 +325,8 @@ impl Store {
         self.write(actor, |ctx| {
             let old = counterparty_by_id(ctx.tx, id)?;
             ctx.tx.execute(
-                "UPDATE motparter SET namn = ?1, orgnr = ?2, momsnr = ?3, andrad = ?4 WHERE id = ?5",
-                params![c.name, c.org_number, c.vat_number, ctx.now_str, id],
+                "UPDATE motparter SET namn = ?1, orgnr = ?2, momsnr = ?3, andrad = ?4, adress = ?5 WHERE id = ?6",
+                params![c.name, c.org_number, c.vat_number, ctx.now_str, c.address, id],
             )?;
             let event = EventDraft::new("motpart.andrad", format!("motpart:{id}"))
                 .old(serde_json::to_value(&old)?)

@@ -140,7 +140,8 @@ pub fn all() -> Vec<Operation> {
                             "namn": {"type": "string"},
                             "orgnr": {"type": "string", "description": "Svenskt organisationsnummer (NNNNNN-NNNN, kontrollsiffran prövas) eller personnummer för en enskild firma. Ett utländskt nummer med landskoden först, till exempel DK12345678."},
                             "momsnr": {"type": "string"},
-                            "land": {"type": "string", "description": "Landskod med två bokstäver, till exempel DK. Läggs framför ett utländskt orgnr som saknar landskod."}
+                            "land": {"type": "string", "description": "Landskod med två bokstäver, till exempel DK. Läggs framför ett utländskt orgnr som saknar landskod."},
+                            "adress": {"type": "string", "description": "Postadressen som den står på underlaget, på en rad. Ange den när motparten saknar organisationsnummer, till exempel en privatperson: namn och adress identifierar motparten."}
                         }
                     },
                     "rader": {"type": "array", "minItems": 2, "items": line_schema()},

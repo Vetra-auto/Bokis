@@ -315,7 +315,7 @@ impl Store {
         let mut stmt = conn.prepare(
             "SELECT id, rakenskapsar_id, serie, nummer, period_id, datum, sammanstallningsdag, registrerad,
                     beskrivning, motpart_namn, motpart_orgnr, motpart_momsnr, forslag_id, antal_rader,
-                    kanonisk_hash, signatur, nyckel_id, kedjehash
+                    kanonisk_hash, signatur, nyckel_id, kedjehash, motpart_adress
              FROM verifikationer ORDER BY id",
         )?;
         type Row = (
@@ -337,6 +337,7 @@ impl Store {
             String,
             i64,
             String,
+            Option<String>,
         );
         let rows: Vec<Row> = stmt
             .query_map([], |r| {
@@ -359,6 +360,7 @@ impl Store {
                     r.get(15)?,
                     r.get(16)?,
                     r.get(17)?,
+                    r.get(18)?,
                 ))
             })?
             .collect::<rusqlite::Result<_>>()?;
@@ -382,6 +384,7 @@ impl Store {
             signature,
             key_id,
             chain_hash,
+            cp_address,
         ) in rows
         {
             c.checked += 1;
@@ -427,6 +430,7 @@ impl Store {
                     name,
                     org_number: cp_org,
                     vat_number: cp_vat,
+                    address: cp_address,
                 }),
                 proposal_id,
                 attachments: attachment_hashes(conn, id)?,

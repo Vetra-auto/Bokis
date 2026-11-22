@@ -449,6 +449,27 @@ fn organisation_numbers_are_checked() {
         "Banken A/S",
         "--orgnr",
         "dk 1234 5678",
+        "--motpart-adress",
+        "Exempelvej 1\n2900 Exempelby",
+        "--approve",
     ]);
-    assert!(out.contains("Förslag"), "{out}");
+    assert!(out.contains("A1"), "{out}");
+    let shown = env.ok(&["show", "A1"]);
+    assert!(
+        shown.contains("Banken A/S (DK12345678), Exempelvej 1, 2900 Exempelby"),
+        "{shown}"
+    );
+    env.ok(&[
+        "motpart",
+        "lagg-till",
+        "--name",
+        "Anna Exempel",
+        "--adress",
+        "Storgatan 1, 123 45 Exempelstad",
+    ]);
+    let listed = env.ok(&["motpart", "lista"]);
+    assert!(
+        listed.contains("Anna Exempel, Storgatan 1, 123 45 Exempelstad"),
+        "{listed}"
+    );
 }

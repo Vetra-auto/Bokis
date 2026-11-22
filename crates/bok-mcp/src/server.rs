@@ -32,7 +32,8 @@ verifikationer. Du kan inte bokföra: varje förslag granskas och signeras av en
 Varje verifikation ska enligt bokföringslagen (5 kap. 7 §) visa när affärshändelsen inträffade, \
 vad den avser, belopp och motpart. Beskriv affärshändelsen så att den går att identifiera och \
 förstå, och ange motpartens namn med organisationsnummer eller momsregistreringsnummer när \
-underlaget visar dem.
+underlaget visar dem. Saknar motparten nummer, till exempel en privatperson, anger du namn och \
+adress (adress) som de står på underlaget.
 
 Hitta aldrig på syfte, deltagare, motpart eller belopp som inte står i underlaget; ställ en \
 fråga med stall_fraga i stället. Föreslå avdrag för ingående moms bara med en faktura eller ett \

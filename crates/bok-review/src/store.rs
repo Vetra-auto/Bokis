@@ -62,6 +62,14 @@ fn from_raw(raw: Option<&str>) -> (String, Option<String>) {
     )
 }
 
+/// Motparten som granskningsvyn visar den.
+#[derive(Debug, Default)]
+struct Party {
+    name: Option<String>,
+    org_number: Option<String>,
+    address: Option<String>,
+}
+
 impl StoreReviewBackend {
     pub fn new(store: Store, archive: Archive, reviewer: &str, signer: Box<dyn Signer>) -> Self {
         Self {
@@ -93,18 +101,26 @@ impl StoreReviewBackend {
         &self.store
     }
 
-    fn counterparty(
-        &self,
-        p: &ProposalRow,
-    ) -> Result<(Option<String>, Option<String>), ReviewError> {
+    fn counterparty(&self, p: &ProposalRow) -> Result<Party, ReviewError> {
         Ok(match &p.counterparty {
-            None => (None, None),
-            Some(ProposalCounterparty::Inline(c)) => (Some(c.name.clone()), c.org_number.clone()),
+            None => Party::default(),
+            Some(ProposalCounterparty::Inline(c)) => Party {
+                name: Some(c.name.clone()),
+                org_number: c.org_number.clone(),
+                address: c.address.clone(),
+            },
             Some(ProposalCounterparty::Register(id)) => {
                 let all = self.store.counterparties().map_err(store_err)?;
                 match all.into_iter().find(|c| c.id == *id) {
-                    Some(c) => (Some(c.counterparty.name), c.counterparty.org_number),
-                    None => (Some(format!("motpart {id}")), None),
+                    Some(c) => Party {
+                        name: Some(c.counterparty.name),
+                        org_number: c.counterparty.org_number,
+                        address: c.counterparty.address,
+                    },
+                    None => Party {
+                        name: Some(format!("motpart {id}")),
+                        ..Party::default()
+                    },
                 }
             }
         })
@@ -146,8 +162,9 @@ impl StoreReviewBackend {
     fn summary(
         &self,
         p: &ProposalRow,
-    ) -> Result<(ProposalSummary, Option<String>, Vec<String>), ReviewError> {
-        let (counterparty, org_number) = self.counterparty(p)?;
+    ) -> Result<(ProposalSummary, Party, Vec<String>), ReviewError> {
+        let party = self.counterparty(p)?;
+        let counterparty = party.name.clone();
         let warnings = Self::warnings(p, counterparty.as_deref());
         let summary = ProposalSummary {
             id: p.id.to_string(),
@@ -159,7 +176,7 @@ impl StoreReviewBackend {
             uncertainty: p.provenance.confidence.map(|c| (1.0 - c).clamp(0.0, 1.0)),
             warnings: warnings.len(),
         };
-        Ok((summary, org_number, warnings))
+        Ok((summary, party, warnings))
     }
 
     fn file_name(row: &bok_store::AttachmentRow) -> String {
@@ -184,7 +201,7 @@ impl ReviewBackend for StoreReviewBackend {
             .store
             .proposal(parse_id(id, "förslaget")?)
             .map_err(store_err)?;
-        let (summary, org_number, warnings) = self.summary(&p)?;
+        let (summary, party, warnings) = self.summary(&p)?;
         let names: HashMap<u16, String> = self
             .store
             .chart(p.date)
@@ -242,7 +259,8 @@ impl ReviewBackend for StoreReviewBackend {
         };
         Ok(ProposalDetail {
             summary,
-            counterparty_org_number: org_number,
+            counterparty_org_number: party.org_number,
+            counterparty_address: party.address,
             lines,
             documents,
             warnings,
@@ -532,6 +550,7 @@ mod tests {
                         name: "Exempel Hosting AB".into(),
                         org_number: Some("556000-0001".into()),
                         vat_number: None,
+                        address: None,
                     })),
                     lines: vec![
                         Line::debit(acc(5420), Money::from_ore(40_000)),

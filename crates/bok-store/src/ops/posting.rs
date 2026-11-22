@@ -145,8 +145,8 @@ impl Store {
             tx.execute(
                 "INSERT INTO verifikationer (rakenskapsar_id, serie, nummer, period_id, datum, sammanstallningsdag,
                     registrerad, beskrivning, motpart_namn, motpart_orgnr, motpart_momsnr, forslag_id, antal_rader,
-                    kanonisk_hash, signatur, nyckel_id, kedjehash)
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)",
+                    kanonisk_hash, signatur, nyckel_id, kedjehash, motpart_adress)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)",
                 params![
                     year.id,
                     p.series.as_str(),
@@ -165,6 +165,7 @@ impl Store {
                     signature,
                     key.id,
                     chain_hash,
+                    counterparty.as_ref().and_then(|c| c.address.clone()),
                 ],
             )?;
             let voucher_id = tx.last_insert_rowid();

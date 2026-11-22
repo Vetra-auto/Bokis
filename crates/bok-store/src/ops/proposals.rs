@@ -75,8 +75,9 @@ impl Store {
             ctx.tx.execute(
                 "INSERT INTO forslag (serie, datum, beskrivning, motpart_id, motpart_namn, motpart_orgnr, motpart_momsnr,
                                       rader, underlag, kalla, aktor, fragor, flaggor, sakerhet, modell, leverantor,
-                                      region, prompt_hash, regelversion, ratt_svar, idempotensnyckel, skapad)
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21, ?22)",
+                                      region, prompt_hash, regelversion, ratt_svar, idempotensnyckel, skapad,
+                                      motpart_adress)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23)",
                 params![
                     p.series.as_str(),
                     p.date.to_string(),
@@ -100,6 +101,7 @@ impl Store {
                     v.raw_response,
                     p.idempotency_key,
                     ctx.now_str,
+                    inline.as_ref().and_then(|c| c.address.clone()),
                 ],
             )?;
             let id = ctx.tx.last_insert_rowid();
@@ -151,11 +153,21 @@ impl Store {
     ) -> Result<i64> {
         validate_reason(reason)?;
         let conn = self.conn();
-        let (series, number, date, cp_name, cp_org, cp_vat): (String, i64, String, Option<String>, Option<String>, Option<String>) = conn
+        type Original = (
+            String,
+            i64,
+            String,
+            Option<String>,
+            Option<String>,
+            Option<String>,
+            Option<String>,
+        );
+        let (series, number, date, cp_name, cp_org, cp_vat, cp_address): Original = conn
             .query_row(
-                "SELECT serie, nummer, datum, motpart_namn, motpart_orgnr, motpart_momsnr FROM verifikationer WHERE id = ?1",
+                "SELECT serie, nummer, datum, motpart_namn, motpart_orgnr, motpart_momsnr, motpart_adress
+                 FROM verifikationer WHERE id = ?1",
                 params![original_id],
-                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?, r.get(4)?, r.get(5)?)),
+                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?, r.get(4)?, r.get(5)?, r.get(6)?)),
             )
             .optional()?
             .ok_or_else(|| StoreError::missing("verifikation", original_id))?;
@@ -180,14 +192,15 @@ impl Store {
             name,
             org_number: cp_org,
             vat_number: cp_vat,
+            address: cp_address,
         });
         let lines_json = serde_json::to_string(&lines)?;
         let reason = reason.trim().to_string();
         self.write(actor, |ctx| {
             ctx.tx.execute(
                 "INSERT INTO forslag (serie, datum, beskrivning, motpart_namn, motpart_orgnr, motpart_momsnr,
-                                      rader, underlag, rattar, rattelseorsak, kalla, aktor, skapad)
-                 VALUES ('R', ?1, ?2, ?3, ?4, ?5, ?6, '[]', ?7, ?8, ?9, ?10, ?11)",
+                                      rader, underlag, rattar, rattelseorsak, kalla, aktor, skapad, motpart_adress)
+                 VALUES ('R', ?1, ?2, ?3, ?4, ?5, ?6, '[]', ?7, ?8, ?9, ?10, ?11, ?12)",
                 params![
                     date.to_string(),
                     description,
@@ -200,6 +213,7 @@ impl Store {
                     ctx.actor.kind.as_db_str(),
                     ctx.actor.name,
                     ctx.now_str,
+                    counterparty.as_ref().and_then(|c| c.address.clone()),
                 ],
             )?;
             let id = ctx.tx.last_insert_rowid();
